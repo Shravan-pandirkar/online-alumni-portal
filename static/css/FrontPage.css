@@ -1,0 +1,273 @@
+/* Base Styles */
+:root {
+    --primary-blue: #06478c; /* Light blue from the header */
+    --accent-blue: #007bff; /* Button blue */
+    --text-dark: #212529; /* Heading text color */
+    --text-light: #495057; /* Body text color */
+    --white: #ffffff;
+}
+
+/* Use the Google Fonts loaded in HTML head */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--text-dark);
+}
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px); /* Slight move up effect */
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Header Section --- */
+.header {
+    background-color: var(--primary-blue);
+    padding: 20px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.logo {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    position: relative;
+    display: inline-block;
+    transition: all 0.4s ease;
+}
+
+
+
+.nav {
+    display: flex;
+    gap: 30px;
+}
+
+/* Login/Register Links */
+/* Login/Register Links */
+.login-link,
+.register-link {
+    color: var(--white);
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+/* Glow + Hover Effects */
+.login-link:hover,
+.register-link:hover {
+    color: #fff;
+    border: 1px solid #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 10px #ffffffc4, 0 0 20px rgba(255,255,255,0.3);
+}
+
+/* Press Effect */
+.login-link:active,
+.register-link:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Shine Animation */
+.login-link::before,
+.register-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+.login-link:hover::before,
+.register-link:hover::before {
+    left: 125%;
+    transition: left 0.7s ease;
+}
+
+/* Optional: Smooth text glow */
+.login-link span,
+.register-link span {
+    display: inline-block;
+    transition: text-shadow 0.4s ease;
+}
+
+.login-link:hover span,
+.register-link:hover span {
+    text-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.7);
+}
+
+
+/* --- Hero/Main Section --- */
+.hero-section {
+    padding: 100px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    min-height: calc(10vh - 72px); /* Adjust based on header height for full screen */
+}
+
+.content-left {
+    flex: 1;
+    max-width: 50%;
+}
+
+.welcome-heading {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                 Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.8px;
+
+    margin-bottom: 20px;
+    color: #1f2937; /* Professional dark gray */
+}
+
+.description {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                 Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.7;
+    letter-spacing: 0.2px;
+
+    color: var(--text-light);
+    margin-bottom: 30px;
+    max-width: 550px;
+}
+
+
+/* LOGIN BUTTON (A TAG) */
+.about-button {
+    display: block;
+    width: 20%;
+    text-align: center;
+    margin-top: 10px;
+    padding: 12px 30px;
+    border-radius: 25px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff, #00c6ff);
+    background-size: 300% 100%; /* For animated gradient */
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+    font-family: sans-serif;
+}
+
+/* Hover Effects */
+.about-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 198, 255, 0.5), 0 0 15px rgba(0, 198, 255, 0.3);
+    color: #000000;
+}
+
+/* Animated Gradient Shine */
+.about-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+.about-button:hover::before {
+    left: 150%;
+    transition: left 0.7s ease;
+}
+
+/* Continuous Gradient Animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+}
+
+.about-button {
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Press/Click Effect */
+.about-button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 6px 15px rgba(0, 198, 255, 0.3);
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .nav a {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+
+
+
+/* Illustration Placeholder */
+.illustration-placeholder {
+    width: 100%;
+    max-width: 600px; 
+    /* Remove height if you want image to scale automatically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Image styling */
+.alumni-img {
+    width: 100%; /* Full width of container */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove any extra space below image */
+}

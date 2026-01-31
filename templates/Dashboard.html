@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
+    <title>SGDTP Dashboard</title>
+    <link rel="stylesheet" href="/static/css/Dashboard.css">
+</head>
+<body>
+
+<header class="header">
+        <div class="menu-btn" id="menuBtn">☰</div>
+
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+           <a href="{{ url_for('login') }}" class="login-link">Logout</a>
+           <a href="{{ url_for('register') }}" class="register-link">Register</a>
+        </nav>
+    </header>
+
+<div class="dashboard">
+
+    <div class="sidebar" id="sidebar">
+    <a href="{{ url_for('profile') }}" class="profil">👤 My Profile</a>
+    <button onclick="showSection('alumni')">🔎 Search Alumni</button>
+    <button onclick="showSection('events')">🥳 Events</button>
+    <button onclick="showSection('message')">✉️ Send Message</button>
+
+</div>
+
+    <div class="content" id="content">
+
+    <!-- SEARCH -->
+    <section id="searchView" class="view">
+        <div class="search-header">
+            <h1 class="searchtext">Search Alumni or Students</h1>
+            <input type="text" id="alumniSearch" placeholder="Search by name, year, or company...">
+        </div>
+
+        <div class="alumni-grid" id="alumniGrid">
+    <!-- Alumni cards will load here dynamically -->
+    </div>
+
+    </section>
+
+    <!-- EVENTS -->
+    <section id="eventsView" class="view">
+        <div class="events-header">
+            <h1 class="eventstext">Upcoming Events 🎊🎉</h1>
+        </div>
+
+        <div class="event-item">
+            <strong>Annual Homecoming 2026</strong>
+            <span>Oct 24, 2026 • Main Campus</span>
+        </div>
+
+        <div class="event-item">
+            <strong>Tech Networking Night</strong>
+            <span>Nov 12, 2026 • Virtual</span>
+        </div>
+    </section>
+
+    <!-- MESSAGES -->
+    <section id="messagesView" class="view">
+        <h1>Send Message</h1>
+        <form class="profile-form">
+            <label>To (Alumni Name)</label>
+            <input type="text" id="toName">
+
+            <label>Message</label>
+            <textarea></textarea>
+
+            <button class="btn" type="button">Send</button>
+        </form>
+    </section>
+
+</div>
+
+</div>
+
+<script type="module" src="/static/js/Dashboard.js"></script>
+
+</body>
+</html>
