@@ -134,6 +134,18 @@ body {
     max-width: 400px;
     width: 100%;
     transition: 0.3s ease;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
+}
+
+
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .login-container:hover {
@@ -331,6 +343,9 @@ body {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 /* Hover effect */

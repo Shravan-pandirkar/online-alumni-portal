@@ -139,7 +139,21 @@ body {
     max-width: 450px;
     width: 100%;
     transition: 0.3s ease;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
+
+
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
 .register-card:hover {
     border-color: #007bff;
     box-shadow: 0 0 22px rgba(0, 123, 255, 0.8);

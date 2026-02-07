@@ -149,6 +149,9 @@ body {
     margin-left: 70px;
 
     color: #1f2937; /* Deep professional gray */
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .about-us p {
@@ -164,6 +167,9 @@ body {
     margin-left: 70px;
 
     color: #374151; /* Soft readable gray */
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .illustration-container {
@@ -178,10 +184,9 @@ body {
     width: 100%;
     max-width: 400px; /* Adjust size as needed */
     height: auto;
-    /* To create the circular/abstract crop effect seen in the screenshot,
-       you'd typically use the image as a background or an SVG graphic,
-       or simply use a standard image that has been cropped.
-       For this example, we keep it as a simple image placeholder. */
+   opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 /* --- Team Section Styling --- */
@@ -190,6 +195,9 @@ body {
     font-size: 36px;
     margin-top: 50px;
     margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .team-divider {
@@ -205,6 +213,9 @@ body {
     justify-content: space-around;
     gap: 30px;
     padding-bottom: 50px;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .member-card {
@@ -230,6 +241,9 @@ body {
 
     /* Initial animation */
     animation: cardFade 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 /* Hover state – subtle & premium */
@@ -250,22 +264,19 @@ body {
     transform: translateY(-3px);
 }
 
-/* Soft fade-in animation */
-@keyframes cardFade {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
+@keyframes fadeSlideUp {
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
 .icon-placeholder {
     font-size: 60px;
     color: #6a9cff; /* Icon color */
     margin-bottom: 15px;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .icon-placeholder i {
@@ -273,18 +284,27 @@ body {
     background-color: #d1e5ff;
     border-radius: 50%;
     padding: 15px;
-    margin-right: auto
+    margin-right: auto;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .name {
     font-size: 20px;
     font-weight: 700;
     margin-bottom: 5px;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 .role {
     font-size: 14px;
     color: #555;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
 /* --- Responsive Adjustments --- */

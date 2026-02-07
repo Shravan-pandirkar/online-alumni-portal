@@ -48,6 +48,7 @@
         <div id="viewStudent" style="display:none;">
             <p><b>🏬 Department:</b> <span id="viewStuDept"></span></p>
             <p><b>🗓️ Admission Year:</b> <span id="viewYear"></span></p>
+            <p><b>🎯 Committee:</b> <span id="viewCommittee"></span></p>
         </div>
 
         <!-- Alumni Data -->
@@ -58,6 +59,12 @@
             <p><b>💼 Job Role:</b> <span id="viewJob"></span></p>
             <p><b>⏱️ Experience:</b> <span id="viewExp"></span></p>
             <p><b>📍 Working City:</b> <span id="viewCity"></span></p>
+        </div>
+
+        <!-- Teacher Data -->
+        <div id="viewTeacher" style="display:none;">
+            <p><b>🏬 Department:</b> <span id="viewTeachDept"></span></p>
+            <p><b>⏱️ Experience:</b> <span id="viewTeachExp"></span></p>
         </div>
 
         <button>Edit Profile</button>
@@ -75,8 +82,8 @@
     <!-- LEFT -->
     <div class="profile-left">
         <img id="previewImg" src="https://via.placeholder.com/160" onclick="openFile()">
-<input type="file" id="profilePic" accept="image/*" hidden>
-<p class="pic-text">Click photo to change</p>
+        <input type="file" id="profilePic" accept="image/*" hidden>
+        <p class="pic-text">Click photo to change</p>
     </div>
 
     <!-- RIGHT -->
@@ -88,25 +95,41 @@
         <input id="phone" type="tel" placeholder="Phone Number">
 
         <select id="role" onchange="toggleRole()">
-            <option value="">Select Role Student or Alumni </option>
+            <option value="">Select Role</option>
             <option value="student">Student</option>
             <option value="alumni">Alumni</option>
+            <option value="teacher">Teacher</option>
         </select>
 
         <!-- Student -->
-        <div id="studentFields" class="role-section">
+        <div id="studentFields" class="role-section" style="display:none;">
             <input id="stuDept" type="text" placeholder="Department 🏬">
             <input id="stuYear" type="number" placeholder="Admission Year 🗓️">
+
+            <select id="committee">
+                <option value="">Select Committee</option>
+                <option value="NSS">NSS</option>
+                <option value="Cultural">Cultural Committee</option>
+                <option value="Sports">Sports Committee</option>
+                <option value="Technical">Technical Committee</option>
+                <option value="NO">NO</option>
+            </select>
         </div>
 
         <!-- Alumni -->
-        <div id="alumniFields" class="role-section">
+        <div id="alumniFields" class="role-section" style="display:none;">
             <input id="aluDept" type="text" placeholder="Department 🏬">
             <input id="aluPass" type="number" placeholder="Passing Year 🗓️">
             <input id="company" type="text" placeholder="Current Company 🏢">
             <input id="job" type="text" placeholder="Job Role 💼">
             <input id="exp" type="text" placeholder="Experience ⏱️">
             <input id="city" type="text" placeholder="Working City / Country 📍">
+        </div>
+
+        <!-- Teacher -->
+        <div id="teacherFields" class="role-section" style="display:none;">
+            <input id="teachDept" type="text" placeholder="Department 🏬">
+            <input id="teachExp" type="text" placeholder="Teaching Experience ⏱️">
         </div>
 
         <button onclick="saveProfile()">Save Profile</button>
