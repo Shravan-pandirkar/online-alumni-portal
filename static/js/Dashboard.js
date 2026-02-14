@@ -581,19 +581,27 @@ async function sendChat() {
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
 
-  if (!text || !chattingWithId) return;
+  if (!text) {
+    showPopup("Cannot send empty message", "error");
+    return;
+  }
 
-  // ✅ SHOW MESSAGE IMMEDIATELY
+  if (!chattingWithId) {
+    showPopup("Select a user to chat with first", "error");
+    return;
+  }
+
+  // ✅ Show message instantly (Optimistic UI)
   appendMessage(text, "sent");
   input.value = "";
 
   const chatId = getChatId(currentUserId, chattingWithId);
-  const chatDocRef = doc(db, "chats", chatId);
+  const chatRef = doc(db, "chats", chatId);
 
   try {
-    // Ensure chat exists
+    // ✅ Ensure chat document exists with users array
     await setDoc(
-      chatDocRef,
+      chatRef,
       {
         users: [currentUserId, chattingWithId],
         lastUpdated: serverTimestamp()
@@ -601,9 +609,9 @@ async function sendChat() {
       { merge: true }
     );
 
-    // Save message
+    // ✅ Add message to messages subcollection
     await addDoc(
-      collection(chatDocRef, "messages"),
+      collection(chatRef, "messages"),
       {
         senderId: currentUserId,
         receiverId: chattingWithId,
@@ -613,10 +621,11 @@ async function sendChat() {
     );
 
   } catch (err) {
-    console.error("Send failed:", err);
-    showPopup("Message failed", "error");
+    console.error("Send message error:", err);
+    showPopup("Message failed to send", "error");
   }
 }
+
 
 // ================== EXPOSE ==================
 window.openChat = openChat;
