@@ -569,6 +569,17 @@ body {
 }
 
 /* LIST CONTAINER */
+/* ================= CARD GRID ================= */
+.alumni-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+    gap: 24px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: auto;
+    align-items: stretch;
+}
+
 /* ================= CARD WRAPPER ================= */
 .card {
     background: #ffffff;
@@ -577,7 +588,9 @@ body {
     border: 1px solid #e5e7eb;
     box-shadow: 0 8px 28px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
-    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .card:hover {
@@ -645,6 +658,7 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.25s ease;
+    white-space: nowrap;
 }
 
 /* Send Button */
@@ -669,7 +683,7 @@ body {
     background: #e2e8f0;
 }
 
-/* Arrow Animation */
+/* ================= ARROW ================= */
 .arrow {
     display: inline-block;
     margin-left: 6px;
@@ -689,6 +703,7 @@ body {
     color: #475569;
     font-size: 0.9rem;
     line-height: 1.6;
+    flex-grow: 1;
 }
 
 /* Hide / Show */
@@ -696,8 +711,22 @@ body {
     display: none;
 }
 
-/* ================= MOBILE RESPONSIVE ================= */
+/* ================= RESPONSIVE ================= */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .alumni-grid{
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile */
 @media (max-width: 640px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
     .card-top {
         flex-direction: column;
         align-items: flex-start;
@@ -706,6 +735,7 @@ body {
     .card-right {
         width: 100%;
         justify-content: flex-end;
+        margin-top: 10px;
     }
 
     .btn {
