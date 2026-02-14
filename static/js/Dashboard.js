@@ -127,16 +127,12 @@ async function loadUsers() {
   loadingContainer.classList.remove("hidden");
 
   try {
-    const snapshot = await getDocs(collection(db, "users"));
+    const q = query(
+      collection(db, "users"),
+      where("role", "in", ["alumni", "student", "teacher"])
+    );
 
-cachedUsers = snapshot.docs
-  .map(d => ({ uid: d.id, ...d.data() }))
-  .filter(u => ["alumni", "student", "teacher"].includes(u.role));
-
-allUsers = cachedUsers;
-renderUsers(allUsers);
-
-    
+    const snapshot = await getDocs(q);
 
     cachedUsers = snapshot.docs.map(d => ({
       uid: d.id,
@@ -211,7 +207,7 @@ function renderUsers(users) {
           </div>
         </div>
         <div class="card-right">
-
+          <button class="btn send-btn">Send Message</button>
           <button class="btn toggle-btn">
             View Details <span class="arrow">▼</span>
           </button>
@@ -491,41 +487,21 @@ async function loadChatUsers() {
 
         const profilePhoto = u.profilePic || "";
 
-       div.innerHTML = `
-  <div class="avatar">
-    ${
-      profilePhoto
-        ? `<img src="${profilePhoto}" alt="👤"
-             onerror="
-               const parent = this.parentElement;
-               this.remove();
-               if (parent) {
-                 parent.innerHTML = '<span class=icon>👤</span>';
-               }
-             ">
-          `
-        : `<span class="icon">👤</span>`
-    }
-  </div>
-  <div>
-    <h4>${u.fullName || "No Name"}</h4>
-    <p>
-      ${((u.role || "").charAt(0).toUpperCase() + (u.role || "").slice(1))} •
-      ${u.dept || "N/A"}
-    </p>
-  </div>
-`;
+        div.innerHTML = `
+          <div class="avatar">
+            ${
+              profilePhoto
+                ? `<img src="${profilePhoto}" alt="👤" 
+                     onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+                : `<span class="icon">👤</span>`
+            }
+          </div>
+          <div>
+            <h4>${u.fullName || "No Name"}</h4>
+            <p>${(u.role || "").charAt(0).toUpperCase() + (u.role || "").slice(1)} • ${u.dept || "N/A"}</p>
+          </div>
+        `;
 
-const img = div.querySelector(".avatar-img");
-
-if (img) {
-  img.onerror = () => {
-    const avatar = img.parentElement;
-    if (!avatar) return;
-
-    avatar.innerHTML = `<span class="icon">👤</span>`;
-  };
-}
         // Click to open chat
         div.onclick = () => openChat(u.uid, u.fullName || "No Name", profilePhoto);
 
