@@ -569,10 +569,10 @@ body {
 }
 
 /* LIST CONTAINER */
-.alumni-grid{
-    display:flex;
-    flex-direction:column;
-    gap:16px;
+#alumniGrid {
+  display: grid;
+   flex-direction:column;
+  gap: 20px;
 }
 .card{
     background:rgb(241, 248, 255);
@@ -599,7 +599,7 @@ body {
 .card-top{
     display:flex;
     justify-content:space-between;
-    align-items:left;
+    align-items:center;
 }
 
 /* LEFT SIDE */
@@ -607,6 +607,7 @@ body {
     display:flex;
     align-items:left;
     gap:12px;
+    text-align: center;
 }
 
 .profile-pic{
@@ -615,6 +616,7 @@ body {
     border-radius:50%;
     object-fit:cover;
     border:2px solid var(--primary);
+    flex-shrink: 0;
 }
 .badge{
     padding:4px 10px;
