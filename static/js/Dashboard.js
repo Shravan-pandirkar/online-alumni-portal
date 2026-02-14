@@ -416,29 +416,27 @@ onSnapshot(eventsRef, snapshot => {
 
 // ================== MESSAGE ==================
 /* ================== MESSAGE SECTION ================== */
+// ================== MESSAGE SECTION ==================
 
 let currentUserId = null;
 let chattingWithId = null;
 let unsubscribeMessages = null;
 
-/* ================== AUTH USER ================== */
+// ================== AUTH USER ==================
 onAuthStateChanged(auth, user => {
   if (user) {
     currentUserId = user.uid;
-    loadChatUsers(); // ✅ LOAD USERS AFTER AUTH
+    loadChatUsers();
   } else {
     showPopup("Please login to access messages", "error");
   }
 });
 
-
-/* ================== LOAD CHAT USERS ================== */
-/* ================== LOAD CHAT USERS WITH SEARCH ================== */
+// ================== LOAD CHAT USERS ==================
 async function loadChatUsers() {
   const usersBox = document.querySelector(".chat-users");
   if (!usersBox) return;
 
-  // Add search input at the top
   usersBox.innerHTML = `
     <input 
       type="text" 
@@ -457,22 +455,16 @@ async function loadChatUsers() {
   try {
     const snapshot = await getDocs(collection(db, "users"));
 
-    if (snapshot.empty) {
-      usersListDiv.innerHTML = "<p>No users found</p>";
-      return;
-    }
-
     snapshot.forEach(docSnap => {
-      if (docSnap.id === currentUserId) return; // Skip current user
+      if (docSnap.id === currentUserId) return;
+
       const u = docSnap.data();
       const role = (u.role || "").toLowerCase().trim();
       if (!["alumni", "student", "teacher"].includes(role)) return;
 
-      // Add uid to user object
       allUsers.push({ uid: docSnap.id, ...u });
     });
 
-    // Function to render users list
     function renderUsers(users) {
       usersListDiv.innerHTML = "";
 
@@ -491,194 +483,145 @@ async function loadChatUsers() {
           <div class="avatar">
             ${
               profilePhoto
-                ? `<img src="${profilePhoto}" alt="👤" 
-                     onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+                ? `<img src="${profilePhoto}" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
                 : `<span class="icon">👤</span>`
             }
           </div>
           <div>
             <h4>${u.fullName || "No Name"}</h4>
-            <p>${(u.role || "").charAt(0).toUpperCase() + (u.role || "").slice(1)} • ${u.dept || "N/A"}</p>
+            <p>${u.role || ""} • ${u.dept || "N/A"}</p>
           </div>
         `;
 
-        // Click to open chat
-        div.onclick = () => openChat(u.uid, u.fullName || "No Name", profilePhoto);
-
+        div.onclick = () => openChat(u.uid, u.fullName, profilePhoto);
         usersListDiv.appendChild(div);
       });
     }
 
-    // Initial render
     renderUsers(allUsers);
 
-    // Live search
     searchInput.addEventListener("input", () => {
       const value = searchInput.value.toLowerCase();
-      const filtered = allUsers.filter(u =>
-        (u.fullName || "").toLowerCase().includes(value) ||
-        (u.dept || "").toLowerCase().includes(value) ||
-        (u.role || "").toLowerCase().includes(value)
+      renderUsers(
+        allUsers.filter(u =>
+          (u.fullName || "").toLowerCase().includes(value) ||
+          (u.dept || "").toLowerCase().includes(value)
+        )
       );
-      renderUsers(filtered);
     });
 
   } catch (err) {
-    console.error("Error loading chat users:", err);
-    usersListDiv.innerHTML = "<p>Error loading users</p>";
+    console.error(err);
   }
 }
 
-
-
-/* ================== OPEN CHAT ================== */
-function openChat(userId, name, profilePhoto) {
-  chattingWithId = userId;
-
-  const headerContent = profilePhoto && profilePhoto.trim() !== ""
-    ? `<img src="${profilePhoto}" alt="👤" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
-    : `<span class="icon">👤</span>`;
-
-  // Update chat header
-  document.getElementById("chatUser").innerHTML = `
-    <div class="chat-user-header">
-      <div class="avatar">
-        ${headerContent}
-      </div>
-      <span class="user-name">${name || "No Name"}</span>
-    </div>
-  `;
-
-  // Enable input
-  document.getElementById("chatInput").disabled = false;
-  document.querySelector(".chat-input button").disabled = false;
-
-  // Clear chat messages
-  const chatBox = document.getElementById("chatMessages");
-  chatBox.innerHTML = "";
-
-  // Stop previous listener
-  if (unsubscribeMessages) unsubscribeMessages();
-
-  // Load messages
-  const chatRef = collection(
-    db,
-    "chats",
-    getChatId(currentUserId, chattingWithId),
-    "messages"
-  );
-
-  unsubscribeMessages = onSnapshot(chatRef, snapshot => {
-    chatBox.innerHTML = "";
-
-    snapshot.forEach(docSnap => {
-  const msg = docSnap.data();
-  const msgId = docSnap.id; // get the Firestore doc ID
-  const msgDiv = document.createElement("div");
-
-  msgDiv.className = "message " + (msg.senderId === currentUserId ? "sent" : "received");
-  msgDiv.innerText = msg.text;
-
-  // Add delete button only for sent messages
-  if (msg.senderId === currentUserId) {
-    const deleteBtn = document.createElement("span");
-    deleteBtn.innerText = "🗑️";
-    deleteBtn.className = "delete-msg";
-    deleteBtn.title = "Delete message";
-    deleteBtn.onclick = async () => {
-      try {
-        await deleteDoc(doc(db, "chats", getChatId(currentUserId, chattingWithId), "messages", msgId));
-        showPopup("Message deleted", "success");
-      } catch (err) {
-        console.error("Failed to delete message:", err);
-        showPopup("Failed to delete message", "error");
-      }
-    };
-    msgDiv.appendChild(deleteBtn);
-  }
-
-  chatBox.appendChild(msgDiv);
-});
-
-
-    chatBox.scrollTop = chatBox.scrollHeight;
-  });
-}
-
-
-
-
-/* ================== CHAT ID ================== */
+// ================== CHAT ID ==================
 function getChatId(uid1, uid2) {
   return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
 }
 
+// ================== APPEND MESSAGE (UI) ==================
+function appendMessage(text, type) {
+  const chatBox = document.getElementById("chatMessages");
+  const msgDiv = document.createElement("div");
 
+  msgDiv.className = "message " + type;
+  msgDiv.innerText = text;
 
-/* ================== SEND MESSAGE ================== */
-/* ================== SEND MESSAGE ================== */
+  chatBox.appendChild(msgDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ================== OPEN CHAT ==================
+function openChat(userId, name, profilePhoto) {
+  chattingWithId = userId;
+
+  // ✅ UPDATE CHAT HEADER (USE name & photo)
+  const header = document.getElementById("chatUser");
+
+  const avatarHTML = profilePhoto
+    ? `<img src="${profilePhoto}" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+    : `<span class="icon">👤</span>`;
+
+  header.innerHTML = `
+    <div class="chat-user-header">
+      <div class="avatar">${avatarHTML}</div>
+      <span class="user-name">${name || "User"}</span>
+    </div>
+  `;
+
+  document.getElementById("chatInput").disabled = false;
+  document.querySelector(".chat-input button").disabled = false;
+
+  const chatBox = document.getElementById("chatMessages");
+  chatBox.innerHTML = "";
+
+  if (unsubscribeMessages) unsubscribeMessages();
+
+  const chatId = getChatId(currentUserId, chattingWithId);
+  const q = query(
+    collection(db, "chats", chatId, "messages"),
+    orderBy("timestamp", "asc")
+  );
+
+  unsubscribeMessages = onSnapshot(q, snapshot => {
+    chatBox.innerHTML = "";
+    snapshot.forEach(docSnap => {
+      const msg = docSnap.data();
+      appendMessage(
+        msg.text,
+        msg.senderId === currentUserId ? "sent" : "received"
+      );
+    });
+  });
+}
+
+// ================== SEND MESSAGE (FIXED) ==================
 async function sendChat() {
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
 
-  // Prevent sending empty messages or if no user is selected
-  if (!text) {
-    showPopup("Cannot send empty message", "error");
-    return;
-  }
-  if (!chattingWithId) {
-    showPopup("Select a user to chat with first", "error");
-    return;
-  }
+  if (!text || !chattingWithId) return;
+
+  // ✅ SHOW MESSAGE IMMEDIATELY
+  appendMessage(text, "sent");
+  input.value = "";
+
+  const chatId = getChatId(currentUserId, chattingWithId);
+  const chatDocRef = doc(db, "chats", chatId);
 
   try {
-    const chatId = getChatId(currentUserId, chattingWithId);
-
-    // Add message to Firestore
-    await addDoc(
-      collection(db, "chats", chatId, "messages"),
+    // Ensure chat exists
+    await setDoc(
+      chatDocRef,
       {
-        senderId: currentUserId,      // who sent the message
-        receiverId: chattingWithId,    // optional, helps with rules or queries
+        users: [currentUserId, chattingWithId],
+        lastUpdated: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    // Save message
+    await addDoc(
+      collection(chatDocRef, "messages"),
+      {
+        senderId: currentUserId,
+        receiverId: chattingWithId,
         text: text,
         timestamp: serverTimestamp()
       }
     );
 
-    // Clear input after sending
-    input.value = "";
-
-    // Optional: Scroll chat to bottom
-    const chatBox = document.getElementById("chatMessages");
-    chatBox.scrollTop = chatBox.scrollHeight;
-
   } catch (err) {
-    console.error("Failed to send message:", err);
-    showPopup("Failed to send message. Try again.", "error");
+    console.error("Send failed:", err);
+    showPopup("Message failed", "error");
   }
 }
 
-
-const hasPhoto = user.photoURL && user.photoURL.trim() !== "";
-
-avatar.innerHTML = hasPhoto
-  ? `<img src="${user.photoURL}" class="profile-pic">`
-  : `<div class="avatar-fallback">${user.name.charAt(0)}</div>`;
-
-
-
-/* ================== EXPOSE TO HTML ================== */
+// ================== EXPOSE ==================
 window.openChat = openChat;
 window.sendChat = sendChat;
 window.loadChatUsers = loadChatUsers;
-
-
-
-
-
-
-
-
 
 
 
