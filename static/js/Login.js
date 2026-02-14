@@ -86,21 +86,25 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
 
   } catch (error) {
 
-    if (error.code === "Email not found") {
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        showPopup("Account created & logged in!");
-        
-        window.location.href = "/dashboard";
-      } catch (err) {
-        showPopup("Registration failed", "error");
-      }
+    if (error.code === "auth/user-not-found") {
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    showPopup("Account created & logged in!", "success");
 
-    } else if (error.code === "auth/wrong-password") {
-      showPopup("Wrong password!", "error");
-    } else {
-      showPopup("Login failed!","error");
-    }
+    // ✅ Vercel-friendly redirect
+    window.location.href = "Dashboard.html";
+
+  } catch (err) {
+    showPopup("Registration failed", "error");
+  }
+
+} else if (error.code === "auth/wrong-password") {
+  showPopup("Wrong password!", "error");
+
+} else {
+  console.error(error);
+  showPopup("Login failed!", "error");
+}
   }
 });
 
