@@ -659,6 +659,14 @@ async function sendChat() {
 }
 
 
+const hasPhoto = user.photoURL && user.photoURL.trim() !== "";
+
+avatar.innerHTML = hasPhoto
+  ? `<img src="${user.photoURL}" class="profile-pic">`
+  : `<div class="avatar-fallback">${user.name.charAt(0)}</div>`;
+
+
+
 /* ================== EXPOSE TO HTML ================== */
 window.openChat = openChat;
 window.sendChat = sendChat;
