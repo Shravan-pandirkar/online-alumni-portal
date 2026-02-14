@@ -207,7 +207,7 @@ function renderUsers(users) {
           </div>
         </div>
         <div class="card-right">
-          <button class="btn send-btn">Send Message</button>
+
           <button class="btn toggle-btn">
             View Details <span class="arrow">▼</span>
           </button>

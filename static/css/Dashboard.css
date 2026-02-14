@@ -1,3 +1,6 @@
+*{
+    box-sizing: border-box;
+}
 :root {
     --primary-blue: #06478c; /* Light blue from the header */
     --accent-blue: #007bff; /* Button blue */
@@ -190,7 +193,13 @@ body {
     padding: 15px;
     margin: 10px 0;
     border-radius: 6px;
+    border: 1px solid #b8ceff;
+    height: 100%;
+    justify-content: space-between;
 }
+
+
+
 
 .btn {
     padding: 8px 15px;
@@ -570,9 +579,10 @@ body {
 
 /* LIST CONTAINER */
 .alumni-grid{
-    display:flex;
-    flex-direction:column;
-    gap:16px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap:20px;
+    align-items: stretch;
 }
 .card{
     background:rgb(241, 248, 255);
@@ -615,6 +625,7 @@ body {
     border-radius:50%;
     object-fit:cover;
     border:2px solid var(--primary);
+    flex-shrink: 0;
 }
 .badge{
     padding:4px 10px;
