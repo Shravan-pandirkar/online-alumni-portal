@@ -127,12 +127,16 @@ async function loadUsers() {
   loadingContainer.classList.remove("hidden");
 
   try {
-    const q = query(
-      collection(db, "users"),
-      where("role", "in", ["alumni", "student", "teacher"])
-    );
+    const snapshot = await getDocs(collection(db, "users"));
 
-    const snapshot = await getDocs(q);
+cachedUsers = snapshot.docs
+  .map(d => ({ uid: d.id, ...d.data() }))
+  .filter(u => ["alumni", "student", "teacher"].includes(u.role));
+
+allUsers = cachedUsers;
+renderUsers(allUsers);
+
+    
 
     cachedUsers = snapshot.docs.map(d => ({
       uid: d.id,
