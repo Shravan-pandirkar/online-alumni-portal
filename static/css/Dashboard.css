@@ -605,7 +605,6 @@ body {
 /* LEFT SIDE */
 .card-left{
     display:flex;
-    align-items:left;
     gap:12px;
     text-align: center;
 }
