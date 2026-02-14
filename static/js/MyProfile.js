@@ -20,7 +20,7 @@ const db = getFirestore(app);
 const CLOUD_NAME = "dvyk0lfsb";
 const UPLOAD_PRESET = "profile_upload";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
   // ===== SECTIONS =====
   const viewSection = document.getElementById("viewProfile");
@@ -284,20 +284,98 @@ function lockRoleIfTeacher() {
 
 // ===== AUTH STATE =====
 onAuthStateChanged(auth, async (user) => {
+  // ❌ Not logged in → go to login route (Flask-safe)
   if (!user) {
-    window.location.href = "/login.html";
+    window.location.href = "/login";   // NOT /login.html
     return;
   }
 
-  viewEmail.innerText = user.email;
+  // Show email
+  viewEmail.innerText = user.email || "";
 
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
 
+  // 🔥 FIRST-TIME GOOGLE LOGIN → AUTO CREATE PROFILE
   if (!snap.exists()) {
-    window.location.href = "/login.html";
+
+    const newUserData = {
+      fullName: user.displayName || "",
+      phone: "",
+      role: "student",          // default role
+      dept: "",
+      profilePic: user.photoURL || "https://via.placeholder.com/160",
+      createdAt: new Date()
+    };
+
+    await setDoc(userRef, newUserData);
+
+    // Load empty profile instead of redirecting
+    loadView(newUserData);
+
+    // Pre-fill edit form
+    fullName.value = newUserData.fullName;
+    phone.value = "+91";
+    role.value = "student";
+    toggleRole();
+
     return;
   }
+
+  // ✅ EXISTING USER
+  const data = snap.data();
+
+  // Load profile
+  loadView(data);
+
+  // Fill edit form
+  fullName.value = data.fullName || "";
+  phone.value = data.phone || "+91";
+  previewImg.src = data.profilePic || "https://via.placeholder.com/160";
+
+  role.value = data.role;
+  toggleRole();
+
+  // Lock role if required
+  lockRoleIfTeacher();
+
+  // Clear all fields first
+  stuDept.value = "";
+  stuYear.value = "";
+  committee.value = "";
+
+  aluDept.value = "";
+  aluPass.value = "";
+  company.value = "";
+  job.value = "";
+  exp.value = "";
+  city.value = "";
+
+  teachDept.value = "";
+  teachExp.value = "";
+
+  // Fill role-based fields
+  if (data.role === "student") {
+    stuDept.value = data.dept || "";
+    stuYear.value = data.stuYear || "";
+    committee.value = data.committee || "";
+  }
+
+  if (data.role === "alumni") {
+    aluDept.value = data.dept || "";
+    aluPass.value = data.aluPass || "";
+    company.value = data.company || "";
+    job.value = data.job || "";
+    exp.value = data.experience || "";
+    city.value = data.city || "";
+  }
+
+  if (data.role === "teacher") {
+    teachDept.value = data.dept || "";
+    teachExp.value = data.experience || "";
+  }
+});
+
 
   let data = snap.data();
   const currentYear = new Date().getFullYear();
@@ -377,6 +455,6 @@ onAuthStateChanged(auth, async (user) => {
 
 
   
-  });
+
 
 

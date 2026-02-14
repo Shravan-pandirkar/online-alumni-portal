@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
-    <title>SGDTP Dashboard</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="/static/css/Dashboard.css">
 </head>
 <div id="deleteModal" class="modal hidden">
@@ -48,8 +48,12 @@
             <h1 class="searchtext">Search Alumni or Students</h1>
             <input type="text" id="alumniSearch" placeholder="Search by name, year, or company...">
         </div>
-
+                  <!-- Loading Bar -->
+<div id="loadingBarContainer" class="loading-container hidden">
+  <div id="loadingBar" class="loading-bar"></div>
+</div>
         <div class="alumni-grid" id="alumniGrid">
+
     <!-- Alumni cards will load here dynamically -->
     </div>
     
@@ -100,18 +104,62 @@
 
 
     <!-- MESSAGES -->
-    <section id="messagesView" class="view">
-        <h1>Send Message</h1>
-        <form class="profile-form">
-            <label>To (Alumni Name)</label>
-            <input type="text" id="toName">
+<!-- ================== MESSAGES VIEW ================== -->
+<section id="messagesView" class="view" style="display:none;">
 
-            <label>Message</label>
-            <textarea></textarea>
+  <div class="chat-layout">
 
-            <button class="btn" type="button">Send</button>
-        </form>
-    </section>
+    <!-- ================= LEFT: USERS LIST ================= -->
+    <div class="chat-users">
+           <input 
+        type="text" 
+        id="chatUserSearch" 
+        placeholder="Search alumni..." 
+        class="chat-search"
+    >
+    </div>
+
+
+    <!-- ================= RIGHT: CHAT BOX ================= -->
+    <main class="chat-box">
+
+      <!-- CHAT HEADER -->
+      <div class="chat-header">
+        <h3 id="chatUser">Select an alumni</h3>
+      </div>
+
+      <!-- CHAT MESSAGES -->
+      <div class="chat-messages" id="chatMessages">
+        <p class="empty-chat">👈 Select a user to start chatting</p>
+      </div>
+
+      <!-- CHAT INPUT -->
+      <div class="chat-input">
+      <button id="deleteSelectedBtn" style="display:none;" onclick="deleteSelectedMessages()">
+  Delete Selected
+</button>
+
+
+        <input
+          type="text"
+          id="chatInput"
+          placeholder="Type a message..."
+          disabled
+        >
+        <button onclick="sendChat()" disabled>Send</button>
+      </div>
+      
+    </main>
+
+  </div>
+
+</section>
+
+    </div>
+
+</section>
+
+
 
 </div>
 

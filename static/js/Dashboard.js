@@ -83,9 +83,10 @@ onAuthStateChanged(auth, async user => {
     const snap = await getDoc(userRef);
 
     if (!snap.exists()) {
-      showPopup("Edit your profile first!", "error", 5000);
-      return;
-    }
+  showPopup("Please complete your profile", "error", 5000);
+  loadUsers(); // still load alumni
+  return;
+}
 
     const data = snap.data();
 
@@ -111,17 +112,41 @@ onAuthStateChanged(auth, async user => {
   loadUsers();
 });
 
+let cachedUsers = null;
+
+const loadingContainer = document.getElementById("loadingBarContainer");
+
 async function loadUsers() {
-  alumniGrid.innerHTML = "<p>Loading students and alumni...</p>";
-  allUsers = [];
+  if (cachedUsers) {
+    allUsers = cachedUsers;   // ✅ important
+    renderUsers(cachedUsers);
+    return;
+  }
+
+  alumniGrid.innerHTML = "";
+  loadingContainer.classList.remove("hidden");
 
   try {
-    const snapshot = await getDocs(collection(db, "users"));
-    snapshot.forEach(doc => allUsers.push({ uid: doc.id, ...doc.data() }));
+    const q = query(
+      collection(db, "users"),
+      where("role", "in", ["alumni", "student", "teacher"])
+    );
+
+    const snapshot = await getDocs(q);
+
+    cachedUsers = snapshot.docs.map(d => ({
+      uid: d.id,
+      ...d.data()
+    }));
+
+    allUsers = cachedUsers;   // ✅ FIX HERE
     renderUsers(allUsers);
-  } catch (e) {
-    console.error(e);
+
+  } catch (error) {
+    console.error(error);
     alumniGrid.innerHTML = "<p>Error loading users</p>";
+  } finally {
+    loadingContainer.classList.add("hidden");
   }
 }
 
@@ -217,11 +242,7 @@ searchInput.addEventListener("input", () => {
   renderUsers(filtered);
 });
 
-// ================== MESSAGE ==================
-function openMessage(name) {
-  showSection("message");
-  document.getElementById("toName").value = name;
-}
+
 
 
 
@@ -392,3 +413,265 @@ onSnapshot(eventsRef, snapshot => {
     eventsList.appendChild(div);
   });
 });
+
+// ================== MESSAGE ==================
+/* ================== MESSAGE SECTION ================== */
+
+let currentUserId = null;
+let chattingWithId = null;
+let unsubscribeMessages = null;
+
+/* ================== AUTH USER ================== */
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUserId = user.uid;
+    loadChatUsers(); // ✅ LOAD USERS AFTER AUTH
+  } else {
+    showPopup("Please login to access messages", "error");
+  }
+});
+
+
+/* ================== LOAD CHAT USERS ================== */
+/* ================== LOAD CHAT USERS WITH SEARCH ================== */
+async function loadChatUsers() {
+  const usersBox = document.querySelector(".chat-users");
+  if (!usersBox) return;
+
+  // Add search input at the top
+  usersBox.innerHTML = `
+    <input 
+      type="text" 
+      id="chatUserSearch" 
+      placeholder="Search alumni..." 
+      class="chat-search"
+    >
+    <div id="chatUserList"></div>
+  `;
+
+  const usersListDiv = document.getElementById("chatUserList");
+  const searchInput = document.getElementById("chatUserSearch");
+
+  let allUsers = [];
+
+  try {
+    const snapshot = await getDocs(collection(db, "users"));
+
+    if (snapshot.empty) {
+      usersListDiv.innerHTML = "<p>No users found</p>";
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      if (docSnap.id === currentUserId) return; // Skip current user
+      const u = docSnap.data();
+      const role = (u.role || "").toLowerCase().trim();
+      if (!["alumni", "student", "teacher"].includes(role)) return;
+
+      // Add uid to user object
+      allUsers.push({ uid: docSnap.id, ...u });
+    });
+
+    // Function to render users list
+    function renderUsers(users) {
+      usersListDiv.innerHTML = "";
+
+      if (!users.length) {
+        usersListDiv.innerHTML = "<p>No users found</p>";
+        return;
+      }
+
+      users.forEach(u => {
+        const div = document.createElement("div");
+        div.className = "user";
+
+        const profilePhoto = u.profilePic || "";
+
+        div.innerHTML = `
+          <div class="avatar">
+            ${
+              profilePhoto
+                ? `<img src="${profilePhoto}" alt="👤" 
+                     onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+                : `<span class="icon">👤</span>`
+            }
+          </div>
+          <div>
+            <h4>${u.fullName || "No Name"}</h4>
+            <p>${(u.role || "").charAt(0).toUpperCase() + (u.role || "").slice(1)} • ${u.dept || "N/A"}</p>
+          </div>
+        `;
+
+        // Click to open chat
+        div.onclick = () => openChat(u.uid, u.fullName || "No Name", profilePhoto);
+
+        usersListDiv.appendChild(div);
+      });
+    }
+
+    // Initial render
+    renderUsers(allUsers);
+
+    // Live search
+    searchInput.addEventListener("input", () => {
+      const value = searchInput.value.toLowerCase();
+      const filtered = allUsers.filter(u =>
+        (u.fullName || "").toLowerCase().includes(value) ||
+        (u.dept || "").toLowerCase().includes(value) ||
+        (u.role || "").toLowerCase().includes(value)
+      );
+      renderUsers(filtered);
+    });
+
+  } catch (err) {
+    console.error("Error loading chat users:", err);
+    usersListDiv.innerHTML = "<p>Error loading users</p>";
+  }
+}
+
+
+
+/* ================== OPEN CHAT ================== */
+function openChat(userId, name, profilePhoto) {
+  chattingWithId = userId;
+
+  const headerContent = profilePhoto && profilePhoto.trim() !== ""
+    ? `<img src="${profilePhoto}" alt="👤" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+    : `<span class="icon">👤</span>`;
+
+  // Update chat header
+  document.getElementById("chatUser").innerHTML = `
+    <div class="chat-user-header">
+      <div class="avatar">
+        ${headerContent}
+      </div>
+      <span class="user-name">${name || "No Name"}</span>
+    </div>
+  `;
+
+  // Enable input
+  document.getElementById("chatInput").disabled = false;
+  document.querySelector(".chat-input button").disabled = false;
+
+  // Clear chat messages
+  const chatBox = document.getElementById("chatMessages");
+  chatBox.innerHTML = "";
+
+  // Stop previous listener
+  if (unsubscribeMessages) unsubscribeMessages();
+
+  // Load messages
+  const chatRef = collection(
+    db,
+    "chats",
+    getChatId(currentUserId, chattingWithId),
+    "messages"
+  );
+
+  unsubscribeMessages = onSnapshot(chatRef, snapshot => {
+    chatBox.innerHTML = "";
+
+    snapshot.forEach(docSnap => {
+  const msg = docSnap.data();
+  const msgId = docSnap.id; // get the Firestore doc ID
+  const msgDiv = document.createElement("div");
+
+  msgDiv.className = "message " + (msg.senderId === currentUserId ? "sent" : "received");
+  msgDiv.innerText = msg.text;
+
+  // Add delete button only for sent messages
+  if (msg.senderId === currentUserId) {
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerText = "🗑️";
+    deleteBtn.className = "delete-msg";
+    deleteBtn.title = "Delete message";
+    deleteBtn.onclick = async () => {
+      try {
+        await deleteDoc(doc(db, "chats", getChatId(currentUserId, chattingWithId), "messages", msgId));
+        showPopup("Message deleted", "success");
+      } catch (err) {
+        console.error("Failed to delete message:", err);
+        showPopup("Failed to delete message", "error");
+      }
+    };
+    msgDiv.appendChild(deleteBtn);
+  }
+
+  chatBox.appendChild(msgDiv);
+});
+
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+}
+
+
+
+
+/* ================== CHAT ID ================== */
+function getChatId(uid1, uid2) {
+  return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+}
+
+
+
+/* ================== SEND MESSAGE ================== */
+/* ================== SEND MESSAGE ================== */
+async function sendChat() {
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+
+  // Prevent sending empty messages or if no user is selected
+  if (!text) {
+    showPopup("Cannot send empty message", "error");
+    return;
+  }
+  if (!chattingWithId) {
+    showPopup("Select a user to chat with first", "error");
+    return;
+  }
+
+  try {
+    const chatId = getChatId(currentUserId, chattingWithId);
+
+    // Add message to Firestore
+    await addDoc(
+      collection(db, "chats", chatId, "messages"),
+      {
+        senderId: currentUserId,      // who sent the message
+        receiverId: chattingWithId,    // optional, helps with rules or queries
+        text: text,
+        timestamp: serverTimestamp()
+      }
+    );
+
+    // Clear input after sending
+    input.value = "";
+
+    // Optional: Scroll chat to bottom
+    const chatBox = document.getElementById("chatMessages");
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+  } catch (err) {
+    console.error("Failed to send message:", err);
+    showPopup("Failed to send message. Try again.", "error");
+  }
+}
+
+
+/* ================== EXPOSE TO HTML ================== */
+window.openChat = openChat;
+window.sendChat = sendChat;
+window.loadChatUsers = loadChatUsers;
+
+
+
+
+
+
+
+
+
+
+
+
