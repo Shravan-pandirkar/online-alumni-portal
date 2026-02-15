@@ -668,6 +668,9 @@ window.openChat = openChat;
 window.sendChat = sendChat;
 window.deleteSelectedMessages = deleteSelectedMessages;
 
+/* ================= SEND BUTTON ================= */
+const sendBtn = document.getElementById("sendBtn");
+sendBtn.addEventListener("click", sendChat);
 
 
 
