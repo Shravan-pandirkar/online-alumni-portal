@@ -10,9 +10,12 @@ import {
   serverTimestamp,
   query,
   where,
+  orderBy,
   doc,
+  getDoc,
+  updateDoc,
   deleteDoc,
-  getDoc
+  increment
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // ================== FIREBASE CONFIG ==================
@@ -416,27 +419,30 @@ onSnapshot(eventsRef, snapshot => {
 
 // ================== MESSAGE ==================
 /* ================== MESSAGE SECTION ================== */
-// ================== MESSAGE SECTION ==================
 
-let currentUserId = null;
+let currentUserId = "user1"; // Replace with your logged-in user
 let chattingWithId = null;
 let unsubscribeMessages = null;
+let typingTimeout = null;
 
-// ================== AUTH USER ==================
+/* ================== AUTH USER ================== */
 onAuthStateChanged(auth, user => {
   if (user) {
     currentUserId = user.uid;
-    loadChatUsers();
+    loadChatUsers(); // ✅ LOAD USERS AFTER AUTH
   } else {
     showPopup("Please login to access messages", "error");
   }
 });
 
-// ================== LOAD CHAT USERS ==================
+
+/* ================== LOAD CHAT USERS ================== */
+/* ================== LOAD CHAT USERS WITH SEARCH ================== */
 async function loadChatUsers() {
   const usersBox = document.querySelector(".chat-users");
   if (!usersBox) return;
 
+  // Add search input at the top
   usersBox.innerHTML = `
     <input 
       type="text" 
@@ -455,16 +461,22 @@ async function loadChatUsers() {
   try {
     const snapshot = await getDocs(collection(db, "users"));
 
-    snapshot.forEach(docSnap => {
-      if (docSnap.id === currentUserId) return;
+    if (snapshot.empty) {
+      usersListDiv.innerHTML = "<p>No users found</p>";
+      return;
+    }
 
+    snapshot.forEach(docSnap => {
+      if (docSnap.id === currentUserId) return; // Skip current user
       const u = docSnap.data();
       const role = (u.role || "").toLowerCase().trim();
       if (!["alumni", "student", "teacher"].includes(role)) return;
 
+      // Add uid to user object
       allUsers.push({ uid: docSnap.id, ...u });
     });
 
+    // Function to render users list
     function renderUsers(users) {
       usersListDiv.innerHTML = "";
 
@@ -483,154 +495,187 @@ async function loadChatUsers() {
           <div class="avatar">
             ${
               profilePhoto
-                ? `<img src="${profilePhoto}" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+                ? `<img src="${profilePhoto}" alt="👤" 
+                     onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
                 : `<span class="icon">👤</span>`
             }
           </div>
           <div>
             <h4>${u.fullName || "No Name"}</h4>
-            <p>${u.role || ""} • ${u.dept || "N/A"}</p>
+            <p>${(u.role || "").charAt(0).toUpperCase() + (u.role || "").slice(1)} • ${u.dept || "N/A"}</p>
           </div>
         `;
 
-        div.onclick = () => openChat(u.uid, u.fullName, profilePhoto);
+        // Click to open chat
+        div.onclick = () => openChat(u.uid, u.fullName || "No Name", profilePhoto);
+
         usersListDiv.appendChild(div);
       });
     }
 
+    // Initial render
     renderUsers(allUsers);
 
+    // Live search
     searchInput.addEventListener("input", () => {
       const value = searchInput.value.toLowerCase();
-      renderUsers(
-        allUsers.filter(u =>
-          (u.fullName || "").toLowerCase().includes(value) ||
-          (u.dept || "").toLowerCase().includes(value)
-        )
+      const filtered = allUsers.filter(u =>
+        (u.fullName || "").toLowerCase().includes(value) ||
+        (u.dept || "").toLowerCase().includes(value) ||
+        (u.role || "").toLowerCase().includes(value)
       );
+      renderUsers(filtered);
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("Error loading chat users:", err);
+    usersListDiv.innerHTML = "<p>Error loading users</p>";
   }
 }
 
-// ================== CHAT ID ==================
+
+/* ================= CHAT ID ================= */
 function getChatId(uid1, uid2) {
   return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
 }
 
-// ================== APPEND MESSAGE (UI) ==================
-function appendMessage(text, type) {
-  const chatBox = document.getElementById("chatMessages");
-  const msgDiv = document.createElement("div");
+/* ================= OPEN CHAT ================= */
+let messagesDB = {}; // Store messages per chat locally
+let selectedMessages = new Set();
 
-  msgDiv.className = "message " + type;
-  msgDiv.innerText = text;
 
-  chatBox.appendChild(msgDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
 
-// ================== OPEN CHAT ==================
-function openChat(userId, name, profilePhoto) {
+function openChat(userId, fullName, profilePhoto) {
   chattingWithId = userId;
+  const chatId = getChatId(currentUserId, chattingWithId);
 
-  // ✅ UPDATE CHAT HEADER (USE name & photo)
-  const header = document.getElementById("chatUser");
-
-  const avatarHTML = profilePhoto
-    ? `<img src="${profilePhoto}" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
-    : `<span class="icon">👤</span>`;
-
-  header.innerHTML = `
+  // HEADER UI
+  document.getElementById("chatUser").innerHTML = `
     <div class="chat-user-header">
-      <div class="avatar">${avatarHTML}</div>
-      <span class="user-name">${name || "User"}</span>
+      <div class="avatar">
+        ${profilePhoto ? `<img src="${profilePhoto}">` : `<span>👤</span>`}
+      </div>
+      <span class="user-name">${fullName}</span>
     </div>
   `;
 
-  document.getElementById("chatInput").disabled = false;
-  document.querySelector(".chat-input button").disabled = false;
+  // ENABLE INPUT
+  const chatInput = document.getElementById("chatInput");
+  const sendBtn = document.querySelector(".chat-input button");
+  chatInput.disabled = false;
+  sendBtn.disabled = false;
 
+  // INITIALIZE CHAT MESSAGES
+  if (!messagesDB[chatId]) messagesDB[chatId] = [];
+  selectedMessages.clear();
+  updateDeleteButton();
+  loadMessages(chatId);
+}
+
+/* ================= LOAD MESSAGES ================= */
+function loadMessages(chatId) {
   const chatBox = document.getElementById("chatMessages");
   chatBox.innerHTML = "";
 
-  if (unsubscribeMessages) unsubscribeMessages();
+  const chatMessages = messagesDB[chatId];
+  if (!chatMessages || chatMessages.length === 0) {
+    chatBox.innerHTML = `<p class='empty-chat'>👈 Start chatting!</p>`;
+    return;
+  }
 
-  const chatId = getChatId(currentUserId, chattingWithId);
-  const q = query(
-    collection(db, "chats", chatId, "messages"),
-    orderBy("timestamp", "asc")
-  );
-
-  unsubscribeMessages = onSnapshot(q, snapshot => {
-    chatBox.innerHTML = "";
-    snapshot.forEach(docSnap => {
-      const msg = docSnap.data();
-      appendMessage(
-        msg.text,
-        msg.senderId === currentUserId ? "sent" : "received"
-      );
-    });
-  });
+  chatMessages.forEach(msg => appendMessage(msg, chatBox));
 }
 
-// ================== SEND MESSAGE (FIXED) ==================
-async function sendChat() {
+/* ================= SEND MESSAGE ================= */
+function sendChat() {
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
-
-  if (!text) {
-    showPopup("Cannot send empty message", "error");
-    return;
-  }
-
-  if (!chattingWithId) {
-    showPopup("Select a user to chat with first", "error");
-    return;
-  }
-
-  // ✅ Show message instantly (Optimistic UI)
-  appendMessage(text, "sent");
-  input.value = "";
+  if (!text || !chattingWithId) return;
 
   const chatId = getChatId(currentUserId, chattingWithId);
-  const chatRef = doc(db, "chats", chatId);
 
-  try {
-    // ✅ Ensure chat document exists with users array
-    await setDoc(
-      chatRef,
-      {
-        users: [currentUserId, chattingWithId],
-        lastUpdated: serverTimestamp()
-      },
-      { merge: true }
-    );
+  const message = {
+    id: Date.now(),
+    chatId,
+    sender: currentUserId,
+    text,
+    deleted: false
+  };
 
-    // ✅ Add message to messages subcollection
-    await addDoc(
-      collection(chatRef, "messages"),
-      {
-        senderId: currentUserId,
-        receiverId: chattingWithId,
-        text: text,
-        timestamp: serverTimestamp()
-      }
-    );
+  messagesDB[chatId].push(message);
+  appendMessage(message, document.getElementById("chatMessages"));
 
-  } catch (err) {
-    console.error("Send message error:", err);
-    showPopup("Message failed to send", "error");
-  }
+  input.value = "";
+  scrollToBottom();
 }
 
+/* ================= APPEND MESSAGE ================= */
+function appendMessage(msg, chatBox) {
+  const msgDiv = document.createElement("div");
+  msgDiv.classList.add("chat-message");
+  msgDiv.classList.add(msg.sender === currentUserId ? "sent" : "received");
+  msgDiv.textContent = msg.deleted ? "Message deleted" : msg.text;
+  msgDiv.dataset.id = msg.id;
 
-// ================== EXPOSE ==================
+  // SELECT / DESELECT
+  msgDiv.addEventListener("click", () => {
+    if (msg.deleted) return;
+    if (selectedMessages.has(msg.id)) {
+      selectedMessages.delete(msg.id);
+      msgDiv.classList.remove("selected");
+    } else {
+      selectedMessages.add(msg.id);
+      msgDiv.classList.add("selected");
+    }
+    updateDeleteButton();
+  });
+
+  chatBox.appendChild(msgDiv);
+}
+
+/* ================= DELETE SELECTED ================= */
+function deleteSelectedMessages() {
+  const chatId = getChatId(currentUserId, chattingWithId);
+  const chatMessages = messagesDB[chatId];
+
+  chatMessages.forEach(msg => {
+    if (selectedMessages.has(msg.id)) msg.deleted = true;
+  });
+
+  selectedMessages.clear();
+  updateDeleteButton();
+  loadMessages(chatId);
+}
+
+function updateDeleteButton() {
+  const btn = document.getElementById("deleteSelectedBtn");
+  btn.style.display = selectedMessages.size > 0 ? "inline-block" : "none";
+}
+
+/* ================= SCROLL ================= */
+function scrollToBottom() {
+  const chatBox = document.getElementById("chatMessages");
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+/* ================= INPUT EVENT ================= */
+document.getElementById("chatInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") sendChat();
+});
+
+/* ================= EXPORT ================= */
 window.openChat = openChat;
 window.sendChat = sendChat;
-window.loadChatUsers = loadChatUsers;
+window.deleteSelectedMessages = deleteSelectedMessages;
+
+
+
+
+
+
+
+
+
 
 
 
