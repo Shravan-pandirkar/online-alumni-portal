@@ -537,6 +537,7 @@ async function loadChatUsers() {
 function openChat(userId, name, profilePhoto) {
   chattingWithId = userId;
 
+  
   const headerContent = profilePhoto && profilePhoto.trim() !== ""
     ? `<img src="${profilePhoto}" alt="👤" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
     : `<span class="icon">👤</span>`;
@@ -551,59 +552,61 @@ function openChat(userId, name, profilePhoto) {
     </div>
   `;
 
-  // Enable input
-  const chatInput = document.getElementById("chatInput");
-  chatInput.disabled = false;
+  document.getElementById("chatInput").disabled = false;
   document.querySelector(".chat-input button").disabled = false;
 
   const chatBox = document.getElementById("chatMessages");
-  chatBox.innerHTML = "<p class='loading'>Loading messages...</p>";
+  chatBox.innerHTML = ""; // clear ONLY ONCE
 
-  // Stop previous listener if any
   if (unsubscribeMessages) unsubscribeMessages();
 
-  // Firestore query: order messages by timestamp
+  const chatId = getChatId(currentUserId, chattingWithId);
+
   const chatRef = query(
-    collection(db, "chats", getChatId(currentUserId, chattingWithId), "messages"),
-    orderBy("timestamp", "asc") // oldest first
+    collection(db, "chats", chatId, "messages"),
+    orderBy("timestamp", "asc")
   );
 
   unsubscribeMessages = onSnapshot(chatRef, snapshot => {
-    chatBox.innerHTML = ""; // clear messages
+    snapshot.docChanges().forEach(change => {
 
-    snapshot.forEach(docSnap => {
-      const msg = docSnap.data();
-      const msgId = docSnap.id;
-      const msgDiv = document.createElement("div");
+      if (change.type === "added") {
+        const msg = change.doc.data();
+        const msgId = change.doc.id;
 
-      msgDiv.className = "message " + (msg.senderId === currentUserId ? "sent" : "received");
-      msgDiv.innerText = msg.text;
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "message " + 
+          (msg.senderId === currentUserId ? "sent" : "received");
 
-      // Add delete button only for sent messages
-      if (msg.senderId === currentUserId) {
-        const deleteBtn = document.createElement("span");
-        deleteBtn.innerText = "🗑️";
-        deleteBtn.className = "delete-msg";
-        deleteBtn.title = "Delete message";
-        deleteBtn.onclick = async () => {
-          try {
-            await deleteDoc(doc(db, "chats", getChatId(currentUserId, chattingWithId), "messages", msgId));
-            showPopup("Message deleted", "success");
-          } catch (err) {
-            console.error("Failed to delete message:", err);
-            showPopup("Failed to delete message", "error");
-          }
-        };
-        msgDiv.appendChild(deleteBtn);
+        msgDiv.textContent = msg.text;
+
+        // delete button (only own messages)
+        if (msg.senderId === currentUserId) {
+          const del = document.createElement("span");
+          del.textContent = "🗑️";
+          del.className = "delete-msg";
+          del.onclick = () =>
+            deleteDoc(doc(db, "chats", chatId, "messages", msgId));
+          msgDiv.appendChild(del);
+        }
+
+        const isNearBottom =
+          chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100;
+
+        chatBox.appendChild(msgDiv);
+
+        if (isNearBottom) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
       }
 
-      chatBox.appendChild(msgDiv);
+      if (change.type === "removed") {
+        document.querySelector(`[data-id="${change.doc.id}"]`)?.remove();
+      }
     });
-
-    // Scroll to bottom
-    chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
+
 
 /* ================== CHAT ID ================== */
 function getChatId(uid1, uid2) {
@@ -616,77 +619,31 @@ async function sendChat() {
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
 
-  if (!text) {
-    showPopup("Cannot send empty message", "error");
-    return;
-  }
-  if (!chattingWithId) {
-    showPopup("Select a user to chat with first", "error");
-    return;
-  }
+  if (!text || !chattingWithId) return;
 
-  try {
-    const chatId = getChatId(currentUserId, chattingWithId);
-    const chatDocRef = doc(db, "chats", chatId);
+  const chatId = getChatId(currentUserId, chattingWithId);
 
-// Ensure the chat document exists with participants
-await setDoc(chatDocRef, {
-  users: [currentUserId, chattingWithId]
-}, { merge: true }); // merge ensures you don’t overwrite existing fields
+  // ensure chat exists (VERY IMPORTANT for rules)
+  await setDoc(
+    doc(db, "chats", chatId),
+    { users: [currentUserId, chattingWithId] },
+    { merge: true }
+  );
 
-// Now add message to the messages subcollection
-await addDoc(
-  collection(db, "chats", chatId, "messages"),
-  {
-    senderId: currentUserId,
-    receiverId: chattingWithId,
-    text: text,
-    timestamp: serverTimestamp()
-  }
-);
+  input.value = ""; // WhatsApp clears immediately
 
-    // Instant append message in chatBox for better UX
-    const chatBox = document.getElementById("chatMessages");
-    const msgDiv = document.createElement("div");
-    msgDiv.className = "message sent";
-    msgDiv.innerText = text;
-
-    const deleteBtn = document.createElement("span");
-    deleteBtn.innerText = "🗑️";
-    deleteBtn.className = "delete-msg";
-    deleteBtn.title = "Delete message";
-    deleteBtn.onclick = async () => {
-      try {
-        // Find the last message sent by current user (assumes last added)
-        const snapshot = await getDocs(
-          query(
-            collection(db, "chats", chatId, "messages"),
-            orderBy("timestamp", "desc"),
-            limit(1)
-          )
-        );
-        snapshot.forEach(async docSnap => {
-          await deleteDoc(doc(db, "chats", chatId, "messages", docSnap.id));
-          showPopup("Message deleted", "success");
-        });
-      } catch (err) {
-        console.error(err);
-        showPopup("Failed to delete message", "error");
-      }
-    };
-    msgDiv.appendChild(deleteBtn);
-
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    // Clear input
-    input.value = "";
-
-  } catch (err) {
-    console.error("Failed to send message:", err);
-    showPopup("Failed to send message. Try again.", "error");
-  }
+  await addDoc(
+    collection(db, "chats", chatId, "messages"),
+    {
+      senderId: currentUserId,
+      receiverId: chattingWithId,
+      text,
+      timestamp: serverTimestamp()
+    }
+  );
 }
+
+
 
 /* ================== EXPOSE TO HTML ================== */
 window.openChat = openChat;

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Messenger</title>
+  <link rel="stylesheet" href="/static/css/Chat.css" />
+</head>
+<body>
+<header class="header">
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+           <a href="{{ url_for('profile') }}" class="register-link">👤 My Profile</a>
+           <a href="{{ url_for('dashboard') }}" class="register-link">🔎 Search Alumni</a>
+            <a href="{{ url_for('dashboard') }}" class="register-link">🥳 Events</a>
+
+        </nav>
+    </header>
+
+
+<div id="popup" class="popup hidden">
+  <span id="popupMessage"></span>
+</div>
+
+
+
+<div class="app">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="logo.png" class="app-logo" alt="Logo">
+      <h2>Messenger</h2>
+    </div>
+
+    <div class="users-list" id="usersList">
+      <p class="loading">Loading users...</p>
+    </div>
+  </aside>
+  <div id="chatApp"></div>
+
+  <!-- RIGHT CHAT AREA -->
+  <main class="chat-area">
+    <div class="chat-header" id="chatHeader">
+      <span>Select a user to start chat</span>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+      <button id="sendBtn" disabled>Send</button>
+    </div>
+  </main>
+
+</div>
+
+<!-- Firebase -->
+<script type="module" src="/static/js/Chat.js"></script>
+</body>
+</html>
