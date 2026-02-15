@@ -9,13 +9,11 @@ import {
   onSnapshot,
   serverTimestamp,
   query,
-  where,
   orderBy,
+  where,
   doc,
-  getDoc,
-  updateDoc,
   deleteDoc,
-  increment
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // ================== FIREBASE CONFIG ==================
@@ -420,10 +418,9 @@ onSnapshot(eventsRef, snapshot => {
 // ================== MESSAGE ==================
 /* ================== MESSAGE SECTION ================== */
 
-let currentUserId = "user1"; // Replace with your logged-in user
+let currentUserId = null;
 let chattingWithId = null;
 let unsubscribeMessages = null;
-let typingTimeout = null;
 
 /* ================== AUTH USER ================== */
 onAuthStateChanged(auth, user => {
@@ -534,143 +531,168 @@ async function loadChatUsers() {
 }
 
 
-/* ================= CHAT ID ================= */
+
+/* ================== OPEN CHAT ================== */
+
+function openChat(userId, name, profilePhoto) {
+  chattingWithId = userId;
+
+  const headerContent = profilePhoto && profilePhoto.trim() !== ""
+    ? `<img src="${profilePhoto}" alt="👤" onerror="this.remove(); this.parentElement.innerHTML='<span class=icon>👤</span>'">`
+    : `<span class="icon">👤</span>`;
+
+  // Update chat header
+  document.getElementById("chatUser").innerHTML = `
+    <div class="chat-user-header">
+      <div class="avatar">
+        ${headerContent}
+      </div>
+      <span class="user-name">${name || "No Name"}</span>
+    </div>
+  `;
+
+  // Enable input
+  const chatInput = document.getElementById("chatInput");
+  chatInput.disabled = false;
+  document.querySelector(".chat-input button").disabled = false;
+
+  const chatBox = document.getElementById("chatMessages");
+  chatBox.innerHTML = "<p class='loading'>Loading messages...</p>";
+
+  // Stop previous listener if any
+  if (unsubscribeMessages) unsubscribeMessages();
+
+  // Firestore query: order messages by timestamp
+  const chatRef = query(
+    collection(db, "chats", getChatId(currentUserId, chattingWithId), "messages"),
+    orderBy("timestamp", "asc") // oldest first
+  );
+
+  unsubscribeMessages = onSnapshot(chatRef, snapshot => {
+    chatBox.innerHTML = ""; // clear messages
+
+    snapshot.forEach(docSnap => {
+      const msg = docSnap.data();
+      const msgId = docSnap.id;
+      const msgDiv = document.createElement("div");
+
+      msgDiv.className = "message " + (msg.senderId === currentUserId ? "sent" : "received");
+      msgDiv.innerText = msg.text;
+
+      // Add delete button only for sent messages
+      if (msg.senderId === currentUserId) {
+        const deleteBtn = document.createElement("span");
+        deleteBtn.innerText = "🗑️";
+        deleteBtn.className = "delete-msg";
+        deleteBtn.title = "Delete message";
+        deleteBtn.onclick = async () => {
+          try {
+            await deleteDoc(doc(db, "chats", getChatId(currentUserId, chattingWithId), "messages", msgId));
+            showPopup("Message deleted", "success");
+          } catch (err) {
+            console.error("Failed to delete message:", err);
+            showPopup("Failed to delete message", "error");
+          }
+        };
+        msgDiv.appendChild(deleteBtn);
+      }
+
+      chatBox.appendChild(msgDiv);
+    });
+
+    // Scroll to bottom
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+}
+
+/* ================== CHAT ID ================== */
 function getChatId(uid1, uid2) {
   return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
 }
 
-/* ================= OPEN CHAT ================= */
-let messagesDB = {}; // Store messages per chat locally
-let selectedMessages = new Set();
 
+/* ================== SEND MESSAGE ================== */
+async function sendChat() {
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
 
-
-function openChat(userId, fullName, profilePhoto) {
-  chattingWithId = userId;
-  const chatId = getChatId(currentUserId, chattingWithId);
-
-  // HEADER UI
-  document.getElementById("chatUser").innerHTML = `
-    <div class="chat-user-header">
-      <div class="avatar">
-        ${profilePhoto ? `<img src="${profilePhoto}">` : `<span>👤</span>`}
-      </div>
-      <span class="user-name">${fullName}</span>
-    </div>
-  `;
-
-  // ENABLE INPUT
-  const chatInput = document.getElementById("chatInput");
-  const sendBtn = document.querySelector(".chat-input button");
-  chatInput.disabled = false;
-  sendBtn.disabled = false;
-
-  // INITIALIZE CHAT MESSAGES
-  if (!messagesDB[chatId]) messagesDB[chatId] = [];
-  selectedMessages.clear();
-  updateDeleteButton();
-  loadMessages(chatId);
-}
-
-/* ================= LOAD MESSAGES ================= */
-function loadMessages(chatId) {
-  const chatBox = document.getElementById("chatMessages");
-  chatBox.innerHTML = "";
-
-  const chatMessages = messagesDB[chatId];
-  if (!chatMessages || chatMessages.length === 0) {
-    chatBox.innerHTML = `<p class='empty-chat'>👈 Start chatting!</p>`;
+  if (!text) {
+    showPopup("Cannot send empty message", "error");
+    return;
+  }
+  if (!chattingWithId) {
+    showPopup("Select a user to chat with first", "error");
     return;
   }
 
-  chatMessages.forEach(msg => appendMessage(msg, chatBox));
+  try {
+    const chatId = getChatId(currentUserId, chattingWithId);
+    const chatDocRef = doc(db, "chats", chatId);
+
+// Ensure the chat document exists with participants
+await setDoc(chatDocRef, {
+  users: [currentUserId, chattingWithId]
+}, { merge: true }); // merge ensures you don’t overwrite existing fields
+
+// Now add message to the messages subcollection
+await addDoc(
+  collection(db, "chats", chatId, "messages"),
+  {
+    senderId: currentUserId,
+    receiverId: chattingWithId,
+    text: text,
+    timestamp: serverTimestamp()
+  }
+);
+
+    // Instant append message in chatBox for better UX
+    const chatBox = document.getElementById("chatMessages");
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message sent";
+    msgDiv.innerText = text;
+
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerText = "🗑️";
+    deleteBtn.className = "delete-msg";
+    deleteBtn.title = "Delete message";
+    deleteBtn.onclick = async () => {
+      try {
+        // Find the last message sent by current user (assumes last added)
+        const snapshot = await getDocs(
+          query(
+            collection(db, "chats", chatId, "messages"),
+            orderBy("timestamp", "desc"),
+            limit(1)
+          )
+        );
+        snapshot.forEach(async docSnap => {
+          await deleteDoc(doc(db, "chats", chatId, "messages", docSnap.id));
+          showPopup("Message deleted", "success");
+        });
+      } catch (err) {
+        console.error(err);
+        showPopup("Failed to delete message", "error");
+      }
+    };
+    msgDiv.appendChild(deleteBtn);
+
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Clear input
+    input.value = "";
+
+  } catch (err) {
+    console.error("Failed to send message:", err);
+    showPopup("Failed to send message. Try again.", "error");
+  }
 }
 
-/* ================= SEND MESSAGE ================= */
-function sendChat() {
-  const input = document.getElementById("chatInput");
-  const text = input.value.trim();
-  if (!text || !chattingWithId) return;
-
-  const chatId = getChatId(currentUserId, chattingWithId);
-
-  const message = {
-    id: Date.now(),
-    chatId,
-    sender: currentUserId,
-    text,
-    deleted: false
-  };
-
-  messagesDB[chatId].push(message);
-  appendMessage(message, document.getElementById("chatMessages"));
-
-  input.value = "";
-  scrollToBottom();
-}
-
-/* ================= APPEND MESSAGE ================= */
-function appendMessage(msg, chatBox) {
-  const msgDiv = document.createElement("div");
-  msgDiv.classList.add("chat-message");
-  msgDiv.classList.add(msg.sender === currentUserId ? "sent" : "received");
-  msgDiv.textContent = msg.deleted ? "Message deleted" : msg.text;
-  msgDiv.dataset.id = msg.id;
-
-  // SELECT / DESELECT
-  msgDiv.addEventListener("click", () => {
-    if (msg.deleted) return;
-    if (selectedMessages.has(msg.id)) {
-      selectedMessages.delete(msg.id);
-      msgDiv.classList.remove("selected");
-    } else {
-      selectedMessages.add(msg.id);
-      msgDiv.classList.add("selected");
-    }
-    updateDeleteButton();
-  });
-
-  chatBox.appendChild(msgDiv);
-}
-
-/* ================= DELETE SELECTED ================= */
-function deleteSelectedMessages() {
-  const chatId = getChatId(currentUserId, chattingWithId);
-  const chatMessages = messagesDB[chatId];
-
-  chatMessages.forEach(msg => {
-    if (selectedMessages.has(msg.id)) msg.deleted = true;
-  });
-
-  selectedMessages.clear();
-  updateDeleteButton();
-  loadMessages(chatId);
-}
-
-function updateDeleteButton() {
-  const btn = document.getElementById("deleteSelectedBtn");
-  btn.style.display = selectedMessages.size > 0 ? "inline-block" : "none";
-}
-
-/* ================= SCROLL ================= */
-function scrollToBottom() {
-  const chatBox = document.getElementById("chatMessages");
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-/* ================= INPUT EVENT ================= */
-document.getElementById("chatInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") sendChat();
-});
-
-/* ================= EXPORT ================= */
+/* ================== EXPOSE TO HTML ================== */
 window.openChat = openChat;
 window.sendChat = sendChat;
-window.deleteSelectedMessages = deleteSelectedMessages;
+window.loadChatUsers = loadChatUsers;
 
-/* ================= SEND BUTTON ================= */
-const sendBtn = document.getElementById("sendBtn");
-sendBtn.addEventListener("click", sendChat);
 
 
 
