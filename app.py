@@ -5,7 +5,7 @@ app = Flask(__name__)
 # First page → Login
 @app.route('/')
 def home():
-    return redirect(url_for('frontpage'))
+    return redirect(url_for('dashboard'))
 
 @app.route('/frontpage')
 def frontpage():
@@ -47,6 +47,10 @@ def register():
 @app.route('/dashboard')
 def dashboard():
     return render_template('Dashboard.html')
+
+@app.route('/chat')
+def chat():
+    return render_template('Chat.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

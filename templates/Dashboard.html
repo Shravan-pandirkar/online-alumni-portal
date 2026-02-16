@@ -26,7 +26,7 @@
            <a href="{{ url_for('profile') }}" class="register-link">👤 My Profile</a>
            <button onclick="showSection('alumni')">🔎 Search Alumni</button>
                <button onclick="showSection('events')">🥳 Events</button>
-               <button onclick="showSection('message')">✉️ Send Message</button>
+               <a href="{{ url_for('chat') }}" class="register-link">✉️ Send Message</a>
         </nav>
     </header>
 
@@ -101,64 +101,6 @@
 
 </section>
 
-
-
-    <!-- MESSAGES -->
-<!-- ================== MESSAGES VIEW ================== -->
-<section id="messagesView" class="view" style="display:none;">
-
-  <div class="chat-layout">
-
-    <!-- ================= LEFT: USERS LIST ================= -->
-    <div class="chat-users">
-           <input 
-        type="text" 
-        id="chatUserSearch" 
-        placeholder="Search alumni..." 
-        class="chat-search"
-    >
-    </div>
-
-
-    <!-- ================= RIGHT: CHAT BOX ================= -->
-    <main class="chat-box">
-
-      <!-- CHAT HEADER -->
-      <div class="chat-header">
-        <h3 id="chatUser">Select an alumni</h3>
-      </div>
-
-      <!-- CHAT MESSAGES -->
-      <div class="chat-messages" id="chatMessages">
-        <p class="empty-chat">👈 Select a user to start chatting</p>
-      </div>
-
-      <!-- CHAT INPUT -->
-      <div class="chat-input">
-      <button id="deleteSelectedBtn" style="display:none;" onclick="deleteSelectedMessages()">
-  Delete Selected
-</button>
-
-
-        <input
-          type="text"
-          id="chatInput"
-          placeholder="Type a message..."
-          disabled
-        >
-        <button id="sendBtn" disabled>Send</button>
-
-      </div>
-      
-    </main>
-
-  </div>
-
-</section>
-
-    </div>
-
-</section>
 
 
 

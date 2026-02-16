@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat Messenger</title>
+  <title>✉️ Send Message</title>
+   <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
   <link rel="stylesheet" href="/static/css/Chat.css" />
 </head>
 <body>
@@ -25,34 +26,31 @@
 
 <div class="app">
 
-  <!-- LEFT SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <img src="logo.png" class="app-logo" alt="Logo">
-      <h2>Messenger</h2>
-    </div>
+  <h1>Send Message</h1>
 
-    <div class="users-list" id="usersList">
-      <p class="loading">Loading users...</p>
-    </div>
-  </aside>
-  <div id="chatApp"></div>
+  <!-- SEARCH + SELECT ALL -->
+  <div class="top-bar">
+    <input type="text" id="searchAlumni" placeholder="Search alumni by name...">
 
-  <!-- RIGHT CHAT AREA -->
-  <main class="chat-area">
-    <div class="chat-header" id="chatHeader">
-      <span>Select a user to start chat</span>
-    </div>
+    <label class="select-all">
+      <input type="checkbox" id="selectAll">
+      Select All
+    </label>
+  </div>
 
-    <div class="chat-messages" id="chatMessages"></div>
+  <!-- ALUMNI LIST -->
+  <div class="alumni-list" id="alumniList">
+    <!-- Alumni cards loaded from Firestore -->
+  </div>
 
-    <div class="chat-input">
-      <input type="text" id="messageInput" placeholder="Type a message..." disabled>
-      <button id="sendBtn" disabled>Send</button>
-    </div>
-  </main>
+  <!-- MESSAGE BAR -->
+  <div class="message-bar">
+    <textarea id="messageText" placeholder="Type your message..."></textarea>
+    <button class="btn" onclick="sendBroadcast()">Send</button>
+  </div>
 
 </div>
+
 
 <!-- Firebase -->
 <script type="module" src="/static/js/Chat.js"></script>

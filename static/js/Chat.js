@@ -4,11 +4,7 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import {
   getFirestore,
   collection,
-  addDoc,
-  onSnapshot,
-  serverTimestamp,
-  query,
-  orderBy
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // ================== FIREBASE CONFIG ==================
@@ -31,165 +27,142 @@ const db = getFirestore(app);
 const DEFAULT_AVATAR =
   "https://res.cloudinary.com/dvyk0lfsb/image/upload/v1/default-avatar.png";
 
-// ================== GLOBAL STATE ==================
-let currentUserId = null;
-let chattingWithId = null;
-let unsubscribeMessages = null;
+// ================== ELEMENTS ==================
+const alumniGrid = document.getElementById("alumniList");
+const selectAllCheckbox = document.getElementById("selectAll");
+const searchInput = document.getElementById("searchAlumni");
+const messageInput = document.getElementById("messageText");
 
-// ================== CHAT ID ==================
-function getChatId(uid1, uid2) {
-  return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
-}
+// ================== STATE ==================
+let allUsers = [];
 
-// ================== WAIT FOR ROOT ==================
-function waitForElement(selector) {
-  return new Promise(resolve => {
-    const el = document.querySelector(selector);
-    if (el) return resolve(el);
+// ================== LOAD USERS FROM FIRESTORE ==================
+async function loadUsers() {
+  alumniGrid.innerHTML = "Loading alumni...";
+  allUsers = [];
 
-    const observer = new MutationObserver(() => {
-      const el = document.querySelector(selector);
-      if (el) {
-        observer.disconnect();
-        resolve(el);
-      }
-    });
+  try {
+    const snapshot = await getDocs(collection(db, "users"));
 
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
-}
-
-// ================== AUTH ==================
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-  currentUserId = user.uid;
-
-  const appRoot = await waitForElement("#chatApp");
-  renderLayout(appRoot);
-  loadUsers();
-});
-
-// ================== RENDER LAYOUT ==================
-function renderLayout(root) {
-  root.innerHTML = `
-    <aside class="sidebar">
-      <div class="users-list"></div>
-    </aside>
-
-    <main class="chat-area">
-      <div class="chat-header"></div>
-      <div class="chat-messages"></div>
-      <div class="chat-input">
-        <input type="text" placeholder="Type a message..." />
-        <button>Send</button>
-      </div>
-    </main>
-  `;
-}
-
-// ================== LOAD USERS ==================
-function loadUsers() {
-  const usersList = document.getElementById("usersList");
-
-  onSnapshot(collection(db, "users"), (snapshot) => {
-    usersList.innerHTML = "";
-
-    snapshot.forEach((docSnap) => {
-      if (docSnap.id === currentUserId) return;
-
-      const u = docSnap.data();
-      const avatar = u.profilePic || DEFAULT_AVATAR;
-
-      const card = document.createElement("div");
-      card.className = "user-card";
-
-      card.innerHTML = `
-        <img src="${avatar}" onerror="this.src='${DEFAULT_AVATAR}'">
-        <div>
-          <h4>${u.fullName || "No Name"}</h4>
-          <p>${u.role || "Role"} • ${u.department || "Dept"}</p>
-        </div>
-      `;
-
-      card.onclick = () => {
-        openChat(docSnap.id, u.fullName, avatar);
-      };
-
-      usersList.appendChild(card);
-    });
-
-    if (!snapshot.size) {
-      usersList.innerHTML = "<p>No users found</p>";
-    }
-  });
-}
-
-
-// ================== USER CLICK (EVENT DELEGATION) ==================
-document.addEventListener("click", (e) => {
-  const card = e.target.closest(".user-card");
-  if (!card) return;
-
-  openChat(card.dataset.uid, card.dataset.name, card.dataset.avatar);
-});
-
-// ================== OPEN CHAT ==================
-function openChat(uid, name, avatar) {
-  chattingWithId = uid;
-
-  const header = document.querySelector(".chat-header");
-  header.innerHTML = `
-    <img src="${avatar}" onerror="this.src='${DEFAULT_AVATAR}'">
-    <span>${name}</span>
-  `;
-
-  loadMessages();
-}
-
-// ================== LOAD MESSAGES ==================
-function loadMessages() {
-  const chatMessages = document.querySelector(".chat-messages");
-  chatMessages.innerHTML = "";
-
-  if (unsubscribeMessages) unsubscribeMessages();
-
-  const chatId = getChatId(currentUserId, chattingWithId);
-  const q = query(
-    collection(db, "chats", chatId, "messages"),
-    orderBy("timestamp", "asc")
-  );
-
-  unsubscribeMessages = onSnapshot(q, snapshot => {
-    chatMessages.innerHTML = "";
+    console.log("Total docs:", snapshot.size);
 
     snapshot.forEach(docSnap => {
-      const m = docSnap.data();
-      const msg = document.createElement("div");
-      msg.className = m.senderId === currentUserId ? "sent" : "received";
-      msg.textContent = m.text;
-      chatMessages.appendChild(msg);
-    });
+  const data = docSnap.data();
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  // ✅ LOAD ONLY ALUMNI
+  if (data.role !== "alumni") return;
+
+  allUsers.push({
+    id: docSnap.id,
+    fullName: data.fullName || "No Name",
+    role: data.role,
+    phoneNumber: data.phoneNumber || data.phone || data.mobile || "",
+    profilePic: data.profilePic || DEFAULT_AVATAR
+  });
+});
+
+
+    renderUsers(allUsers);
+
+  } catch (err) {
+    console.error("Firestore error:", err);
+    alumniGrid.innerHTML = "Error loading users";
+  }
+}
+
+// ================== RENDER USERS ==================
+function renderUsers(users) {
+  alumniGrid.innerHTML = "";
+
+  const validUsers = users.filter(
+  u => u.phoneNumber && u.role === "alumni"
+);
+
+
+  if (validUsers.length === 0) {
+    alumniGrid.innerHTML = "<p>No users found</p>";
+    return;
+  }
+
+  validUsers.forEach(user => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const roleBadge =
+      user.role === "alumni"
+        ? `<span class="badge alumni">Alumni</span>`
+        : user.role === "teacher"
+        ? `<span class="badge teacher">Teacher</span>`
+        : `<span class="badge student">Student</span>`;
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-left">
+          <img src="${user.profilePic}" class="profile-pic">
+          <div class="info">
+            <h3>${user.fullName}</h3>
+            ${roleBadge}
+            <small>${user.phoneNumber}</small>
+          </div>
+        </div>
+
+        <div class="card-right">
+          <label>
+            <input type="checkbox"
+                   class="user-checkbox"
+                   data-phone="${user.phoneNumber}">
+            Select
+          </label>
+        </div>
+      </div>
+    `;
+
+    alumniGrid.appendChild(card);
   });
 }
 
-// ================== SEND MESSAGE (DELEGATED) ==================
-document.addEventListener("click", async (e) => {
-  if (!e.target.matches(".chat-input button")) return;
 
-  const input = document.querySelector(".chat-input input");
-  const text = input.value.trim();
-  if (!text || !chattingWithId) return;
-
-  const chatId = getChatId(currentUserId, chattingWithId);
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    text,
-    senderId: currentUserId,
-    receiverId: chattingWithId,
-    timestamp: serverTimestamp()
+// ================== SELECT ALL ==================
+selectAllCheckbox.addEventListener("change", () => {
+  document.querySelectorAll(".user-checkbox").forEach(cb => {
+    cb.checked = selectAllCheckbox.checked;
   });
-
-  input.value = "";
 });
+
+// ================== SEARCH ==================
+searchInput.addEventListener("input", () => {
+  const term = searchInput.value.toLowerCase();
+
+  const filtered = allUsers.filter(user =>
+    user.fullName.toLowerCase().includes(term)
+  );
+
+  renderUsers(filtered);
+});
+
+// ================== SEND BROADCAST SMS ==================
+window.sendBroadcast = function () {
+  const message = messageInput.value.trim();
+
+  if (!message) {
+    alert("Message cannot be empty");
+    return;
+  }
+
+  const selectedNumbers = [
+    ...document.querySelectorAll(".user-checkbox:checked")
+  ].map(cb => cb.dataset.phone);
+
+  if (selectedNumbers.length === 0) {
+    alert("Please select at least one alumni");
+    return;
+  }
+
+  // Open SMS app on mobile
+  const smsLink = `sms:${selectedNumbers.join(",")}?body=${encodeURIComponent(message)}`;
+  window.location.href = smsLink;
+};
+
+// ================== INIT ==================
+loadUsers();
+
