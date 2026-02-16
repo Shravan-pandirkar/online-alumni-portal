@@ -33,8 +33,33 @@ const selectAllCheckbox = document.getElementById("selectAll");
 const searchInput = document.getElementById("searchAlumni");
 const messageInput = document.getElementById("messageText");
 
+// ================== POPUP ==================
+function showPopup(message, type = "success") {
+  const popup = document.getElementById("popup");
+  const popupMessage = document.getElementById("popupMessage");
+  if (!popup || !popupMessage) return;
+
+  popupMessage.innerText = message;
+  popup.className = `popup ${type}`;
+  popup.classList.remove("hidden");
+
+  setTimeout(() => popup.classList.add("hidden"), 5000);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && smsOpened) {
+    smsOpened = false;
+
+    alert(
+      "If your SMS was not sent, please open Messages again and tap Send."
+    );
+  }
+});
+
+
 // ================== STATE ==================
 let allUsers = [];
+let smsOpened = false;
 
 // ================== LOAD USERS FROM FIRESTORE ==================
 async function loadUsers() {
@@ -145,23 +170,36 @@ window.sendBroadcast = function () {
   const message = messageInput.value.trim();
 
   if (!message) {
-    alert("Message cannot be empty");
+    showPopup("Message cannot be empty","error");
     return;
   }
 
   const selectedNumbers = [
     ...document.querySelectorAll(".user-checkbox:checked")
-  ].map(cb => cb.dataset.phone);
+  ].map(cb => cb.dataset.phone.replace(/\D/g, ""));
 
   if (selectedNumbers.length === 0) {
-    alert("Please select at least one alumni");
+    showPopup("Please select at least one alumni","error");
     return;
   }
 
-  // Open SMS app on mobile
-  const smsLink = `sms:${selectedNumbers.join(",")}?body=${encodeURIComponent(message)}`;
+  const smsLink =
+    `sms:${selectedNumbers.join(";")}?body=${encodeURIComponent(message)}`;
+
+  smsOpened = true;
   window.location.href = smsLink;
 };
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && smsOpened) {
+    smsOpened = false;
+
+    showPopup(
+      "If your SMS was not sent, please open Messages again and tap Send.","fill"
+    );
+  }
+});
+
 
 // ================== INIT ==================
 loadUsers();
