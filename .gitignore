@@ -1,0 +1,6 @@
+node_modules/
+.env
+
+alumni-node-backend/node_modules/
+alumni-node-backend/.env
+

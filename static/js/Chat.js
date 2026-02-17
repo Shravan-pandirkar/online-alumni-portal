@@ -166,11 +166,11 @@ searchInput.addEventListener("input", () => {
 });
 
 // ================== SEND BROADCAST SMS ==================
-window.sendBroadcast = function () {
+window.sendBroadcast = async function () {
   const message = messageInput.value.trim();
 
   if (!message) {
-    showPopup("Message cannot be empty","error");
+    showPopup("Message cannot be empty", "error");
     return;
   }
 
@@ -179,26 +179,42 @@ window.sendBroadcast = function () {
   ].map(cb => cb.dataset.phone.replace(/\D/g, ""));
 
   if (selectedNumbers.length === 0) {
-    showPopup("Please select at least one alumni","error");
+    showPopup("Please select at least one alumni", "error");
     return;
   }
 
-  const smsLink =
-    `sms:${selectedNumbers.join(";")}?body=${encodeURIComponent(message)}`;
+  try {
+    showPopup("Sending message...", "fill");
 
-  smsOpened = true;
-  window.location.href = smsLink;
-};
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && smsOpened) {
-    smsOpened = false;
-
-    showPopup(
-      "If your SMS was not sent, please open Messages again and tap Send.","fill"
-    );
-  }
+    const response = await fetch("http://localhost:5000/send-sms", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    message: message,
+    phoneNumbers: selectedNumbers
+  })
 });
+
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      showPopup(
+        `Message sent successfully to ${data.total} alumni`,
+        "success"
+      );
+      messageInput.value = "";
+    } else {
+      showPopup(data.error || "SMS sending failed", "error");
+    }
+
+  } catch (error) {
+    console.error(error);
+    showPopup("Server not reachable. Is Node running?", "error");
+  }
+};
 
 
 // ================== INIT ==================
