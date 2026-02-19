@@ -7,9 +7,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import {
   getFirestore,
@@ -59,7 +57,7 @@ function showPopup(message, type = "success") {
 
   setTimeout(() => {
     popup.classList.add("hidden");
-  }, 1500);
+  }, 1000);
 }
 
 // ===============================
@@ -80,6 +78,7 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     const user = cred.user;
 
+    // Save / update Firestore
     await setDoc(
       doc(db, "users", user.uid),
       {
@@ -93,7 +92,7 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
     showPopup("Login successful!", "success");
     setTimeout(() => {
       window.location.href = "/dashboard";
-    }, 1000);
+    }, 1000); 
 
   } catch (error) {
     if (error.code === "auth/user-not-found") {
@@ -108,13 +107,11 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
         });
 
         showPopup("Account created & logged in!", "success");
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 1000);
+        window.location.href = "/dashboard";
 
       } catch (err) {
         console.error(err);
-        showPopup("Registration failed!", "error");
+        showPopup("Registration failed", "error");
       }
     } else if (error.code === "auth/wrong-password") {
       showPopup("Wrong password!", "error");
@@ -126,37 +123,14 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
 });
 
 // ===============================
-// Google Login (Popup with Redirect fallback)
+// Google Login (No Profile Photo)
 // ===============================
 document.getElementById("googleLogin").addEventListener("click", async () => {
   try {
-    // First try popup login
     const result = await signInWithPopup(auth, provider);
-    handleGoogleUser(result.user);
-  } catch (error) {
-    console.warn("Popup failed, using redirect as fallback", error);
-    // Fallback to redirect login if popup fails
-    signInWithRedirect(auth, provider);
-  }
-});
+    const user = result.user;
 
-// Handle Google redirect login after page reload
-getRedirectResult(auth)
-  .then((result) => {
-    if (result?.user) {
-      handleGoogleUser(result.user);
-    }
-  })
-  .catch((error) => {
-    console.error("Redirect login failed", error);
-    showPopup("Google Login Failed!", "error");
-  });
-
-// ===============================
-// Handle Google User Firestore Save
-// ===============================
-async function handleGoogleUser(user) {
-  try {
+    // Save only email, role, name (no profilePic)
     await setDoc(
       doc(db, "users", user.uid),
       {
@@ -169,12 +143,10 @@ async function handleGoogleUser(user) {
     );
 
     showPopup("Google Login Successful!", "success");
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1000);
+    window.location.href = "/dashboard";
 
-  } catch (err) {
-    console.error(err);
-    showPopup("Failed to save user data!", "error");
+  } catch (error) {
+    console.error(error);
+    showPopup("Google Login Failed", "error");
   }
-}
+});
