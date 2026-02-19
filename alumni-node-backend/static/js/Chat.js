@@ -29,24 +29,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // ===============================
-// Popup Helper
-// ===============================
-function showPopup(message, type = "success") {
-  const popup = document.getElementById("popup");
-  const popupMessage = document.getElementById("popupMessage");
+// Chat.js
 
-  if (!popup || !popupMessage) return;
+function showPopup(message, type = "success", duration = 3000) {
+    const popupContainer = document.getElementById("popupContainer");
 
-  popupMessage.innerText = message;
-  popup.className = `popup ${type}`;
-  popup.classList.remove("hidden");
+    const popup = document.createElement("div");
+    popup.classList.add("popup-message");
+    if (type === "error") popup.classList.add("error");
+    popup.textContent = message;
 
-  setTimeout(() => {
-    popup.classList.add("hidden");
-  }, 1000);
+    popupContainer.appendChild(popup);
+
+    setTimeout(() => popup.classList.add("show"), 10);
+
+    setTimeout(() => {
+        popup.classList.remove("show");
+        setTimeout(() => popup.remove(), 500);
+    }, duration);
 }
-
 
 
 

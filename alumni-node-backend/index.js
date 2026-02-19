@@ -21,7 +21,7 @@ app.use("/templates", express.static(path.join(__dirname, "templates"))); // opt
 // ================== FRONTEND ROUTES ==================
 const templatesPath = path.join(__dirname, "templates");
 
-app.get("/", (_req, res) => res.sendFile(path.join(templatesPath, "FrontPage.html")));
+app.get("/", (_req, res) => res.sendFile(path.join(templatesPath, "Chat.html"))); // default route to Chat page
 app.get("/frontpage", (_req, res) => res.sendFile(path.join(templatesPath, "FrontPage.html")));
 app.get("/about", (_req, res) => res.sendFile(path.join(templatesPath, "about_us.html")));
 app.get("/profile", (_req, res) => res.sendFile(path.join(templatesPath, "MyProfile.html")));

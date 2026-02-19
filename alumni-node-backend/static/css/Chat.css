@@ -248,21 +248,39 @@ body{
 }
 
 /* ================= MESSAGE BAR ================= */
-.message-bar{
-    width:100%;
-    display:flex;
-    gap:10px;
+.message-bar {
+    width: 100%;
+    display: flex;
+    gap: 10px;
 }
 
-.message-bar textarea{
-    flex:1;
-    resize:none;
-    height:50px;
-    padding:15px;
-    border-radius:90px;
-    border:1px solid #c7d2fe;
-    font-size:15px;
+.message-bar textarea {
+    flex: 1;
+    resize: none;
+    height: 50px;
+    padding: 15px;
+    border-radius: 90px;
+    border: 1px solid #c7d2fe;
+    font-size: 15px;
+
+    /* Add transition for smooth effects */
+    transition: all 0.3s ease;
 }
+
+/* Example: change border and shadow on focus */
+.message-bar textarea:focus {
+    border-color: #6366f1; /* change border color on focus */
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    outline: none; /* remove default outline */
+}
+
+/* Optional: subtle hover effect */
+.message-bar textarea:hover {
+    border-color: #818cf8;
+    border: 1px solid #818cf8;
+}
+
+
 
 /* ================= SEND BUTTON ================= */
 .btn{
@@ -361,7 +379,7 @@ body{
 /* ===== INFO ===== */
 .info h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: #111827;
   font-family: math;
@@ -378,10 +396,12 @@ body{
 .role-badge {
   display: inline-block;
   margin-top: 4px;
-  padding: 2px 8px;
+  padding:  8px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   font-size: 12px;
   border-radius: 12px;
-  background: #e0f2fe;
+  background: #ccebff;
   color: #0369a1;
   font-weight: 600;
 }
@@ -421,32 +441,31 @@ body{
   }
 }
 
-.popup {
+/* Popup styles */
+.popup-container {
   position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%) scale(0.95);
-  min-width: 300px;
-  padding: 16px 24px;
-  background: #333;
-  color: #fff;
-  font-size: 16px;
-  border-radius: 10px;
-  text-align: center;
-  z-index: 9999;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  top: 60px; /* slightly below the header */
+  z-index: 1000;
+}
+
+.popup-message {
+  background-color: #4CAF50; /* green for success */
+  color: white;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
   opacity: 0;
-  animation: popupIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform: translateY(-20px);
+  transition: opacity 0.5s, transform 0.5s;
 }
 
-.popup.success {
-  background: #28a745;
+.popup-message.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.popup.error {
-  background: #dc3545;
+.popup-message.error {
+  background-color: #f44336; /* red for error */
 }
 
-.popup.fill {
-  background: #cbba00;
-}
