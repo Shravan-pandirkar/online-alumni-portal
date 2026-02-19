@@ -185,14 +185,12 @@ function showPopup(message, type = "success", duration = 3000) {
       sendBtn.disabled = true;
       sendBtn.innerText = "Sending...";
 
-      const res = await fetch(
-  "https://alumni-node-backend.onrender.com/send-email",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ emails, message })
-  }
-);
+      const res = await fetch("https://alumni-node-backend.onrender.com/send-email", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ emails, message })
+});
+
 
       
 
