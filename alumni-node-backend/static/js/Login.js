@@ -63,90 +63,60 @@ function showPopup(message, type = "success") {
 // ===============================
 // Email/Password Login + Auto Register
 // ===============================
-document.querySelector(".login-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+  const loginForm = document.querySelector(".login-form");
+  const googleBtn = document.getElementById("googleLogin");
 
-  const email = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const showPopup = (message, type="success") => {
+    const popup = document.getElementById("popup");
+    const popupMessage = document.getElementById("popupMessage");
+    if (!popup || !popupMessage) return;
 
-  if (!email || !password) {
-    showPopup("Please fill all fields!", "fill");
-    return;
+    popupMessage.innerText = message;
+    popup.className = `popup ${type}`;
+    popup.classList.remove("hidden");
+
+    setTimeout(() => popup.classList.add("hidden"), 1000);
+  };
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if (!email || !password) return showPopup("Fill all fields", "fill");
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", cred.user.uid), { email: cred.user.email, lastLogin: serverTimestamp() }, { merge: true });
+        showPopup("Login success", "success");
+        setTimeout(() => window.location.href="/dashboard", 1000);
+      } catch (err) {
+        if (err.code === "auth/user-not-found") {
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, "users", cred.user.uid), { email: cred.user.email, createdAt: serverTimestamp() });
+          showPopup("Account created", "success");
+          window.location.href = "/dashboard";
+        } else {
+          showPopup(err.message || "Login failed", "error");
+        }
+      }
+    });
   }
 
-  try {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const user = cred.user;
-
-    // Save / update Firestore
-    await setDoc(
-      doc(db, "users", user.uid),
-      {
-        email: user.email,
-        provider: "password",
-        lastLogin: serverTimestamp()
-      },
-      { merge: true }
-    );
-
-    showPopup("Login successful!", "success");
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1000); 
-
-  } catch (error) {
-    if (error.code === "auth/user-not-found") {
+  if (googleBtn) {
+    googleBtn.addEventListener("click", async () => {
       try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        const user = cred.user;
-
-        await setDoc(doc(db, "users", user.uid), {
-          email: user.email,
-          provider: "password",
-          createdAt: serverTimestamp()
-        });
-
-        showPopup("Account created & logged in!", "success");
-        window.location.href = "/dashboard";
-
+        const result = await signInWithPopup(auth, provider);
+        await setDoc(doc(db, "users", result.user.uid), { email: result.user.email, fullName: result.user.displayName, lastLogin: serverTimestamp() }, { merge: true });
+        showPopup("Google Login Success", "success");
+        window.location.href="/dashboard";
       } catch (err) {
         console.error(err);
-        showPopup("Registration failed", "error");
+        showPopup("Google Login Failed", "error");
       }
-    } else if (error.code === "auth/wrong-password") {
-      showPopup("Wrong password!", "error");
-    } else {
-      console.error(error);
-      showPopup("Login failed!", "error");
-    }
+    });
   }
 });
 
-// ===============================
-// Google Login (No Profile Photo)
-// ===============================
-document.getElementById("googleLogin").addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-
-    // Save only email, role, name (no profilePic)
-    await setDoc(
-      doc(db, "users", user.uid),
-      {
-        email: user.email,
-        fullName: user.displayName || "Google User",
-        provider: "google",
-        lastLogin: serverTimestamp()
-      },
-      { merge: true }
-    );
-
-    showPopup("Google Login Successful!", "success");
-    window.location.href = "/dashboard";
-
-  } catch (error) {
-    console.error(error);
-    showPopup("Google Login Failed", "error");
-  }
-});
+    
