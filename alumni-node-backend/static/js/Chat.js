@@ -29,6 +29,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+// Chat.js
+
+function showPopup(message, type = "success", duration = 3000) {
+    const popupContainer = document.getElementById("popupContainer");
+
+    const popup = document.createElement("div");
+    popup.classList.add("popup-message");
+    if (type === "error") popup.classList.add("error");
+    popup.textContent = message;
+
+    popupContainer.appendChild(popup);
+
+    setTimeout(() => popup.classList.add("show"), 10);
+
+    setTimeout(() => {
+        popup.classList.remove("show");
+        setTimeout(() => popup.remove(), 500);
+    }, duration);
+}
+
+
+
+
   // ================== ELEMENTS ==================
   const alumniGrid = document.getElementById("alumniList");
   const selectAllCheckbox = document.getElementById("selectAll");
@@ -146,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ================== SEND MESSAGE ==================
   sendBtn.addEventListener("click", async () => {
     const message = messageInput.value.trim();
-    if (!message) return alert("Message cannot be empty");
+    if (!message) return showPopup("Message cannot be empty", "error");
 
     const emails = [];
     document.querySelectorAll(".user-checkbox:checked").forEach(cb => {
@@ -154,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (emails.length === 0) {
-      alert("Select at least one user");
+      showPopup("Select at least one user", "error");
       return;
     }
 
@@ -162,14 +185,14 @@ document.addEventListener("DOMContentLoaded", () => {
       sendBtn.disabled = true;
       sendBtn.innerText = "Sending...";
 
-      const res = await fetch("http://localhost:5000/send-email", {
+      const res = await fetch("https://online-alumni-portal-ayej.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emails, message })
       });
 
       const data = await res.json();
-      alert(data.message || "Email sent");
+      showPopup(data.message || "Email sent");
 
       messageInput.value = "";
       selectAllCheckbox.checked = false;
@@ -177,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (err) {
       console.error(err);
-      alert("Failed to send email");
+      showPopup("Failed to send email", "error");
     } finally {
       sendBtn.disabled = false;
       sendBtn.innerText = "Send";
