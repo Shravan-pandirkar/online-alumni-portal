@@ -1,0 +1,550 @@
+/* Base Styles */
+:root {
+    --primary-blue: #06478c; /* Light blue from the header */
+    --accent-blue: #007bff; /* Button blue */
+    --text-dark: #212529; /* Heading text color */
+    --text-light: #495057; /* Body text color */
+    --white: #ffffff;
+}
+
+/* Use the Google Fonts loaded in HTML head */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--text-dark);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+/* --- Header Section --- */
+.header {
+    background-color: var(--primary-blue);
+    padding: 20px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo {  
+    font-family: Arial, Helvetica, sans-serif;  
+    font-size: 32px;  
+    font-weight: 700;  
+    color: var(--white);  
+    letter-spacing: 0.5px;  
+    position: relative;  
+    display: inline-block;  
+    transition: all 0.4s ease;  
+}  
+
+
+.nav {
+    display: flex;
+    gap: 30px;
+}
+
+/* Login/Register Links */
+/* Login/Register Links */
+.login-link,
+.register-link {
+    color: var(--white);
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+/* Glow + Hover Effects */
+.login-link:hover,
+.register-link:hover {
+    color: #fff;
+    border: 1px solid #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 10px #ffffffc4, 0 0 20px rgba(255,255,255,0.3);
+}
+
+/* Press Effect */
+.login-link:active,
+.register-link:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Shine Animation */
+.login-link::before,
+.register-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+.login-link:hover::before,
+.register-link:hover::before {
+    left: 125%;
+    transition: left 0.7s ease;
+}
+
+/* Optional: Smooth text glow */
+.login-link span,
+.register-link span {
+    display: inline-block;
+    transition: text-shadow 0.4s ease;
+}
+
+.login-link:hover span,
+.register-link:hover span {
+    text-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.7);
+}
+
+
+.profile-wrapper{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow-x: hidden;
+}
+
+.section{
+    width:100%;
+    height:100%;
+    position:absolute;
+    top:0;
+    left:100%;
+    transition:0.5s ease;
+}
+
+.section.active{
+    left:0;
+}
+/* ================= VIEW PROFILE ================= */
+.profile-view-card{
+    width:850px;
+    margin:60px auto;
+    display:flex;
+    border-radius:12px;
+    transition: all 0.4s ease;
+
+    /* Glass effect */
+    background: rgba(173, 216, 230, 0.25); /* light blue transparent */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255,255,255,0.4);
+
+    box-shadow:
+        0 6px 15px rgba(0,0,0,.15),
+        0 0 20px rgba(173,216,230,0.6);
+
+    overflow:hidden;
+    opacity: 0;
+    filter: blur(10px);
+    animation: blurReveal 0.9s ease forwards;
+    
+}
+
+
+
+@keyframes blurReveal {
+    to {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+
+
+
+
+
+
+.profile-view-card:hover{
+     transform: translateY(-6px) scale(1.01);
+    box-shadow:
+        0 12px 25px rgba(0,0,0,.2),
+        0 0 35px rgb(173, 216, 230);
+}
+.left-view{
+    width:35%;
+    background-size: 400% 400%;
+    color:rgb(0, 0, 0);
+    text-align:center;
+    padding:30px;
+    position: relative;
+    overflow:hidden;
+    animation: gradientMove 8s ease infinite;
+    backdrop-filter: blur(6px);
+}
+
+/* Gradient Animation */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Shimmer Light Effect */
+.left-view::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:100%;
+    height:100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.3),
+        transparent
+    );
+    animation: shimmer 3s infinite;
+}
+
+
+/* Neon Glow Border */
+.left-view::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius: inherit;
+    border:2px solid rgba(56,189,248,0.6);
+    filter: blur(4px);
+    pointer-events:none;
+}
+.left-view img{
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    border:4px solid rgb(5, 255, 255);
+}
+
+.right-view{
+    width:65%;
+    padding:30px;
+}
+
+.right-view button{
+    margin-top:20px;
+    padding:10px;
+   border-radius: 25px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff, #00c6ff);
+    background-size: 300% 100%; /* For animated gradient */
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+}
+/* Hover Effects */
+.right-view button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 198, 255, 0.5), 0 0 15px rgba(0, 198, 255, 0.3);
+    color: #000000;
+}
+
+/* Animated Gradient Shine */
+.right-view button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+.right-view button:hover::before {
+    left: 150%;
+    transition: left 0.7s ease;
+}
+
+/* Continuous Gradient Animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+}
+
+.right-view button {
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Press/Click Effect */
+.right-view button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 6px 15px rgba(0, 198, 255, 0.3);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .nav a {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+/* ================= EDIT PROFILE ================= */
+
+.profile-card{
+    width:900px;
+    margin:40px auto;
+    display:flex;
+    border-radius:15px;
+    overflow:hidden;
+    transition: all 0.4s ease;
+
+    /* Glass effect */
+    background: rgba(173, 216, 230, 0.25);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255,255,255,0.4);
+
+    box-shadow:
+        0 6px 15px rgba(0,0,0,.15),
+        0 0 25px rgba(173,216,230,0.5);
+}
+
+
+.profile-card:hover{
+    transform: translateY(-6px) scale(1.01);
+    box-shadow:
+        0 12px 25px rgba(0,0,0,.2),
+        0 0 35px rgb(173, 216, 230);
+}
+
+.profile-left{
+   width:35%;
+    background-size: 400% 400%;
+    color:rgb(0, 0, 0);
+    text-align:center;
+    padding:30px;
+    position: relative;
+    overflow:hidden;
+    animation: gradientMove 8s ease infinite;
+    backdrop-filter: blur(6px);
+}
+
+@keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+.profile-left img{
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    border:4px solid rgb(4, 192, 255);
+}
+
+.profile-right{
+    width:65%;
+    padding:30px;
+}
+
+.profile-left img{
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.profile-left img:hover{
+    opacity:0.85;
+    transform:scale(1.03);
+}
+
+.pic-text{
+    font-size:14px;
+    margin-top:8px;
+    opacity:0.9;
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border-radius: 25px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff, #00c6ff);
+    background-size: 300% 100%; /* For animated gradient */
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+    
+}
+
+/* Hover Effects */
+button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 198, 255, 0.5), 0 0 15px rgba(0, 198, 255, 0.3);
+    color: #000000;
+}
+
+/* Animated Gradient Shine */
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+button:hover::before {
+    left: 150%;
+    transition: left 0.7s ease;
+}
+
+/* Continuous Gradient Animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+}
+
+button {
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Press/Click Effect */
+ button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 6px 15px rgba(0, 198, 255, 0.3);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .nav a {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+.back-btn{
+    background:#6b7280;
+}
+
+.role-section{
+    display:none;
+}
+.popup {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  min-width: 300px;
+  padding: 16px 24px;
+  background: #333;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 9999;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  animation: popupIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.popup.success {
+  background: #28a745;
+}
+
+.popup.error {
+  background: #dc3545;
+}
+
+.popup.fill {
+  background: #cbba00;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Entrance animation */
+@keyframes popupIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Exit animation (optional) */
+@keyframes popupOut {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.95);
+  }
+}
+

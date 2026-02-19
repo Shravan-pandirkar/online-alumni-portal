@@ -1,7 +1,7 @@
 // ================== IMPORTS ==================
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
+const path = require("path");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 
@@ -10,22 +10,37 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ================== MIDDLEWARE ==================
-app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ================== TEST ROUTE ==================
-app.get("/", (_req, res) => {
-  res.send("🚀 Alumni Node Backend (Email Service) is running");
+// ------------------ STATIC FILES ------------------
+// Serve CSS, JS, images
+app.use("/static", express.static(path.join(__dirname, "static")));
+app.use("/templates", express.static(path.join(__dirname, "templates"))); // optional direct access
+
+// ================== FRONTEND ROUTES ==================
+const templatesPath = path.join(__dirname, "templates");
+
+app.get("/", (_req, res) => res.sendFile(path.join(templatesPath, "FrontPage.html")));
+app.get("/frontpage", (_req, res) => res.sendFile(path.join(templatesPath, "FrontPage.html")));
+app.get("/about", (_req, res) => res.sendFile(path.join(templatesPath, "about_us.html")));
+app.get("/profile", (_req, res) => res.sendFile(path.join(templatesPath, "MyProfile.html")));
+app.get("/login", (_req, res) => res.sendFile(path.join(templatesPath, "login_page.html")));
+app.get("/register", (_req, res) => res.sendFile(path.join(templatesPath, "registration_page.html")));
+app.get("/dashboard", (_req, res) => res.sendFile(path.join(templatesPath, "Dashboard.html")));
+app.get("/chat", (_req, res) => res.sendFile(path.join(templatesPath, "Chat.html")));
+
+// ================== TEST BACKEND ROUTE ==================
+app.get("/api", (_req, res) => {
+  res.send("🚀 Alumni Node Backend (API) is running");
 });
 
 // ================== EMAIL TRANSPORTER ==================
-// Using Gmail App Password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "onlinealumniportal@gmail.com",       // your Gmail
-    pass: "miqfmbdqytjodjpo"                    // your 16-character App Password
+    user: process.env.EMAIL_USER || "onlinealumniportal@gmail.com",
+    pass: process.env.EMAIL_PASS || "miqfmbdqytjodjpo"
   }
 });
 
@@ -48,9 +63,9 @@ app.post("/send-email", async (req, res) => {
     // ------------------ EMAIL OPTIONS ------------------
     const mailOptions = {
       from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
-      to: emails.join(","),         // multiple recipients
+      to: emails.join(","), // multiple recipients
       subject: "📢 New Message from SGDTP Alumni Portal",
-      text: message,                // plain text fallback
+      text: message,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
           <h2>${message}</h2>

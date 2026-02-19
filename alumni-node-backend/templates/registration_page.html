@@ -1,0 +1,54 @@
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">  
+    <title>Register</title>  
+    <link rel="stylesheet" href="/static/css/registration_page.css">  
+</head>  
+<!-- Popup Message -->
+<div id="popup" class="popup hidden">
+  <span id="popupMessage"></span>
+</div>
+
+<body>  
+   
+    <header class="header">
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+           <a href="/templates/login_page.html" class="login-link">Login</a>
+           <a href="/templates/registration_page.html" class="register-link">Register</a>
+        </nav>
+    </header>
+
+    <main class="container">  
+    <div class="register-card">  .
+        <h1>REGISTER</h1>  
+        <div id="error-message" class="message-box"></div>  
+        <form id="registerForm">
+                <!-- Selection for Alumni or Student -->
+            <div class="input-group">  
+                <input type="email" name="username" placeholder="Enter the email" required>  
+                <label>📧 Email</label>  
+            </div>    
+            <div class="input-group">  
+                <div class="password-wrapper">  
+                    <input type="password" id="password" name="password" placeholder="Enter the Password" required>  
+                    <span class="toggle-password" onclick="togglePassword('password')">Show</span>  
+                </div>  
+                <label>🔑 Password</label>  
+            </div>  
+
+            
+
+            <!-- FIX: Changed A tag to BUTTON -->  
+       <button type="submit" class="register-btn">Register</button>  
+
+        </form>  
+    </div>  
+</main>  
+
+<script type="module" src="/static/js/Register.js"></script>
+
+</body>  
+</html>
