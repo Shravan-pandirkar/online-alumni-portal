@@ -185,11 +185,15 @@ function showPopup(message, type = "success", duration = 3000) {
       sendBtn.disabled = true;
       sendBtn.innerText = "Sending...";
 
-      const res = await fetch("https://online-alumni-portal-ayej.onrender.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emails, message })
-      });
+      const res = await fetch(
+  "https://online-alumni-portal-ayej.onrender.com/send-email",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ emails, message })
+  }
+);
+
 
       const data = await res.json();
       showPopup(data.message || "Email sent");
