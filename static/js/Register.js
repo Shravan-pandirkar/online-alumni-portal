@@ -2,8 +2,16 @@
 // Firebase Imports
 // ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // ===============================
 // Firebase Config
@@ -25,7 +33,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-function showPopup(message, type = "success", delay = 1200) {
+// ===============================
+// Popup Helper
+// ===============================
+function showPopup(message, type = "success", delay = 1000) {
   const popup = document.getElementById("popup");
   const popupMessage = document.getElementById("popupMessage");
 
@@ -53,43 +64,44 @@ window.togglePassword = function (inputId) {
 // ================================
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("registerForm");
-  const errorBox = document.getElementById("error-message");
 
   form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const email = form.username.value.trim();
-  const password = form.password.value.trim();
+    const email = form.username.value.trim();
+    const password = form.password.value.trim();
 
-  if (!email || !password) {
-    showPopup("Please fill all details", "error");
-    return;
-  }
+    if (!email || !password) {
+      showPopup("Please fill all details", "error");
+      return;
+    }
 
-  try {
-    // Create user
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    try {
+      // 🔐 Create Auth user
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-    // Save to Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      email: email,
-      uid: user.uid,
-      createdAt: new Date()
-    });
+      const user = userCredential.user;
 
-    // ✅ Success popup
-    showPopup("Registration successful!", "success", 1200);
+      // ✅ Save user data to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,         
+        provider: "password",
+        createdAt: serverTimestamp()
+      });
 
-    // Redirect after popup
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1000);
+      showPopup("Registration successful!", "success", 1000);
 
-  } catch (error) {
-    showPopup("Email already exists or invalid password", "error");
-  }
-});
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
 
-  
+    } catch (error) {
+      console.error(error);
+      showPopup("Email already exists or invalid password", "error");
+    }
   });
+});

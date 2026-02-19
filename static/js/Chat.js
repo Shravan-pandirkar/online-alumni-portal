@@ -1,124 +1,107 @@
 // ================== FIREBASE IMPORTS ==================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import {
   getFirestore,
   collection,
+  doc,
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-// ================== FIREBASE CONFIG ==================
-const firebaseConfig = {
-  apiKey: "AIzaSyBEqicHjsRkaUnOpMza90tMzVTQcVo1CoM",
-  authDomain: "alumni-portal-53425.firebaseapp.com",
-  projectId: "alumni-portal-53425",
-  storageBucket: "alumni-portal-53425.firebasestorage.app",
-  messagingSenderId: "947099064778",
-  appId: "1:947099064778:web:7eb45b444d5cc6cd651733",
-  measurementId: "G-1X15S9CD6V"
-};
+// ================== WAIT FOR DOM ==================
+document.addEventListener("DOMContentLoaded", () => {
 
-// ================== INITIALIZE ==================
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  // ================== FIREBASE CONFIG ==================
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEqicHjsRkaUnOpMza90tMzVTQcVo1CoM",
+    authDomain: "alumni-portal-53425.firebaseapp.com",
+    projectId: "alumni-portal-53425",
+    storageBucket: "alumni-portal-53425.firebasestorage.app",
+    messagingSenderId: "947099064778",
+    appId: "1:947099064778:web:7eb45b444d5cc6cd651733"
+  };
 
-// ================== CONSTANTS ==================
-const DEFAULT_AVATAR =
-  "https://res.cloudinary.com/dvyk0lfsb/image/upload/v1/default-avatar.png";
+  // ================== INIT ==================
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
-// ================== ELEMENTS ==================
-const alumniGrid = document.getElementById("alumniList");
-const selectAllCheckbox = document.getElementById("selectAll");
-const searchInput = document.getElementById("searchAlumni");
-const messageInput = document.getElementById("messageText");
+  // ================== ELEMENTS ==================
+  const alumniGrid = document.getElementById("alumniList");
+  const selectAllCheckbox = document.getElementById("selectAll");
+  const searchInput = document.getElementById("searchAlumni");
+  const messageInput = document.getElementById("messageText");
+  const sendBtn = document.getElementById("sendBtn");
 
-// ================== POPUP ==================
-function showPopup(message, type = "success") {
-  const popup = document.getElementById("popup");
-  const popupMessage = document.getElementById("popupMessage");
-  if (!popup || !popupMessage) return;
-
-  popupMessage.innerText = message;
-  popup.className = `popup ${type}`;
-  popup.classList.remove("hidden");
-
-  setTimeout(() => popup.classList.add("hidden"), 5000);
-}
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && smsOpened) {
-    smsOpened = false;
-
-    alert(
-      "If your SMS was not sent, please open Messages again and tap Send."
-    );
+  if (!alumniGrid || !selectAllCheckbox || !searchInput || !messageInput || !sendBtn) {
+    console.error("❌ Required HTML elements missing");
+    return;
   }
+
+  // ================== CONSTANT ==================
+  const DEFAULT_AVATAR =
+    "https://res.cloudinary.com/dvyk0lfsb/image/upload/v1/default-avatar.png";
+
+  // ================== STATE ==================
+  let allUsers = [];
+
+  // ================== AUTH CHECK ==================
+  onAuthStateChanged(auth, user => {
+  if (!user) return;
+  loadUsers();   // ✅ first call
 });
 
-
-// ================== STATE ==================
-let allUsers = [];
-let smsOpened = false;
-
-// ================== LOAD USERS FROM FIRESTORE ==================
-async function loadUsers() {
-  alumniGrid.innerHTML = "Loading alumni...";
+  // ================== LOAD USERS ==================
+ async function loadUsers() {
+  alumniGrid.innerHTML = "<p>Loading users...</p>";
   allUsers = [];
 
   try {
     const snapshot = await getDocs(collection(db, "users"));
-
-    console.log("Total docs:", snapshot.size);
+    console.log("Firestore docs count:", snapshot.size);
 
     snapshot.forEach(docSnap => {
-  const data = docSnap.data();
+      const data = docSnap.data();
 
-  // ✅ LOAD ONLY ALUMNI
-  if (data.role !== "alumni") return;
+      // ✅ ONLY ALUMNI
+      if (data.role !== "alumni") return;
 
-  allUsers.push({
-    id: docSnap.id,
-    fullName: data.fullName || "No Name",
-    role: data.role,
-    phoneNumber: data.phoneNumber || data.phone || data.mobile || "",
-    profilePic: data.profilePic || DEFAULT_AVATAR
-  });
-});
-
+      allUsers.push({
+        uid: docSnap.id,
+        fullName:
+          data.fullName ||
+          data.name ||
+          data.displayName ||
+          "No Name",
+        email: data.email || "No Email",
+        role: data.role || "alumni",
+        profilePic: data.profilePic || DEFAULT_AVATAR
+      });
+    });
 
     renderUsers(allUsers);
-
   } catch (err) {
     console.error("Firestore error:", err);
-    alumniGrid.innerHTML = "Error loading users";
+    alumniGrid.innerHTML = "<p>Permission denied</p>";
   }
 }
 
-// ================== RENDER USERS ==================
-function renderUsers(users) {
+
+  // ================== RENDER USERS ==================
+  function renderUsers(users) {
   alumniGrid.innerHTML = "";
 
-  const validUsers = users.filter(
-  u => u.phoneNumber && u.role === "alumni"
-);
-
-
-  if (validUsers.length === 0) {
-    alumniGrid.innerHTML = "<p>No users found</p>";
+  if (users.length === 0) {
+    alumniGrid.innerHTML = "<p>No alumni found</p>";
     return;
   }
 
-  validUsers.forEach(user => {
+  users.forEach(user => {
     const card = document.createElement("div");
     card.className = "card";
-
-    const roleBadge =
-      user.role === "alumni"
-        ? `<span class="badge alumni">Alumni</span>`
-        : user.role === "teacher"
-        ? `<span class="badge teacher">Teacher</span>`
-        : `<span class="badge student">Student</span>`;
 
     card.innerHTML = `
       <div class="card-top">
@@ -126,97 +109,80 @@ function renderUsers(users) {
           <img src="${user.profilePic}" class="profile-pic">
           <div class="info">
             <h3>${user.fullName}</h3>
-            ${roleBadge}
-            <small>${user.phoneNumber}</small>
+            <span class="role-badge">${user.role}</span>
+            <small>${user.email}</small>
           </div>
         </div>
-
         <div class="card-right">
-          <label>
-            <input type="checkbox"
-                   class="user-checkbox"
-                   data-phone="${user.phoneNumber}">
-            Select
-          </label>
+          <input type="checkbox"
+            class="user-checkbox"
+            data-email="${user.email}">
         </div>
       </div>
     `;
-
     alumniGrid.appendChild(card);
   });
 }
 
 
-// ================== SELECT ALL ==================
-selectAllCheckbox.addEventListener("change", () => {
-  document.querySelectorAll(".user-checkbox").forEach(cb => {
-    cb.checked = selectAllCheckbox.checked;
+  // ================== SELECT ALL ==================
+  selectAllCheckbox.addEventListener("change", () => {
+    document.querySelectorAll(".user-checkbox").forEach(cb => {
+      cb.checked = selectAllCheckbox.checked;
+    });
   });
-});
 
-// ================== SEARCH ==================
-searchInput.addEventListener("input", () => {
-  const term = searchInput.value.toLowerCase();
+  // ================== SEARCH ==================
+  searchInput.addEventListener("input", () => {
+    const term = searchInput.value.toLowerCase();
+    renderUsers(
+      allUsers.filter(u =>
+        u.fullName.toLowerCase().includes(term) ||
+        u.email.toLowerCase().includes(term)
+      )
+    );
+  });
 
-  const filtered = allUsers.filter(user =>
-    user.fullName.toLowerCase().includes(term)
-  );
+  // ================== SEND MESSAGE ==================
+  sendBtn.addEventListener("click", async () => {
+    const message = messageInput.value.trim();
+    if (!message) return alert("Message cannot be empty");
 
-  renderUsers(filtered);
-});
+    const emails = [];
+    document.querySelectorAll(".user-checkbox:checked").forEach(cb => {
+      emails.push(cb.dataset.email);
+    });
 
-// ================== SEND BROADCAST SMS ==================
-window.sendBroadcast = async function () {
-  const message = messageInput.value.trim();
-
-  if (!message) {
-    showPopup("Message cannot be empty", "error");
-    return;
-  }
-
-  const selectedNumbers = [
-    ...document.querySelectorAll(".user-checkbox:checked")
-  ].map(cb => cb.dataset.phone.replace(/\D/g, ""));
-
-  if (selectedNumbers.length === 0) {
-    showPopup("Please select at least one alumni", "error");
-    return;
-  }
-
-  try {
-    showPopup("Sending message...", "fill");
-
-    const response = await fetch("http://localhost:5000/send-sms", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    message: message,
-    phoneNumbers: selectedNumbers
-  })
-});
-
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      showPopup(
-        `Message sent successfully to ${data.total} alumni`,
-        "success"
-      );
-      messageInput.value = "";
-    } else {
-      showPopup(data.error || "SMS sending failed", "error");
+    if (emails.length === 0) {
+      alert("Select at least one user");
+      return;
     }
 
-  } catch (error) {
-    console.error(error);
-    showPopup("Server not reachable. Is Node running?", "error");
-  }
-};
+    try {
+      sendBtn.disabled = true;
+      sendBtn.innerText = "Sending...";
+
+      const res = await fetch("http://localhost:5000/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emails, message })
+      });
+
+      const data = await res.json();
+      alert(data.message || "Email sent");
+
+      messageInput.value = "";
+      selectAllCheckbox.checked = false;
+      document.querySelectorAll(".user-checkbox").forEach(cb => cb.checked = false);
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send email");
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.innerText = "Send";
+    }
+  });
 
 
-// ================== INIT ==================
-loadUsers();
-
+});

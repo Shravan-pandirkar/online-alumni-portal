@@ -2,8 +2,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
 const bodyParser = require("body-parser");
+const nodemailer = require("nodemailer");
 
 // ================== APP INIT ==================
 const app = express();
@@ -16,55 +16,66 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ================== TEST ROUTE ==================
 app.get("/", (_req, res) => {
-  res.send("🚀 Alumni Node Backend is running");
+  res.send("🚀 Alumni Node Backend (Email Service) is running");
 });
 
-// ================== SEND SMS API (REAL SMS) ==================
-app.post("/send-sms", async (req, res) => {
-  try {
-    const { phoneNumbers, message } = req.body;
+// ================== EMAIL TRANSPORTER ==================
+// Using Gmail App Password
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "onlinealumniportal@gmail.com",       // your Gmail
+    pass: "miqfmbdqytjodjpo"                    // your 16-character App Password
+  }
+});
 
-    // 🔒 Validation
-    if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
-      return res.status(400).json({ error: "Phone numbers are required" });
+// ================== SEND EMAIL ENDPOINT ==================
+app.post("/send-email", async (req, res) => {
+  try {
+    const { emails, message } = req.body;
+
+    // ------------------ VALIDATION ------------------
+    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({ success: false, error: "Emails are required" });
     }
 
     if (!message || message.trim() === "") {
-      return res.status(400).json({ error: "Message is required" });
+      return res.status(400).json({ success: false, error: "Message is required" });
     }
 
-    console.log("📨 Sending SMS to:", phoneNumbers);
+    console.log("📧 Sending email to:", emails);
 
-    // 🔔 FAST2SMS API CALL
-    const smsResponse = await axios.post(
-      "https://www.fast2sms.com/dev/bulkV2",
-      {
-        route: "q",
-        message: message,
-        language: "english",
-        numbers: phoneNumbers.join(",")
-      },
-      {
-        headers: {
-          authorization: process.env.FAST2SMS_API_KEY,
-          "Content-Type": "application/json"
-        }
-      }
-    );
+    // ------------------ EMAIL OPTIONS ------------------
+    const mailOptions = {
+      from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
+      to: emails.join(","),         // multiple recipients
+      subject: "📢 New Message from SGDTP Alumni Portal",
+      text: message,                // plain text fallback
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <h2>${message}</h2>
+          <hr>
+          <small>— SGDTP Alumni Portal</small>
+        </div>
+      `
+    };
+
+    // ------------------ SEND EMAIL ------------------
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent:", info.messageId);
 
     return res.json({
       success: true,
-      provider: "Fast2SMS",
-      sentTo: phoneNumbers.length,
-      apiResponse: smsResponse.data
+      message: `Email successfully sent to ${emails.length} recipient(s)`,
+      messageId: info.messageId
     });
 
-  } catch (error) {
-    console.error("❌ SMS Error:", error.response?.data || error.message);
-
+  } catch (err) {
+    console.error("❌ Email Error:", err.message);
     return res.status(500).json({
-      error: "Failed to send SMS",
-      details: error.response?.data || error.message
+      success: false,
+      error: "Failed to send email",
+      details: err.message
     });
   }
 });

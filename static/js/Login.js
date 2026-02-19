@@ -9,6 +9,12 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // ===============================
 // Firebase Config
@@ -28,20 +34,16 @@ const firebaseConfig = {
 // ===============================
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // ===============================
 // Google Provider
 // ===============================
 const provider = new GoogleAuthProvider();
-
-// ✅ Force Google account selection every time
-provider.setCustomParameters({
-  prompt: "select_account"
-});
-
+provider.setCustomParameters({ prompt: "select_account" });
 
 // ===============================
-// Popup Helper (MUST be on top)
+// Popup Helper
 // ===============================
 function showPopup(message, type = "success") {
   const popup = document.getElementById("popup");
@@ -55,11 +57,8 @@ function showPopup(message, type = "success") {
 
   setTimeout(() => {
     popup.classList.add("hidden");
-  }, 5000);
+  }, 1000);
 }
-
-
-
 
 // ===============================
 // Email/Password Login + Auto Register
@@ -71,58 +70,83 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value.trim();
 
   if (!email || !password) {
-    showPopup("Please fill all fields!","fill");
+    showPopup("Please fill all fields!", "fill");
     return;
   }
 
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    showPopup("Login successful!","success");
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
 
+    // Save / update Firestore
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        email: user.email,
+        provider: "password",
+        lastLogin: serverTimestamp()
+      },
+      { merge: true }
+    );
 
+    showPopup("Login successful!", "success");
     setTimeout(() => {
-    window.location.href = "/dashboard";
-  }, 1000);
+      window.location.href = "/dashboard";
+    }, 1000); 
 
   } catch (error) {
-
     if (error.code === "auth/user-not-found") {
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    showPopup("Account created & logged in!", "success");
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = cred.user;
 
-    // ✅ Vercel-friendly redirect
-    window.location.href = "Dashboard.html";
+        await setDoc(doc(db, "users", user.uid), {
+          email: user.email,
+          provider: "password",
+          createdAt: serverTimestamp()
+        });
 
-  } catch (err) {
-    showPopup("Registration failed", "error");
-  }
+        showPopup("Account created & logged in!", "success");
+        window.location.href = "/dashboard";
 
-} else if (error.code === "auth/wrong-password") {
-  showPopup("Wrong password!", "error");
-
-} else {
-  console.error(error);
-  showPopup("Login failed!", "error");
-}
+      } catch (err) {
+        console.error(err);
+        showPopup("Registration failed", "error");
+      }
+    } else if (error.code === "auth/wrong-password") {
+      showPopup("Wrong password!", "error");
+    } else {
+      console.error(error);
+      showPopup("Login failed!", "error");
+    }
   }
 });
 
 // ===============================
-// Google Login
+// Google Login (No Profile Photo)
 // ===============================
 document.getElementById("googleLogin").addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
-
     const user = result.user;
-    console.log("Google User:", user);
+
+    // Save only email, role, name (no profilePic)
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        email: user.email,
+        fullName: user.displayName || "Google User",
+        provider: "google",
+        lastLogin: serverTimestamp()
+      },
+      { merge: true }
+    );
 
     showPopup("Google Login Successful!", "success");
     window.location.href = "/dashboard";
 
   } catch (error) {
+    console.error(error);
     showPopup("Google Login Failed", "error");
   }
 });
-
