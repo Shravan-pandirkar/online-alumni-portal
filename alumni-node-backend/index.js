@@ -4,12 +4,18 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
+const cors = require("cors");
 
 // ================== APP INIT ==================
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ================== MIDDLEWARE ==================
+app.use(cors({
+  origin: "*", // 🔒 In production, replace with your frontend URL
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,7 +27,7 @@ app.use("/templates", express.static(path.join(__dirname, "templates"))); // opt
 // ================== FRONTEND ROUTES ==================
 const templatesPath = path.join(__dirname, "templates");
 
-app.get("/", (_req, res) => res.sendFile(path.join(templatesPath, "FrontPage.html"))); // default route to Chat page
+app.get("/", (_req, res) => res.sendFile(path.join(templatesPath, "Chat.html"))); // default route to Chat page
 app.get("/frontpage", (_req, res) => res.sendFile(path.join(templatesPath, "FrontPage.html")));
 app.get("/about", (_req, res) => res.sendFile(path.join(templatesPath, "about_us.html")));
 app.get("/profile", (_req, res) => res.sendFile(path.join(templatesPath, "MyProfile.html")));
