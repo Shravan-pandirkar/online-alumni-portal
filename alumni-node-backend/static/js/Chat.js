@@ -29,6 +29,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+  // ===============================
+// Popup Helper
+// ===============================
+function showPopup(message, type = "success") {
+  const popup = document.getElementById("popup");
+  const popupMessage = document.getElementById("popupMessage");
+
+  if (!popup || !popupMessage) return;
+
+  popupMessage.innerText = message;
+  popup.className = `popup ${type}`;
+  popup.classList.remove("hidden");
+
+  setTimeout(() => {
+    popup.classList.add("hidden");
+  }, 1000);
+}
+
+
+
+
+
   // ================== ELEMENTS ==================
   const alumniGrid = document.getElementById("alumniList");
   const selectAllCheckbox = document.getElementById("selectAll");
@@ -146,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ================== SEND MESSAGE ==================
   sendBtn.addEventListener("click", async () => {
     const message = messageInput.value.trim();
-    if (!message) return alert("Message cannot be empty");
+    if (!message) return showPopup("Message cannot be empty", "error");
 
     const emails = [];
     document.querySelectorAll(".user-checkbox:checked").forEach(cb => {
@@ -154,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (emails.length === 0) {
-      alert("Select at least one user");
+      showPopup("Select at least one user", "error");
       return;
     }
 
@@ -169,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const data = await res.json();
-      alert(data.message || "Email sent");
+      showPopup(data.message || "Email sent");
 
       messageInput.value = "";
       selectAllCheckbox.checked = false;
@@ -177,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (err) {
       console.error(err);
-      alert("Failed to send email");
+      showPopup("Failed to send email", "error");
     } finally {
       sendBtn.disabled = false;
       sendBtn.innerText = "Send";
