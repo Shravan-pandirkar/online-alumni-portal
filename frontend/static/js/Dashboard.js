@@ -279,14 +279,19 @@ async function loadAlumniForEvent() {
 
     snapshot.forEach(docSnap => {
       const alumni = { uid: docSnap.id, ...docSnap.data() };
-      alumniListDiv.innerHTML += `
-        <div class="alumni-item">
-          <label>
-            <input type="checkbox" class="alumniCheck" value="${alumni.uid}">
-            ${alumni.fullName} (${alumni.aluPass || "N/A"})
-          </label>
-        </div>
-      `;
+      const photo = alumni.profilePic || DEFAULT_AVATAR;
+
+alumniListDiv.innerHTML += `
+  <div class="alumni-item">
+    <label class="alumni-label">
+      <input type="checkbox" class="alumniCheck" value="${alumni.uid}">
+      <img src="${photo}" alt="👤" class="alumni-avatar">
+      <span>
+        ${alumni.fullName} (${alumni.aluPass || "N/A"})
+      </span>
+    </label>
+  </div>
+`;
     });
   } catch (err) {
     console.error(err);

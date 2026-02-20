@@ -299,29 +299,36 @@ body {
 
 
 .create-event-btn {
-  background: #3571b1;
-  color: #fff;
-  padding: 8px 14px;
-  border: none;
+  background: #a2cfff;
+  color: #0003ff;
+  padding: 10px 18px;
+  border: 2px solid;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
   margin-bottom: 12px;
+  font-family: cursive;
+  font-weight: bold;
 }
 
 .create-event-box {
-  background: #f5f7fa;
+  background: #eef5ff;
   padding: 15px;
-  width: 300px;
+  width: 830px;
   border-radius: 10px;
   margin-bottom: 20px;
   animation: slideDown 0.3s ease;
 }
 
 .create-event-box input {
-  width: 100%;
-  padding: 7px;
+  width: 97%;
+  border-radius: 10px;
+  padding: 10px;
   margin-bottom: 8px;
+  background: #eef5ff;
+  color: #1e40af;
+  border: 1px solid;
+  font-family: cursive;
 }
 
 .event-actions {
@@ -333,8 +340,12 @@ body {
   flex: 1;
   padding: 7px;
   border-radius: 6px;
-  border: none;
+  border: 1px solid;
   cursor: pointer;
+  background-color: #a2cfff;
+  color: #132e87;
+  font-weight: bold;
+  font-family: cursive;
 }
 
 .event-actions .cancel {
@@ -529,6 +540,7 @@ body {
 /* Label alignment */
 .invite-alumni-row label {
   margin: 0;
+  font-family: cursive;
   cursor: pointer;
   font-size: 14px;
 }
@@ -794,70 +806,7 @@ body {
 }
 
 
-/* CHAT LAYOUT */
-.chat-layout{
-    display:flex;
-    height:80vh;
-    background:#f1f5f9;
-    border-radius:20px;
-    overflow:hidden;
-}
 
-/* USERS LIST */
-.chat-users{
-    width:280px;
-    background:white;
-    padding:20px;
-    border-right:1px solid #e5e7eb;
-    overflow-x: hidden;
-}
-
-.chat-users h2{
-    margin-bottom: 15px;
-    margin-top: -20px;
-
-    padding: 10px 16px;
-
-    background: linear-gradient(135deg, #0005e5, #2563eb);
-    color: #ffffff;
-
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 12px;
-
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-/* USER ITEM */
-.user{
-    display: flex;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 12px;
-    cursor: pointer;
-
-    /* Smooth transitions */
-    transition:
-        background-color 0.25s ease,
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-/* Hover animation */
-.user:hover{
-    background:rgb(241, 248, 255);
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* Click (active) animation */
-.user:active{
-    transform: translateY(-1px) scale(0.98);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
 
 
 
@@ -880,6 +829,7 @@ h4{
     margin-inline-start: 4px;
     margin-inline-end: 4px;
     font-weight: bold;
+    font-family: cursive;
     unicode-bidi: isolate;
 }
 p{
@@ -905,121 +855,6 @@ p{
 
 
 
-/* CHAT BOX */
-.chat-box{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-}
-
-/* HEADER */
-.chat-header{
-    padding: 16px 20px;
-    margin-top: -25px;
-
-    background: linear-gradient(135deg, #ffffff, #f8fafc);
-    border-bottom: 1px solid #e5e7eb;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-
-    border-radius: 0 0 16px 16px;
-
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-}
-
-
-
-
-
-
-
-/* INPUT */
-.chat-input{
-    display:flex;
-    gap:10px;
-    padding:16px;
-    background:white;
-    border-top:1px solid #e5e7eb;
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #c7d2fe;
-    outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-/* Optional: hover/focus effect for input */
-.chat-input input:hover,
-.chat-input input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 5px rgba(99, 102, 241, 0.3); /* subtle glow */
-}
-
-.chat-input button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 12px;
-    background: var(--primary);
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s, color 0.3s;
-}
-
-/* Hover effect */
-.chat-input button:hover {
-    background: #3354fa; /* slightly darker than var(--primary) */
-    color: white;         /* ensure text stays white */
-    transform: translateY(-2px); /* subtle lift */
-}
-
-/* Active/click effect */
-.chat-input button:active {
-    transform: translateY(0);
-    background: #4f41eb; /* slightly darker when clicked */
-}
-
-
-
-/* CHAT MESSAGES CONTAINER */
-.chat-messages {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.message {
-  max-width: 70%;
-  margin: 6px 0;
-  padding: 10px 14px;
-  border-radius: 16px;
-}
-
-.message.sent {
-  align-self: flex-end;
-  background: #7db454;
-}
-
-.message.received {
-  align-self: flex-start;
-  background: #f44444;
-}
-
-
-/* EMPTY CHAT */
-.empty-chat{
-    text-align:center;
-    color:#64748b;
-    margin-top:40px;
-}
 
 
 
@@ -1029,11 +864,6 @@ p{
 
 
 
-.chat-user-header{
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
 
 .avatar{
     width: 42px;
@@ -1053,80 +883,25 @@ p{
     object-fit: cover;
 }
 
-.icon{
-    font-size: 20px;
-}
-
-.user-name{
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.chat-users {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.chat-search {
-    padding: 8px 12px;
-    border-radius: 100px;
-    border: 2px solid #ccc;
-    outline: none;
-    font-size: 14px;
-    transition: border-color 0.3s, box-shadow 0.3s; /* smooth effect */
-}
-
-/* Hover effect */
-.chat-search:hover {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-/* Focus effect */
-.chat-search:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
 
 
-/* Chat container */
-#chatMessages {
+
+
+
+.alumni-label {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 10px;
-  padding: 10px;
-  height: 400px; /* adjust as needed */
-  overflow-y: auto;
-}
-
-
-
-.delete-msg {
-  margin-left: 10px;
-  font-size: 12px;
   cursor: pointer;
-  color: #f87171; /* red */
-  user-select: none;
 }
 
-.delete-msg:hover {
-  color: #ef4444;
+.alumni-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
 }
-
-.message.selectable {
-  cursor: pointer;
-  position: relative;
-}
-
-.message.selected {
-  border: 2px solid #3b82f6; /* blue highlight */
-  background-color: #dbeafe;
-}
-
-
 
 
 
