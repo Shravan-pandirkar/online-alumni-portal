@@ -10,7 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ================== MIDDLEWARE ==================
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://online-alumni-portal.vercel.app"
+  ],
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -24,10 +31,11 @@ app.get("/", (_req, res) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "onlinealumniportal@gmail.com",       // your Gmail
-    pass: "miqfmbdqytjodjpo"                    // your 16-character App Password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
+
 
 // ================== SEND EMAIL ENDPOINT ==================
 app.post("/send-email", async (req, res) => {
@@ -46,19 +54,20 @@ app.post("/send-email", async (req, res) => {
     console.log("📧 Sending email to:", emails);
 
     // ------------------ EMAIL OPTIONS ------------------
-    const mailOptions = {
-      from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
-      to: emails.join(","),         // multiple recipients
-      subject: "📢 New Message from SGDTP Alumni Portal",
-      text: message,                // plain text fallback
-      html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-          <h2>${message}</h2>
-          <hr>
-          <small>— SGDTP Alumni Portal</small>
-        </div>
-      `
-    };
+   const mailOptions = {
+  from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
+  to: emails.join(","),
+  subject: "📢 New Message from SGDTP Alumni Portal",
+  text: message,
+  html: `
+    <div style="font-family: Arial, sans-serif;">
+      <h2>${message}</h2>
+      <hr>
+      <small>— SGDTP Alumni Portal</small>
+    </div>
+  `
+};
+
 
     // ------------------ SEND EMAIL ------------------
     const info = await transporter.sendMail(mailOptions);
