@@ -11,8 +11,6 @@ const PORT = process.env.PORT || 5000;
 
 // ================== MIDDLEWARE ==================
 
-const cors = require("cors");
-
 app.use(cors({
   origin: true,                // allow all origins safely
   methods: ["GET", "POST"],
