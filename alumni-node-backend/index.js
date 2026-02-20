@@ -1,13 +1,9 @@
-// ================== IMPORTS ==================
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 
-// ================== APP INIT ==================
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // ================== MIDDLEWARE ==================
 app.use(cors());
@@ -20,12 +16,11 @@ app.get("/", (_req, res) => {
 });
 
 // ================== EMAIL TRANSPORTER ==================
-// Using Gmail App Password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "onlinealumniportal@gmail.com",       // your Gmail
-    pass: "miqfmbdqytjodjpo"                    // your 16-character App Password
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD
   }
 });
 
@@ -34,7 +29,6 @@ app.post("/send-email", async (req, res) => {
   try {
     const { emails, message } = req.body;
 
-    // ------------------ VALIDATION ------------------
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return res.status(400).json({ success: false, error: "Emails are required" });
     }
@@ -43,44 +37,36 @@ app.post("/send-email", async (req, res) => {
       return res.status(400).json({ success: false, error: "Message is required" });
     }
 
-    console.log("📧 Sending email to:", emails);
-
-    // ------------------ EMAIL OPTIONS ------------------
     const mailOptions = {
-      from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
-      to: emails.join(","),         // multiple recipients
+      from: `"SGDTP Alumni Portal" <${process.env.GMAIL_USER}>`,
+      to: emails.join(","),
       subject: "📢 New Message from SGDTP Alumni Portal",
-      text: message,                // plain text fallback
+      text: message,
       html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-          <h2>${message}</h2>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <p>${message}</p>
           <hr>
           <small>— SGDTP Alumni Portal</small>
         </div>
       `
     };
 
-    // ------------------ SEND EMAIL ------------------
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent:", info.messageId);
 
     return res.json({
       success: true,
-      message: `Email successfully sent to ${emails.length} recipient(s)`,
+      message: `Email sent to ${emails.length} recipient(s)`,
       messageId: info.messageId
     });
 
   } catch (err) {
-    console.error("❌ Email Error:", err.message);
+    console.error("❌ Email Error:", err);
     return res.status(500).json({
       success: false,
-      error: "Failed to send email",
-      details: err.message
+      error: "Failed to send email"
     });
   }
 });
 
-// ================== START SERVER ==================
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+// ❌ DO NOT app.listen() on Vercel
+module.exports = app;
