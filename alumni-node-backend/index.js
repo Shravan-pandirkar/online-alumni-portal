@@ -10,16 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ================== MIDDLEWARE ==================
-
-app.use(cors({
-  origin: true,                // allow all origins safely
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"]
-}));
-
-app.options("*", cors());
-
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -30,52 +21,62 @@ app.get("/", (_req, res) => {
 
 // ================== EMAIL TRANSPORTER ==================
 // Using Gmail App Password
-
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: "onlinealumniportal@gmail.com",       // your Gmail
+    pass: "miqfmbdqytjodjpo"                    // your 16-character App Password
   }
 });
 
-
 // ================== SEND EMAIL ENDPOINT ==================
 app.post("/send-email", async (req, res) => {
-  console.log("🔥 /send-email reached");
-  console.log("📦 BODY:", req.body);
-
-  const { emails, message } = req.body;
-
-  if (!emails || !Array.isArray(emails) || emails.length === 0) {
-    return res.status(400).json({ error: "Emails required" });
-  }
-
-  if (!message) {
-    return res.status(400).json({ error: "Message required" });
-  }
-
   try {
-    const info = await transporter.sendMail({
-      from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
-      to: emails.join(","),
-      subject: "New Message from Alumni Portal",
-      text: message,
-      html: `<p>${message}</p>`
-    });
+    const { emails, message } = req.body;
 
+    // ------------------ VALIDATION ------------------
+    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({ success: false, error: "Emails are required" });
+    }
+
+    if (!message || message.trim() === "") {
+      return res.status(400).json({ success: false, error: "Message is required" });
+    }
+
+    console.log("📧 Sending email to:", emails);
+
+    // ------------------ EMAIL OPTIONS ------------------
+    const mailOptions = {
+      from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
+      to: emails.join(","),         // multiple recipients
+      subject: "📢 New Message from SGDTP Alumni Portal",
+      text: message,                // plain text fallback
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <h2>${message}</h2>
+          <hr>
+          <small>— SGDTP Alumni Portal</small>
+        </div>
+      `
+    };
+
+    // ------------------ SEND EMAIL ------------------
+    const info = await transporter.sendMail(mailOptions);
     console.log("✅ Email sent:", info.messageId);
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Email sent successfully"
+      message: `Email successfully sent to ${emails.length} recipient(s)`,
+      messageId: info.messageId
     });
 
   } catch (err) {
-    console.error("❌ MAIL ERROR:", err.message);
-    res.status(500).json({ error: err.message });
+    console.error("❌ Email Error:", err.message);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to send email",
+      details: err.message
+    });
   }
 });
 
