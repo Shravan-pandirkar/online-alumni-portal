@@ -97,5 +97,5 @@ app.post("/send-email", async (req, res) => {
 
 // ================== START SERVER ==================
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at https://online-alumni-portal-ayej.onrender.com`);
 });
