@@ -10,9 +10,9 @@
 <header class="header">
         <div class="logo">SGDTP Alumni Portal</div>
         <nav class="nav">
-           <a href="/templates/MyProfile.html" class="register-link">👤 My Profile</a>
-           <a href="/templates/Dashboard.html" class="register-link">🔎 Search Alumni</a>
-            <a href="/templates/Dashboard.html" class="register-link">🥳 Events</a>
+           <a href="{{ url_for('profile') }}" class="register-link">👤 My Profile</a>
+           <a href="{{ url_for('dashboard') }}" class="register-link">🔎 Search Alumni</a>
+            <a href="{{ url_for('dashboard') }}" class="register-link">🥳 Events</a>
 
         </nav>
     </header>
