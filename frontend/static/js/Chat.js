@@ -185,7 +185,7 @@ function showPopup(message, type = "success", duration = 3000) {
       sendBtn.disabled = true;
       sendBtn.innerText = "Sending...";
 
-      const res = await fetch("http://localhost:5000/send-email",
+      const res = await fetch("https://online-alumni-portal-backend.onrender.com/send-email",
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
