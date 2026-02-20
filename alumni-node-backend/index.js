@@ -19,8 +19,8 @@ app.get("/", (_req, res) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -38,14 +38,14 @@ app.post("/send-email", async (req, res) => {
     }
 
     const mailOptions = {
-      from: `"SGDTP Alumni Portal" <${process.env.GMAIL_USER}>`,
+      from: `"SGDTP Alumni Portal" <${process.env.EMAIL_USER}>`,
       to: emails.join(","),
       subject: "📢 New Message from SGDTP Alumni Portal",
       text: message,
       html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <div style="font-family: Arial, sans-serif;">
           <p>${message}</p>
-          <hr>
+          <hr />
           <small>— SGDTP Alumni Portal</small>
         </div>
       `
@@ -53,7 +53,7 @@ app.post("/send-email", async (req, res) => {
 
     const info = await transporter.sendMail(mailOptions);
 
-    return res.json({
+    res.json({
       success: true,
       message: `Email sent to ${emails.length} recipient(s)`,
       messageId: info.messageId
@@ -61,12 +61,12 @@ app.post("/send-email", async (req, res) => {
 
   } catch (err) {
     console.error("❌ Email Error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
-      error: "Failed to send email"
+      error: err.message
     });
   }
 });
 
-// ❌ DO NOT app.listen() on Vercel
+// ✅ Export for Vercel
 module.exports = app;
