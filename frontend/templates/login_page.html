@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/css/login_page.css">
+    <script type="module" src="/static/js/Login.js"></script>
+
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+           <a href="{{ url_for('login') }}" class="login-link">Login</a>
+           <a href="{{ url_for('register') }}" class="register-link">Register</a>
+        </nav>
+    </header>
+
+    <!-- Popup Message -->
+<div id="popup" class="popup hidden">
+  <span id="popupMessage"></span>
+</div>
+
+
+<div class="main-content">
+    <div class="login-container">
+        <form class="login-form">
+            <h2 class="form-title">Login with your account</h2>
+
+            <div class="input-group">
+                <input type="email" id="username" placeholder="Enter the email">
+                <label for="username" class="input-label">📧 Email</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Enter the Password">
+                <label for="password" class="input-label">🗝️ Password</label>
+            </div>
+
+            <button type="submit" class="login-btn">LOGIN</button>
+
+        </form>
+    </div>
+</div>
+<div class="divider">
+    <span>OR</span>
+</div>
+
+
+
+
+<button type="button" id="googleLogin" class="google-login-btn">
+    <img src="https://developers.google.com/identity/images/g-logo.png">
+    Login with Google
+</button>
+
+</body>
+</html>

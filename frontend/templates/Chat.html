@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>✉️ Send Message</title>
+   <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
+  <link rel="stylesheet" href="/static/css/Chat.css" />
+</head>
+<body>
+<header class="header">
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+           <a href="/templates/MyProfile.html" class="register-link">👤 My Profile</a>
+           <a href="/templates/Dashboard.html" class="register-link">🔎 Search Alumni</a>
+            <a href="/templates/Dashboard.html" class="register-link">🥳 Events</a>
+
+        </nav>
+    </header>
+
+
+<div class="app">
+<!-- Popup -->
+<div id="popupContainer" class="popup-container"></div>
+
+  <h1>Send Message</h1>
+
+  <!-- SEARCH + SELECT ALL -->
+  <div class="top-bar">
+    <input type="text" id="searchAlumni" placeholder="Search alumni by name...">
+
+    <label class="select-all">
+      <input type="checkbox" id="selectAll">
+      Select All
+    </label>
+  </div>
+
+  <!-- ALUMNI LIST -->
+  <div class="alumni-list" id="alumniList">
+    <!-- Alumni cards loaded from Firestore -->
+  </div>
+
+  <!-- MESSAGE BAR -->
+  <div class="message-bar">
+    <textarea id="messageText" placeholder="Type your message..."></textarea>
+    <button class="btn" id="sendBtn">Send</button>
+  </div>
+
+</div>
+
+
+<!-- Firebase -->
+<script type="module" src="/static/js/Chat.js"></script>
+</body>
+</html>
