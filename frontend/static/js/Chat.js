@@ -75,7 +75,10 @@ function showPopup(message, type = "success", duration = 3000) {
 
   // ================== LOAD USERS ==================
  async function loadUsers() {
-  alumniGrid.innerHTML = "<p>Loading users...</p>";
+  const loader = document.getElementById("loader");
+
+  alumniGrid.innerHTML = "";
+  loader.classList.remove("hidden");
   allUsers = [];
 
   try {
@@ -105,9 +108,10 @@ function showPopup(message, type = "success", duration = 3000) {
   } catch (err) {
     console.error("Firestore error:", err);
     alumniGrid.innerHTML = "<p>Permission denied</p>";
+  } finally {
+    loader.classList.add("hidden");
   }
 }
-
 
   // ================== RENDER USERS ==================
   function renderUsers(users) {

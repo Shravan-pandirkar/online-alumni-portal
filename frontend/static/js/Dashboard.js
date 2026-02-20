@@ -115,8 +115,7 @@ onAuthStateChanged(auth, async user => {
 
 let cachedUsers = null;
 
-const loadingContainer = document.getElementById("loadingBarContainer");
-
+const loader = document.getElementById("loader");
 async function loadUsers() {
   if (cachedUsers) {
     allUsers = cachedUsers;   // ✅ important
@@ -125,7 +124,7 @@ async function loadUsers() {
   }
 
   alumniGrid.innerHTML = "";
-  loadingContainer.classList.remove("hidden");
+  loader.classList.remove("hidden");
 
   try {
     const q = query(
@@ -147,7 +146,7 @@ async function loadUsers() {
     console.error(error);
     alumniGrid.innerHTML = "<p>Error loading users</p>";
   } finally {
-    loadingContainer.classList.add("hidden");
+    loader.classList.add("hidden");
   }
 }
 

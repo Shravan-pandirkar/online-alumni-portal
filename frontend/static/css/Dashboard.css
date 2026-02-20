@@ -595,7 +595,7 @@ body {
     border-radius:16px;
     padding:20px;
     box-shadow:0 8px 25px rgba(0,0,0,.1);
-    border:1px solid #e5e7eb;
+    border:1px solid #0055ff;
     transition:.3s;
 
     justify-content:space-between;
@@ -755,56 +755,31 @@ body {
   color: #fff;
 }
 
-/* Loading bar container */
-.loading-container {
-  width: 97%;
-  height: 4px;
-  background: #f3f3f3;
-  overflow: hidden;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-/* Actual loading bar */
-.loading-bar {
-  height: 100%;
-  width: 30%;
-  background: linear-gradient(
-    90deg,
-    #007bff,
-    #4da3ff,
-    #007bff
-  );
-  border-radius: 4px;
-  animation: loadingAnim 1.5s ease-in-out infinite;
-}
-
-/* Smooth animation */
-@keyframes loadingAnim {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(30%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
 
 
 
-/* Smooth show / hide */
-.loading-container {
-  transition: opacity 0.3s ease;
+
+
+.loader {
+  width: 80px;
+  height: 80px;
+  border: 8px solid #e5e7eb;
+  border-top: 8px solid #0d00ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 80px auto;
 }
 
 .hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 
 
