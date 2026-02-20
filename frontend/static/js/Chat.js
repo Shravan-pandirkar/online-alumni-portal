@@ -185,7 +185,8 @@ function showPopup(message, type = "success", duration = 3000) {
       sendBtn.disabled = true;
       sendBtn.innerText = "Sending...";
 
-      const res = await fetch("https://online-alumni-portal-backend.onrender.com/send-email",
+    const res = await fetch(
+  "https://online-alumni-portal-backend.onrender.com/send-email",
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -193,9 +194,13 @@ function showPopup(message, type = "success", duration = 3000) {
   }
 );
 
+if (!res.ok) {
+  const errorData = await res.json();
+  throw new Error(errorData.error || "Server error");
+}
 
       const data = await res.json();
-      showPopup(data.message || "Email sent");
+      showPopup(data.message);
 
       messageInput.value = "";
       selectAllCheckbox.checked = false;
