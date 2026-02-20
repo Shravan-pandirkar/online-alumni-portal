@@ -24,13 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     appId: "1:947099064778:web:7eb45b444d5cc6cd651733"
   };
 
-  // ================== INIT ==================
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-// Chat.js
-
+  
 function showPopup(message, type = "success", duration = 3000) {
     const popupContainer = document.getElementById("popupContainer");
 
@@ -49,8 +43,10 @@ function showPopup(message, type = "success", duration = 3000) {
     }, duration);
 }
 
-
-
+  // ================== INIT ==================
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
   // ================== ELEMENTS ==================
   const alumniGrid = document.getElementById("alumniList");
@@ -169,7 +165,7 @@ function showPopup(message, type = "success", duration = 3000) {
   // ================== SEND MESSAGE ==================
   sendBtn.addEventListener("click", async () => {
     const message = messageInput.value.trim();
-    if (!message) return showPopup("Message cannot be empty", "error");
+    if (!message) return alert("Message cannot be empty");
 
     const emails = [];
     document.querySelectorAll(".user-checkbox:checked").forEach(cb => {
@@ -185,23 +181,14 @@ function showPopup(message, type = "success", duration = 3000) {
       sendBtn.disabled = true;
       sendBtn.innerText = "Sending...";
 
-   const res = await fetch(
-  "https://online-alumni-portal-backend.onrender.com/send-email",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ emails, message })
-  }
-);
-
-
-if (!res.ok) {
-  const errorData = await res.json();
-  throw new Error(errorData.error || "Server error");
-}
+      const res = await fetch("http://localhost:5000/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emails, message })
+      });
 
       const data = await res.json();
-      showPopup(data.message);
+      showPopup(data.message || "Email sent");
 
       messageInput.value = "";
       selectAllCheckbox.checked = false;
