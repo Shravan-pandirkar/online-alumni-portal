@@ -413,7 +413,41 @@ onSnapshot(eventsRef, snapshot => {
   });
 });
 
+// ================== SEND MESSAGE ROLE CHECK ==================
+async function handleSendMessage() {
+  const user = auth.currentUser;
 
+  if (!user) {
+    showPopup("Please login first", "error");
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      showPopup("User profile not found", "error");
+      return;
+    }
+
+    const userData = snap.data();
+
+    if (userData.role === "teacher") {
+      // ✅ Teacher allowed
+      window.location.href = "/chat";
+    } else {
+      // ❌ Not allowed
+      showPopup("Only teachers can send messages", "error");
+    }
+  } catch (err) {
+    console.error(err);
+    showPopup("Permission check failed", "error");
+  }
+}
+
+// expose to HTML
+window.handleSendMessage = handleSendMessage;
 
 
 

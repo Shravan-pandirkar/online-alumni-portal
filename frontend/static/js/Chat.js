@@ -166,10 +166,18 @@ function showPopup(message, type = "success", duration = 3000) {
     );
   });
 
+  
+messageInput.addEventListener("input", function () {
+  this.style.height = "auto";                 // reset height
+  this.style.height = this.scrollHeight + "px"; // grow based on content
+});
+
+
+
   // ================== SEND MESSAGE ==================
   sendBtn.addEventListener("click", async () => {
     const message = messageInput.value.trim();
-    if (!message) return alert("Message cannot be empty");
+    if (!message) return showPopup("Message cannot be empty", "error");
 
     const emails = [];
     document.querySelectorAll(".user-checkbox:checked").forEach(cb => {
@@ -199,6 +207,7 @@ function showPopup(message, type = "success", duration = 3000) {
 
       messageInput.value = "";
       selectAllCheckbox.checked = false;
+      messageInput.style.height = "50px";
       document.querySelectorAll(".user-checkbox").forEach(cb => cb.checked = false);
 
     } catch (err) {

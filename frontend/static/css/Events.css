@@ -1,0 +1,300 @@
+
+:root {
+--primary-blue: #06478c; 
+--accent-blue: #007bff; 
+--text-dark: #212529; 
+--text-light: #495057; 
+--white: #ffffff;
+}
+
+
+body {
+font-family: 'Roboto', sans-serif;
+margin: 0;
+padding: 0;
+color: var(--text-dark);
+}
+.fade-in {
+opacity: 0;
+transform: translateY(20px); 
+transition: opacity 1s ease, transform 1s ease;
+}
+
+.fade-in.visible {
+opacity: 1;
+transform: translateY(0);
+}
+
+/* --- Header Section --- */
+.header {
+background-color: var(--primary-blue);
+padding: 20px 80px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.logo {
+font-family: math;
+font-size: 32px;
+font-weight: 700;
+color: var(--white);
+letter-spacing: 0.5px;
+position: relative;
+display: inline-block;
+transition: all 0.4s ease;
+}
+
+.nav {
+display: flex;
+gap: 30px;
+}
+
+/* Login/Register Links /
+/ Login/Register Links */
+.login-link,
+.register-link {
+color: var(--white);
+text-decoration: none;
+font-family: math;
+font-size: 18px;
+font-weight: 700;
+padding: 8px 20px;
+border: 2px solid transparent;
+border-radius: 50px;
+position: relative;
+overflow: hidden;
+transition: all 0.4s ease;
+}
+
+/* Glow + Hover Effects */
+.login-link:hover,
+.register-link:hover {
+color: #fff;
+border: 1px solid #fff;
+background-color: rgba(255, 255, 255, 0.1);
+transform: translateY(-3px) scale(1.05);
+box-shadow: 0 0 10px #ffffffc4, 0 0 20px rgba(255,255,255,0.3);
+}
+
+/* Press Effect */
+.login-link:active,
+.register-link:active {
+transform: translateY(0) scale(0.98);
+box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Shine Animation */
+.login-link::before,
+.register-link::before {
+content: '';
+position: absolute;
+top: 0;
+left: -75%;
+width: 50%;
+height: 100%;
+background: linear-gradient(
+120deg,
+rgba(255, 255, 255, 0) 0%,
+rgba(255, 255, 255, 0.4) 50%,
+rgba(255, 255, 255, 0) 100%
+);
+transform: skewX(-25deg);
+transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+.login-link:hover::before,
+.register-link:hover::before {
+left: 125%;
+transition: left 0.7s ease;
+}
+
+/* Optional: Smooth text glow */
+.login-link span,
+.register-link span {
+display: inline-block;
+transition: text-shadow 0.4s ease;
+}
+
+.login-link:hover span,
+.register-link:hover span {
+text-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.7);
+}
+
+p{
+    display: block;
+    margin-block-start: 4px;
+    margin-block-end: 4px;
+    margin-inline-start: 4px;
+    margin-inline-end: -30px;
+    unicode-bidi: isolate;
+}
+
+
+/* HEADINGS */
+.searchtext,
+.eventstext,
+.view h1{
+    font-size:32px;
+    font-weight:700;
+    background:#021f5b;
+    -webkit-background-clip:text;
+    color:transparent;
+    margin-top: 30px;
+    margin-left: 40px;
+    font-family: math;
+}
+
+/* ================== EVENTS ================== */
+/* ================== EVENTS (FINAL) ================== */
+
+.event-item {
+    position: relative;
+    background: #ffffff;
+    margin: 20px 30px;
+    padding: 24px 28px;
+    border-radius: 20px;
+    color: #111827;
+    overflow: hidden;
+
+
+    transition:
+        transform 0.35s cubic-bezier(.4,0,.2,1),
+        box-shadow 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+/* ================== LEFT ACCENT ================== */
+.event-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+
+    /* CENTER IT */
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 8px;
+    height: 64%;
+    border-radius: 10px;
+
+    background: linear-gradient(
+        180deg,
+        #6366f1,
+        #8b5cf6
+    );
+
+    z-index: 2;
+
+    transition:
+        height 0.35s cubic-bezier(.4,0,.2,1),
+        box-shadow 0.35s ease,
+        background 0.35s ease;
+}
+
+/* ================== SHIMMER OVERLAY ================== */
+
+.event-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(99,102,241,0.08),
+        transparent
+    );
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.4s ease;
+}
+
+/* ================== HOVER EFFECTS ================== */
+
+.event-item:hover {
+    transform: translateY(-8px) scale(1.01);
+}
+
+.event-item:hover::before {
+    height: 88%;
+    background: linear-gradient(
+        180deg,
+        #4f46e5,
+        #7c3aed
+    );
+    box-shadow:
+        0 0 18px rgba(99,102,241,0.55),
+        0 0 36px rgba(139,92,246,0.35);
+}
+.event-item:hover::after {
+    opacity: 1;
+}
+
+/* ================== CONTENT ================== */
+
+.event-item h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    margin-top: 5px;
+    letter-spacing: 0.3px;
+}
+
+.event-item p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ================== INVITATION BADGE ================== */
+
+.event-item .alumni-msg {
+    margin-top: 14px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+/* ================== MOBILE ================== */
+
+@media (max-width: 768px) {
+    .event-item {
+        margin: 16px;
+        padding: 20px;
+        border-radius: 18px;
+    }
+
+    .event-item h3 {
+        font-size: 1.1rem;
+    }
+}
+
+
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #e5e7eb;
+  border-top: 5px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 40px auto;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

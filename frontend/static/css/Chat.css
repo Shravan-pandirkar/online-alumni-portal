@@ -48,6 +48,7 @@ body{
 .logo{
     font-size:32px;
     font-weight:700;
+    font-family: math;
     color:var(--white);
 }
 
@@ -67,6 +68,7 @@ body{
     text-decoration: none;
     font-size:16px;
     font-weight:700;
+    font-family: cursive;
     cursor:pointer;
     border-radius:12px;
     transition:.3s;
@@ -158,6 +160,7 @@ body{
     border-radius:100px;
     border:3px solid #c7d2fe;
     font-size:15px;
+    font-family: math;
     transition:.3s;
 }
 
@@ -174,6 +177,7 @@ body{
 .select-all {
   font-weight: 600;
   display: flex;
+  font-family: math;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
@@ -250,19 +254,23 @@ body{
     width: 100%;
     display: flex;
     gap: 10px;
+    align-items: flex-end;
 }
 
 .message-bar textarea {
     flex: 1;
-    resize: none;
-    height: 50px;
-    padding: 15px;
-    border-radius: 90px;
+    resize: none;          /* disable manual resize */
+    min-height: 50px;      /* default height */
+    max-height: 250px;     /* limit growth */
+    padding: 15px 20px;
+    border-radius: 25px;
     border: 1px solid #c7d2fe;
     font-size: 15px;
+    font-family: math;
+    line-height: 1.5;
+    overflow-y: hidden;    /* hide scrollbar */
 
-    /* Add transition for smooth effects */
-    transition: all 0.3s ease;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Example: change border and shadow on focus */
@@ -282,7 +290,9 @@ body{
 
 /* ================= SEND BUTTON ================= */
 .btn{
-    padding:0 26px;
+    padding:25px;
+    padding-top: 31px;
+    font-family: math;
     border:none;
     border-radius:12px;
     font-size:16px;
@@ -386,6 +396,7 @@ body{
 
 .info small {
   display: block;
+  font-family: math;
   font-size: 13px;
   color: #6b7280;
   margin-top: 5px;
@@ -399,6 +410,7 @@ body{
   padding-top: 2px;
   padding-bottom: 2px;
   font-size: 12px;
+  font-family: math;
   border-radius: 12px;
   background: #ccebff;
   color: #0369a1;

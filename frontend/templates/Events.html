@@ -1,11 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+  
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
+    <title>See Events</title>
+    <link rel="stylesheet" href="/static/css/Events.css">
+    <script type="module" src="/static/js/Events.js"></script>
 </head>
 <body>
-  
+
+    <header class="header">
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+            <a href="/templates/Events.html"  target="_blank" class="login-link" >See Events</a>
+           <a href="{{ url_for('login') }}"  target="_blank" class="login-link" >Login</a>
+           <a href="{{ url_for('register') }}"  target="_blank" class="register-link" >Register</a>
+        </nav>
+    </header>
+
+    <h1 class="eventstext">Upcoming Events 🎉</h1>
+<div id="loader" class="loader hidden"></div>
+<div id="alumniGrid"></div>
+  <div id="eventsList"></div>
+
+
 </body>
 </html>

@@ -47,7 +47,7 @@ body {
 .register-link {
     color: var(--white);
     text-decoration: none;
-    font-family: sans-serif;
+    font-family: math;
     font-size: 18px;
     font-weight: 700;
     padding: 8px 20px;

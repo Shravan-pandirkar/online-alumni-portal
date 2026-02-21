@@ -9,7 +9,7 @@
 
 /* Use the Google Fonts loaded in HTML head */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: math;
     margin: 0;
     padding: 0;
     color: var(--text-dark);
@@ -27,7 +27,7 @@ body {
 }
 
 .logo {  
-    font-family: Arial, Helvetica, sans-serif;  
+    font-family: math;  
     font-size: 32px;  
     font-weight: 700;  
     color: var(--white);  
@@ -49,7 +49,7 @@ body {
 .register-link {
     color: var(--white);
     text-decoration: none;
-    font-family: sans-serif;
+    font-family: math;
     font-size: 18px;
     font-weight: 700;
     padding: 8px 20px;
@@ -398,6 +398,7 @@ body {
 input,select{
     width:100%;
     padding:10px;
+    font-family: math;
     margin-top:10px;
     border-radius:6px;
     border:1px solid #ccc;

@@ -5,11 +5,17 @@ app = Flask(__name__)
 # First page → Login
 @app.route('/')
 def home():
-    return redirect(url_for('chat'))
+    return redirect(url_for('frontpage'))
 
 @app.route('/frontpage')
 def frontpage():
     return render_template('FrontPage.html')
+
+@app.route('/showevent')
+def showevent():
+    return render_template('Events.html')
+
+
 
 @app.route('/about')
 def about():

@@ -6,7 +6,7 @@
     --white: #ffffff;
 }
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: math;
     margin: 0;
     padding: 0;
     color: var(--text-dark);
@@ -561,7 +561,7 @@ body {
     -webkit-background-clip:text;
     color:transparent;
     margin-top:-10px;
-    font-family: cursive;
+    font-family: math;
 }
 
 /* SEARCH INPUT */
@@ -683,7 +683,7 @@ body {
     border-style: none;
     border-color: initial;
     border-image: initial;
-    
+    font-family: math;
     border:none;
     border-radius:10px;
     background:linear-gradient(135deg,var(--primary),var(--secondary));
