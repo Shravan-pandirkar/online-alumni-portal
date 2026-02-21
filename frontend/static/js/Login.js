@@ -41,6 +41,8 @@ const db = getFirestore(app);
 // ===============================
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
+provider.addScope("email");
+provider.addScope("profile");
 
 // ===============================
 // Popup Helper
@@ -130,11 +132,16 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // Save only email, role, name (no profilePic)
+    // 🔑 SAFELY get email
+    const email =
+      user.email ||
+      user.providerData?.[0]?.email ||
+      "unknown@gmail.com";
+
     await setDoc(
       doc(db, "users", user.uid),
       {
-        email: user.email,
+        email: email,
         fullName: user.displayName || "Google User",
         provider: "google",
         lastLogin: serverTimestamp()
