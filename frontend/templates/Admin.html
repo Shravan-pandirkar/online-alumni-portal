@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/static/images/admin.png">
+  <title>Alumni portal Admin panel</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/Admin.css">
+
+  <!-- Excel Library (REQUIRED for Generate Report) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div class="login-box">
+  <h2>Admin Login</h2>
+  <input
+    type="password"
+    id="adminPassword"
+    placeholder="Enter Admin Password"
+  >
+  <button onclick="adminLogin()">Login</button>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div class="dashboard hidden">
+
+  <!-- NAVIGATION -->
+  <div class="nav">
+    <button onclick="showSection('students')">Students</button>
+    <button onclick="showSection('alumni')">Alumni</button>
+    <button onclick="showSection('teachers')">Teachers</button>
+    <button onclick="showSection('events')">Events</button>
+
+    <button class="excel" onclick="generateExcel()">
+      Generate Report
+    </button>
+  </div>
+
+  <!-- STUDENTS SECTION -->
+  <div id="students" class="section">
+    <h3>Students</h3>
+    <button onclick="deleteSelected('students')">
+      Delete Selected
+    </button>
+    <table id="studentsTable"></table>
+  </div>
+
+  <!-- ALUMNI SECTION -->
+  <div id="alumni" class="section hidden">
+    <h3>Alumni</h3>
+    <button onclick="deleteSelected('alumni')">
+      Delete Selected
+    </button>
+    <table id="alumniTable"></table>
+  </div>
+
+  <!-- TEACHERS SECTION -->
+  <div id="teachers" class="section hidden">
+    <h3>Teachers</h3>
+    <button onclick="deleteSelected('teachers')">
+      Delete Selected
+    </button>
+    <table id="teachersTable"></table>
+  </div>
+
+  <!-- EVENTS SECTION -->
+  <div id="events" class="section hidden">
+    <h3>Events</h3>
+    <table id="eventsTable"></table>
+  </div>
+
+</div>
+
+<!-- ADMIN JS (MODULE) -->
+<script type="module" src="/static/js/admin.js"></script>
+</body>
+</html>
