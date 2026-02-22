@@ -32,6 +32,29 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ================== EVENT DELETE PERMISSION ==================
+const allowDelete = await canDeleteEvent();
+
+async function canDeleteEvent() {
+  const user = auth.currentUser;
+  if (!user) return false;
+
+  const userRef = doc(db, "users", user.uid);
+  const snap = await getDoc(userRef);
+
+  if (!snap.exists()) return false;
+
+  const data = snap.data();
+
+  const isTeacher = data.role === "teacher";
+  const isCommitteeStudent =
+    data.role === "student" &&
+    data.committee &&
+    data.committee.trim() !== "";
+
+  return isTeacher || isCommitteeStudent;
+}
+
 // ================== CLOUDINARY CONFIG ==================
 const DEFAULT_AVATAR = "https://res.cloudinary.com/dvyk0lfsb/image/upload/v1/default-avatar.png";
 
@@ -375,13 +398,16 @@ document.getElementById("createEventBtn").addEventListener("click", async () => 
 
 
 // LOAD EVENTS (REALTIME)
-onSnapshot(eventsRef, snapshot => {
+onSnapshot(eventsRef, async snapshot => {
   eventsList.innerHTML = "";
 
   if (snapshot.empty) {
     eventsList.innerHTML = "<p>No events available</p>";
     return;
   }
+
+  // 🔑 CHECK PERMISSION ONCE
+  const allowDelete = await canDeleteEvent();
 
   snapshot.forEach(eventDoc => {
     const event = eventDoc.data();
@@ -400,14 +426,29 @@ onSnapshot(eventsRef, snapshot => {
       <p>📅 Date: ${event.date}</p>
       <p>👤 Created By: ${event.createdBy}</p>
       ${isInvited ? `<p class="alumni-msg">🎓 You are invited to this event</p>` : ""}
-      <button class="delete-event-btn">🗑 Delete</button>
+      ${
+        allowDelete
+          ? `<button class="delete-event-btn">🗑 Delete</button>`
+          : ""
+      }
     `;
 
-    div.querySelector(".delete-event-btn").addEventListener("click", async () => {
-      if (!confirm("Delete this event?")) return;
-      await deleteDoc(doc(db, "events", eventDoc.id));
-      showPopup("Event deleted");
-    });
+    // ✅ ADD DELETE ONLY IF ALLOWED
+    if (allowDelete) {
+      div.querySelector(".delete-event-btn").addEventListener("click", async () => {
+        if (!confirm("Delete this event?")) return;
+
+        // 🔐 FINAL CHECK (extra safety)
+        const permitted = await canDeleteEvent();
+        if (!permitted) {
+          showPopup("You are not allowed to delete this event", "error");
+          return;
+        }
+
+        await deleteDoc(doc(db, "events", eventDoc.id));
+        showPopup("Event deleted successfully");
+      });
+    }
 
     eventsList.appendChild(div);
   });

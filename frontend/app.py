@@ -15,6 +15,9 @@ def frontpage():
 def showevent():
     return render_template('Events.html')
 
+@app.route('/admin')
+def admin():
+    return render_template('Admin.html')
 
 
 @app.route('/about')

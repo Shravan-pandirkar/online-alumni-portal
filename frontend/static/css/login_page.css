@@ -391,7 +391,7 @@ body {
   font-size: 16px;
   border-radius: 10px;
   text-align: center;
-  font-family: sans-serif;
+  font-family: math;
   z-index: 9999;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   opacity: 0;
