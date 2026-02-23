@@ -1,5 +1,4 @@
-/**************** ADMIN PASSWORD ****************/
-const ADMIN_PASSWORD = "admin@123";
+
 
 /**************** FIREBASE IMPORTS ****************/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -92,8 +91,8 @@ window.adminLogin = async () => {
     started = true;
   }
 };
-
 /**************** NAV ****************/
+const ADMIN_PASSWORD = "admin@123";
 window.showSection = id => {
   document.querySelectorAll(".section").forEach(s =>
     s.classList.add("hidden")
