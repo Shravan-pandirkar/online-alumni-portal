@@ -45,13 +45,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const exp = document.getElementById("exp");
   const city = document.getElementById("city");
 
-  const teachDept = document.getElementById("teachDept");
-  const designation = document.getElementById("designation");
-  const teachExp = document.getElementById("teachExp");
 
   const studentFields = document.getElementById("studentFields");
   const alumniFields = document.getElementById("alumniFields");
-  const teacherFields = document.getElementById("teacherFields");
 
   // ===== PROFILE PIC =====
   const profilePic = document.getElementById("profilePic");
@@ -66,7 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const viewStudent = document.getElementById("viewStudent");
   const viewAlumni = document.getElementById("viewAlumni");
-  const viewTeacher = document.getElementById("viewTeacher");
 
   const viewStuDept = document.getElementById("viewStuDept");
   const viewYear = document.getElementById("viewYear");
@@ -79,9 +74,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const viewExp = document.getElementById("viewExp");
   const viewCity = document.getElementById("viewCity");
 
-  const viewTeachDept = document.getElementById("viewTeachDept");
-  const viewDesignation = document.getElementById("viewDesignation");
-  const viewTeachExp = document.getElementById("viewTeachExp");
 
   // ===== UI FUNCTIONS =====
   function openEdit() {
@@ -107,14 +99,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function toggleRole() {
-    studentFields.style.display = "none";
-    alumniFields.style.display = "none";
-    teacherFields.style.display = "none";
+  studentFields.style.display = "none";
+  alumniFields.style.display = "none";
 
-    if (role.value === "student") studentFields.style.display = "block";
-    if (role.value === "alumni") alumniFields.style.display = "block";
-    if (role.value === "teacher") teacherFields.style.display = "block";
-  }
+  if (role.value === "student") studentFields.style.display = "block";
+  if (role.value === "alumni") alumniFields.style.display = "block";
+}
 
   // ===== PHONE VALIDATION =====
   function validatePhoneNumber(value) {
@@ -170,32 +160,47 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const profileData = {
-  fullName: fullName.value,
-  phone: phone.value,
+  fullName: fullName.value || "",
+  phone: phone.value || "",
   role: role.value,
 
   dept:
-    role.value === "student" ? stuDept?.value :
-    role.value === "alumni" ? aluDept?.value :
-    teachDept?.value,
+    role.value === "student"
+      ? stuDept?.value || ""
+      : aluDept?.value || "",
 
-  stuYear: role.value === "student" ? Number(stuYear?.value || 0) : null,
-  committee: role.value === "student" ? committee?.value || "" : null,
+  // STUDENT
+  stuYear: role.value === "student"
+    ? Number(stuYear?.value || 0)
+    : null,
 
-  aluPass: role.value === "alumni" ? Number(aluPass?.value || 0) : null,
-  company: company?.value || "",
-  job: job?.value || "",
-  experience:
-    role.value === "teacher"
-      ? teachExp?.value || ""
-      : exp?.value || "",
+  committee: role.value === "student"
+    ? committee?.value || ""
+    : null,
 
-  city: city?.value || "",
-  designation: role.value === "teacher" ? designation?.value || "" : null,
+  // ALUMNI
+  aluPass: role.value === "alumni"
+    ? Number(aluPass?.value || 0)
+    : null,
+
+  company: role.value === "alumni"
+    ? company?.value || ""
+    : "",
+
+  job: role.value === "alumni"
+    ? job?.value || ""
+    : "",
+
+  experience: role.value === "alumni"
+    ? exp?.value || ""
+    : "",
+
+  city: role.value === "alumni"
+    ? city?.value || ""
+    : "",
 
   profilePic: photoURL
 };
-
 
       await setDoc(doc(db, "users", user.uid), profileData);
 
@@ -209,20 +214,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // ===== LOAD VIEW =====
   function loadView(data) {
-  // BASIC INFO
   viewName.innerText = data.fullName || "";
   viewPhone.innerText = data.phone || "";
   viewRole.innerText = data.role || "";
   viewImg.src = data.profilePic || "https://via.placeholder.com/160";
 
-  // RESET ALL SECTIONS
   viewStudent.style.display = "none";
   viewAlumni.style.display = "none";
-  viewTeacher.style.display = "none";
 
-  // STUDENT VIEW
   if (data.role === "student") {
     viewStudent.style.display = "block";
     viewStuDept.innerText = data.dept || "-";
@@ -230,8 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     viewCommittee.innerText = data.committee || "-";
   }
 
-  // ALUMNI VIEW
-  else if (data.role === "alumni") {
+  if (data.role === "alumni") {
     viewAlumni.style.display = "block";
     viewAluDept.innerText = data.dept || "-";
     viewPass.innerText = data.aluPass || "-";
@@ -239,13 +238,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     viewJob.innerText = data.job || "-";
     viewExp.innerText = data.experience || "-";
     viewCity.innerText = data.city || "-";
-  }
-
-  // TEACHER VIEW
-  else if (data.role === "teacher") {
-    viewTeacher.style.display = "block";
-    viewTeachDept.innerText = data.dept || "-";
-    viewTeachExp.innerText = data.experience || "-";
   }
 }
 
@@ -264,23 +256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   editSection.querySelector("button").addEventListener("click", saveProfile);
 
-  // ===== ROLE LOCK LOGIC =====
-function lockRoleIfTeacher() {
-  if (role.value === "teacher") {
-    role.innerHTML = '<option value="teacher">Teacher</option>';
-    role.disabled = true; // prevent changing role
-  }else if (currentRole === "student" || currentRole === "alumni") {
-    // Student/Alumni cannot switch to teacher
-    role.innerHTML = `
-      <option value="${currentRole}">${capitalize(currentRole)}</option>
-    `;
-    role.disabled = true; // cannot change to teacher
-  } else {
-    // First-time selection (new register)
-    role.disabled = false;
-  }
-}
-
+  
 
 // ===== AUTH STATE =====
 onAuthStateChanged(auth, async (user) => {
@@ -359,8 +335,6 @@ onAuthStateChanged(auth, async (user) => {
   exp.value = "";
   city.value = "";
 
-  teachDept.value = "";
-  teachExp.value = "";
 
   // Fill role-based
   if (data.role === "student") {
@@ -378,10 +352,6 @@ onAuthStateChanged(auth, async (user) => {
     city.value = data.city || "";
   }
 
-  if (data.role === "teacher") {
-    teachDept.value = data.dept || "";
-    teachExp.value = data.experience || "";
-  }
 });
 });
 

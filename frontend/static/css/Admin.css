@@ -1,69 +1,362 @@
+/* ================= ROOT THEME ================= */
+
+:root {
+    --primary: #06478c;
+    --primary-dark: #043366;
+    --primary-light: #e6f0fa;
+
+    --accent: #007bff;
+
+    --bg-page: #f3f6fb;
+    --bg-card: #ffffff;
+
+    --text-dark: #212529;
+    --text-light: #495057;
+    --text-muted: #6b7280;
+
+    --border: #d1d5db;
+
+    --radius: 12px;
+
+    --shadow-sm: 0 4px 10px rgba(0,0,0,0.08);
+    --shadow-md: 0 12px 30px rgba(0,0,0,0.12);
+
+    --transition: all 0.3s ease;
+}
+
+/* Use the Google Fonts loaded in HTML head */
 body {
-  font-family: Arial, sans-serif;
-  background: #f3f4f6;
-  padding: 20px;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-page);
+    color: var(--text-dark);
 }
 
 .hidden {
   display: none;
 }
 
-/* LOGIN */
+
+
+/* --- Header Section --- */
+.header {
+    background-color: #06478c;
+    color: #ffff;
+    padding: 20px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo {  
+    font-family: math;  
+    font-size: 32px;  
+    font-weight: 700;  
+    color: var(--white);  
+    letter-spacing: 0.5px;  
+    position: relative;  
+    display: inline-block;  
+    transition: all 0.4s ease;  
+}  
+
+.nav {
+    display: flex;
+    gap: 30px;
+}
+
+/* Login/Register Links */
+/* Login/Register Links */
+.login-link,
+.register-link {
+    color: var(--white);
+    text-decoration: none;
+    font-family: math;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+/* Glow + Hover Effects */
+.login-link:hover,
+.register-link:hover {
+    color: #fff;
+    border: 1px solid #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 10px #ffffffc4, 0 0 20px rgba(255,255,255,0.3);
+}
+
+/* Press Effect */
+.login-link:active,
+.register-link:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Shine Animation */
+.login-link::before,
+.register-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
+}
+
+/* Trigger shine on hover */
+.login-link:hover::before,
+.register-link:hover::before {
+    left: 125%;
+    transition: left 0.7s ease;
+}
+
+/* Optional: Smooth text glow */
+.login-link span,
+.register-link span {
+    display: inline-block;
+    transition: text-shadow 0.4s ease;
+}
+
+.login-link:hover span,
+.register-link:hover span {
+    text-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.7);
+}
+
+
+
+
+/* ================= LOGIN ================= */
 .login-box {
-  background: white;
-  padding: 20px;
-  width: 300px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  background: var(--bg-card);
+  padding: 24px;
+  width: 320px;
+  margin-left: 590px;
+  margin-bottom: 100px;
+  margin-top: 100px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  animation: fadeUp 0.4s ease;
 }
 
 .login-box input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+  width: 90%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.login-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  outline: none;
 }
 
 .login-box button {
   width: 100%;
-  padding: 10px;
-  cursor: pointer;
-}
-
-/* NAV */
-.nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.nav button {
-  padding: 10px 16px;
-  cursor: pointer;
-}
-
-.nav .excel {
-  background: green;
+  padding: 12px;
+  background: var(--primary);
   color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
 }
 
-/* TABLE */
+.login-box button:hover {
+  background: var(--primary-dark);
+}
+
+/* ================= NAV ================= */
+.nav-dashboard {
+  margin: 20px 0;
+  display: flex;
+  gap: 15px;
+  margin-left: 55px;
+}
+
+.nav-dashboard button {
+      padding: 10px 18px;
+    border-radius: 999px;
+    margin-right: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.nav-dashboard button:hover {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.nav-dashboard .excel {
+  background: #16a34a;
+  color: white;
+  border: none;
+}
+
+.nav .excel:hover {
+  background: #15803d;
+}
+
+/* ================= TABLE ================= */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  background: white;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
 }
 
 th {
-  background: #f9fafb;
+  background: #f8fafc;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
-.section button {
+tr:hover td {
+  background: #f1f5ff;
+}
+
+/* ================= EVENT SECTION ================= */
+.create-event-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.create-event-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* EVENT BOX */
+.create-event-box {
+  max-width: 850px;
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  animation: slideDown 0.35s ease;
+}
+
+.create-event-box input,
+#createEventBox textarea {
+  width: 100%;
+  padding: 12px;
   margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.create-event-box input:focus,
+#createEventBox textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  outline: none;
+}
+
+#createEventBox textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+#createEventBox textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ================= ACTION BUTTONS ================= */
+.event-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.event-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.event-actions button:not(.cancel) {
+  background: var(--primary);
+  color: white;
+}
+
+.event-actions button:not(.cancel):hover {
+  background: var(--primary-dark);
+}
+
+.event-actions .cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.event-actions .cancel:hover {
+  background: #d1d5db;
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

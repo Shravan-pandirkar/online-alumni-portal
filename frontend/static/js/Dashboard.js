@@ -281,121 +281,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // ================== EVENTS ==================
 const eventsRef = collection(db, "events");
 const eventsList = document.getElementById("eventsList");
-const inviteAlumniCheckbox = document.getElementById("inviteAlumni");
-const alumniListBox = document.getElementById("alumniListBox");
-const alumniListDiv = document.getElementById("alumniList");
-
-// LOAD ALUMNI FOR EVENT
-async function loadAlumniForEvent() {
-  alumniListDiv.innerHTML = "<p>Loading alumni...</p>";
-
-  try {
-    const q = query(collection(db, "users"), where("role", "==", "alumni"));
-    const snapshot = await getDocs(q);
-    alumniListDiv.innerHTML = "";
-
-    if (snapshot.empty) {
-      alumniListDiv.innerHTML = "<p>No alumni found</p>";
-      return;
-    }
-
-    snapshot.forEach(docSnap => {
-      const alumni = { uid: docSnap.id, ...docSnap.data() };
-      const photo = alumni.profilePic || DEFAULT_AVATAR;
-
-alumniListDiv.innerHTML += `
-  <div class="alumni-item">
-    <label class="alumni-label">
-      <input type="checkbox" class="alumniCheck" value="${alumni.uid}">
-      <img src="${photo}" alt="👤" class="alumni-avatar">
-      <span>
-        ${alumni.fullName} (${alumni.aluPass || "N/A"})
-      </span>
-    </label>
-  </div>
-`;
-    });
-  } catch (err) {
-    console.error(err);
-    alumniListDiv.innerHTML = "<p>Error loading alumni</p>";
-  }
-}
-
-// TOGGLE ALUMNI LIST
-inviteAlumniCheckbox.addEventListener("change", () => {
-  if (inviteAlumniCheckbox.checked) {
-    alumniListBox.classList.remove("hidden");
-    loadAlumniForEvent();
-  } else {
-    alumniListBox.classList.add("hidden");
-    alumniListDiv.innerHTML = "";
-  }
-});
-
-// CREATE EVENT
-// CREATE EVENT
-document.getElementById("createEventBtn").addEventListener("click", async () => {
-  const name = document.getElementById("eventName").value.trim();
-  const date = document.getElementById("eventDate").value;
-  const user = auth.currentUser;
-
-  if (!name || !date) {
-    showPopup("Please fill all fields", "error");
-    return;
-  }
-
-  if (!user) {
-    showPopup("Login required", "error");
-    return;
-  }
-
-  try {
-    // FETCH USER DATA
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      showPopup("User data not found", "error");
-      return;
-    }
-    const userData = snap.data();
-
-    // ===== CHECK ROLE AND COMMITTEE =====
-    const isTeacher = userData.role === "teacher";
-    const isCommittee = userData.role === "student" && userData.committee && userData.committee.trim() !== "";
-
-    if (!isTeacher && !isCommittee) {
-      showPopup("You are not allowed to create an event", "error");
-      return;
-    }
-
-    let fullName = userData.fullName || "Unknown User";
-
-    const invitedAlumni = [];
-    document.querySelectorAll(".alumniCheck:checked").forEach(cb => invitedAlumni.push(cb.value));
-
-    await addDoc(eventsRef, {
-      name,
-      date,
-      createdBy: fullName,
-      invitedAlumni,
-      createdAt: serverTimestamp()
-    });
-
-    // Reset form
-    document.getElementById("eventName").value = "";
-    document.getElementById("eventDate").value = "";
-    inviteAlumniCheckbox.checked = false;
-    alumniListBox.classList.add("hidden");
-    alumniListDiv.innerHTML = "";
-
-    showPopup("Event created successfully 🎉");
-  } catch (err) {
-    console.error(err);
-    showPopup("Failed to create event", "error");
-  }
-});
-
-
 
 // LOAD EVENTS (REALTIME)
 onSnapshot(eventsRef, async snapshot => {
@@ -406,17 +291,10 @@ onSnapshot(eventsRef, async snapshot => {
     return;
   }
 
-  // 🔑 CHECK PERMISSION ONCE
-  const allowDelete = await canDeleteEvent();
 
   snapshot.forEach(eventDoc => {
     const event = eventDoc.data();
     const user = auth.currentUser;
-
-    const isInvited =
-      event.invitedAlumni &&
-      user &&
-      event.invitedAlumni.includes(user.uid);
 
     const div = document.createElement("div");
     div.className = "event-item";
@@ -424,36 +302,17 @@ onSnapshot(eventsRef, async snapshot => {
     div.innerHTML = `
       <strong>${event.name}</strong>
       <p>📅 Date: ${event.date}</p>
-      <p>👤 Created By: ${event.createdBy}</p>
-      ${isInvited ? `<p class="alumni-msg">🎓 You are invited to this event</p>` : ""}
       ${
-        allowDelete
-          ? `<button class="delete-event-btn">🗑 Delete</button>`
+        event.description
+          ? `<p class="event-desc">📝 Description: ${event.description}</p>`
           : ""
       }
     `;
 
-    // ✅ ADD DELETE ONLY IF ALLOWED
-    if (allowDelete) {
-      div.querySelector(".delete-event-btn").addEventListener("click", async () => {
-        if (!confirm("Delete this event?")) return;
-
-        // 🔐 FINAL CHECK (extra safety)
-        const permitted = await canDeleteEvent();
-        if (!permitted) {
-          showPopup("You are not allowed to delete this event", "error");
-          return;
-        }
-
-        await deleteDoc(doc(db, "events", eventDoc.id));
-        showPopup("Event deleted successfully");
-      });
-    }
-
     eventsList.appendChild(div);
   });
 });
-
+  
 // ================== SEND MESSAGE ROLE CHECK ==================
 async function handleSendMessage() {
   const user = auth.currentUser;

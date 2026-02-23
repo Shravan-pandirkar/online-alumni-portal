@@ -41,7 +41,7 @@ eventsList.innerHTML = "";
 
 onSnapshot(
   eventsQuery,
-  snapshot => {
+  async snapshot => {
     // ✅ HIDE LOADER ON DATA LOAD
     loader.classList.add("hidden");
     eventsList.innerHTML = "";
@@ -51,14 +51,9 @@ onSnapshot(
       return;
     }
 
+
     snapshot.forEach(docSnap => {
       const event = docSnap.data();
-      const user = auth.currentUser;
-
-      const isInvited =
-        event.invitedAlumni &&
-        user &&
-        event.invitedAlumni.includes(user.uid);
 
       const eventCard = document.createElement("div");
       eventCard.className = "event-item";
@@ -67,14 +62,15 @@ onSnapshot(
         <h3>${event.name}</h3>
         <hr />
         <p>📅 Date: ${event.date}</p>
-        <p>👤 Created By: ${event.createdBy}</p>
         ${
-          isInvited
-            ? `<p class="alumni-msg">🎓 You are invited to this event</p>`
+          event.description
+            ? `<p class="event-desc">📝 Description: ${event.description}</p>`
             : ""
         }
       `;
 
+
+      // ✅ VERY IMPORTANT
       eventsList.appendChild(eventCard);
     });
   },

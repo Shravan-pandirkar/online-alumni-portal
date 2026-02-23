@@ -26,7 +26,6 @@
            <a href="{{ url_for('profile') }}" class="register-link">👤 My Profile</a>
            <button onclick="showSection('alumni')">🔎 Search Alumni</button>
                <button onclick="showSection('events')">🥳 Events</button>
-               <button onclick="handleSendMessage()">✉️ Send Message</button>
         </nav>
     </header>
 
@@ -64,35 +63,6 @@
 
   <h1 class="eventstext">Upcoming Events 🎉</h1>
 
-  <!-- Toggle Button -->
-  <button id="toggleCreateEvent" class="create-event-btn">
-    ➕ Create Event
-  </button>
-
-  <div id="createEventBox" class="create-event-box hidden">
-  <input type="text" id="eventName" placeholder="Event Name">
-  <input type="date" id="eventDate" placeholder="Event Date">
-
- <!-- Invite Alumni -->
-<div class="invite-alumni-row">
-  <input type="checkbox" id="inviteAlumni">
-  <label for="inviteAlumni">Invite Alumni</label>
-</div>
-
-
-  <!-- NEW -->
- <div id="alumniListBox" class="hidden">
-  <h4>Select Alumni</h4>
-  <div id="alumniList"></div>
-</div>
-
-
-
-  <div class="event-actions">
-    <button id="createEventBtn">Create</button>
-    <button id="cancelEventBtn" class="cancel">Cancel</button>
-  </div>
-</div>
 
 
   <div id="eventsList"></div>

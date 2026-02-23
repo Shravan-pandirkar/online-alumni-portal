@@ -1,5 +1,3 @@
-
-
 /**************** FIREBASE IMPORTS ****************/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
@@ -9,7 +7,9 @@ import {
   deleteDoc,
   doc,
   query,
-  where
+  where,
+  addDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -29,6 +29,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+const eventsRef = collection(db, "events");
+
 /**************** DATA STORE ****************/
 const dataStore = {
   students: [],
@@ -38,40 +40,16 @@ const dataStore = {
 
 /**************** COLUMN CONFIG ****************/
 const TABLE_FIELDS = {
-  students: [
-    "fullName",
-    "phone",
-    "email",
-    "dept",
-    "stuYear",
-    "committee",
-    "lastLogin"
-  ],
-  alumni: [
-    "fullName",
-    "phone",
-    "email",
-    "dept",
-    "aluPass",
-    "job",
-    "designation",
-    "experience",
-    "city",
-    "lastLogin"
-  ],
-  teachers: [
-    "fullName",
-    "phone",
-    "email",
-    "dept",
-    "experience",
-    "lastLogin"
-  ]
+  students: ["fullName", "phone", "email", "dept", "stuYear", "committee", "lastLogin"],
+  alumni: ["fullName", "phone", "email", "dept", "aluPass", "job", "designation", "experience", "city", "lastLogin"],
+  teachers: ["fullName", "phone", "email", "dept", "experience", "lastLogin"]
 };
 
 let started = false;
 
 /**************** LOGIN ****************/
+const ADMIN_PASSWORD = "admin@123";
+
 window.adminLogin = async () => {
   const pwd = document.getElementById("adminPassword").value;
 
@@ -80,7 +58,6 @@ window.adminLogin = async () => {
     return;
   }
 
-  // 🔹 Sign in anonymously
   await signInAnonymously(auth);
 
   alert("Login Successful ✅");
@@ -91,12 +68,10 @@ window.adminLogin = async () => {
     started = true;
   }
 };
+
 /**************** NAV ****************/
-const ADMIN_PASSWORD = "admin@123";
 window.showSection = id => {
-  document.querySelectorAll(".section").forEach(s =>
-    s.classList.add("hidden")
-  );
+  document.querySelectorAll(".section").forEach(s => s.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 };
 
@@ -108,25 +83,19 @@ function startAdmin() {
   loadEvents();
 }
 
-/**************** LOAD USERS BY ROLE ****************/
+/**************** LOAD USERS ****************/
 function loadUsersByRole(role, tableId, storeKey) {
   const table = document.getElementById(tableId);
   const fields = TABLE_FIELDS[storeKey];
 
-  const q = query(
-    collection(db, "users"),
-    where("role", "==", role)
-  );
+  const q = query(collection(db, "users"), where("role", "==", role));
 
   onSnapshot(q, snap => {
     table.innerHTML = "";
     dataStore[storeKey] = [];
 
-    // Header
     const header = table.insertRow();
-    header.innerHTML =
-      `<th>Select</th>` +
-      fields.map(f => `<th>${f}</th>`).join("");
+    header.innerHTML = `<th>Select</th>` + fields.map(f => `<th>${f}</th>`).join("");
 
     snap.forEach(d => {
       const data = d.data();
@@ -161,11 +130,12 @@ window.deleteSelected = async type => {
 function loadEvents() {
   const table = document.getElementById("eventsTable");
 
-  onSnapshot(collection(db, "events"), snap => {
+  onSnapshot(eventsRef, snap => {
     table.innerHTML = `
       <tr>
         <th>Name</th>
         <th>Date</th>
+        <th>Description</th>   <!-- ✅ NEW -->
         <th>Created By</th>
         <th>Created At</th>
         <th>Action</th>
@@ -174,9 +144,11 @@ function loadEvents() {
 
     snap.forEach(d => {
       const e = d.data();
+
       table.insertRow().innerHTML = `
         <td>${e.name ?? ""}</td>
         <td>${e.date ?? ""}</td>
+        <td>${e.description ?? ""}</td>   <!-- ✅ NEW -->
         <td>${e.createdBy ?? ""}</td>
         <td>${e.createdAt?.toDate?.().toLocaleString() ?? ""}</td>
         <td>
@@ -190,6 +162,52 @@ function loadEvents() {
 window.deleteEvent = async id => {
   await deleteDoc(doc(db, "events", id));
   alert("Event deleted");
+};
+
+/**************** CREATE EVENT TOGGLE ****************/
+const toggleCreateEventBtn = document.getElementById("toggleCreateEvent");
+const createEventBox = document.getElementById("createEventBox");
+
+toggleCreateEventBtn.addEventListener("click", () => {
+  createEventBox.classList.toggle("hidden");
+});
+
+/**************** CREATE EVENT ****************/
+document.getElementById("createEventBtn").addEventListener("click", async () => {
+  const name = document.getElementById("eventName").value.trim();
+  const date = document.getElementById("eventDate").value;
+  const description = document.getElementById("eventDescription").value.trim();
+
+  if (!name || !date || !description) {
+    alert("Please fill all fields ❌");
+    return;
+  }
+
+  try {
+    await addDoc(eventsRef, {
+      name,
+      date,
+      description,        // ✅ saved to Firestore
+      createdBy: "Admin",
+      invitedAlumni: [],
+      createdAt: serverTimestamp()
+    });
+
+    // Reset form
+    document.getElementById("eventName").value = "";
+    document.getElementById("eventDate").value = "";
+    document.getElementById("eventDescription").value = "";
+
+    alert("Event created successfully 🎉");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to create event ❌");
+  }
+});
+
+/**************** SEND MESSAGE ****************/
+window.handleSendMessage = () => {
+  window.location.href = "/chat";
 };
 
 /**************** EXCEL EXPORT ****************/

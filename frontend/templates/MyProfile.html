@@ -61,11 +61,6 @@
             <p><b>📍 Working City:</b> <span id="viewCity"></span></p>
         </div>
 
-        <!-- Teacher Data -->
-        <div id="viewTeacher" style="display:none;">
-            <p><b>🏬 Department:</b> <span id="viewTeachDept"></span></p>
-            <p><b>⏱️ Experience:</b> <span id="viewTeachExp"></span></p>
-        </div>
 
         <button>Edit Profile</button>
     </div>
@@ -98,7 +93,6 @@
             <option value="">Select Role</option>
             <option value="student">Student</option>
             <option value="alumni">Alumni</option>
-            <option value="teacher">Teacher</option>
         </select>
 
         <!-- Student -->
@@ -112,14 +106,6 @@
                 <option value="Chemical">Chemical Department</option>
             </select>
             <input id="stuYear" type="number" placeholder="Admission Year 🗓️">
-
-            <select id="committee">
-                <option value="">Select Committee</option>
-                <option value="NSS">NSS</option>
-                <option value="Cultural">Cultural Committee</option>
-                <option value="Sports">Sports Committee</option>
-                <option value="Technical">Technical Committee</option>
-            </select>
         </div>
 
         <!-- Alumni -->
@@ -139,18 +125,6 @@
             <input id="city" type="text" placeholder="Working City / Country 📍">
         </div>
 
-        <!-- Teacher -->
-        <div id="teacherFields" class="role-section" style="display:none;">
-             <select id="teachDept">
-                <option value="">Select Department</option>
-                <option value="Computer">Computer Department</option>
-                <option value="Mechanical">Mechanical Department</option>
-                <option value="Electrical">Electrical Department</option>
-                <option value="Civil">Civil Department</option>
-                <option value="Chemical">Chemical Department</option>
-            </select>
-            <input id="teachExp" type="text" placeholder="Teaching Experience ⏱️">
-        </div>
 
         <button onclick="saveProfile()">Save Profile</button>
         <button class="back-btn" onclick="goBack()">Back</button>

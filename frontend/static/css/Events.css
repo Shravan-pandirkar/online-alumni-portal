@@ -129,6 +129,7 @@ p{
     margin-inline-start: 4px;
     margin-inline-end: -30px;
     unicode-bidi: isolate;
+    font-family: math;
 }
 
 
@@ -241,14 +242,7 @@ p{
     letter-spacing: 0.3px;
 }
 
-.event-item p {
-    margin: 6px 0;
-    font-size: 0.95rem;
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+
 
 /* ================== INVITATION BADGE ================== */
 

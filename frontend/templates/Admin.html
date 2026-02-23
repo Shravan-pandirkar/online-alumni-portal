@@ -13,7 +13,14 @@
 </head>
 
 <body>
-
+   <header class="header">
+        <div class="logo">SGDTP Alumni Portal</div>
+        <nav class="nav">
+           <a href="{{ url_for('login') }}" class="login-link">Login</a>
+           <a href="{{ url_for('register') }}" class="register-link">Register</a>
+           <a href="{{ url_for('admin') }}" class="login-link">Admin Login</a>
+        </nav>
+    </header>
 <!-- ================= LOGIN ================= -->
 <div class="login-box">
   <h2>Admin Login</h2>
@@ -29,11 +36,12 @@
 <div class="dashboard hidden">
 
   <!-- NAVIGATION -->
-  <div class="nav">
+  <div class="nav-dashboard">
     <button onclick="showSection('students')">Students</button>
     <button onclick="showSection('alumni')">Alumni</button>
     <button onclick="showSection('teachers')">Teachers</button>
     <button onclick="showSection('events')">Events</button>
+    <button onclick="handleSendMessage()">✉️ Send Message</button>
 
     <button class="excel" onclick="generateExcel()">
       Generate Report
@@ -70,6 +78,21 @@
   <!-- EVENTS SECTION -->
   <div id="events" class="section hidden">
     <h3>Events</h3>
+      <!-- Toggle Button -->
+  <button id="toggleCreateEvent" class="create-event-btn">
+    ➕ Create Event
+  </button>
+
+  <div id="createEventBox" class="create-event-box hidden">
+  <input type="text" id="eventName" placeholder="Event Name">
+  <input type="date" id="eventDate" placeholder="Event Date">
+    <textarea id="eventDescription" placeholder="Event Description"></textarea>
+
+  <div class="event-actions">
+    <button id="createEventBtn">Create</button>
+    <button id="cancelEventBtn" class="cancel">Cancel</button>
+  </div>
+</div>
     <table id="eventsTable"></table>
   </div>
 
