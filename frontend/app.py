@@ -5,7 +5,7 @@ app = Flask(__name__)
 # First page → Login
 @app.route('/')
 def home():
-    return redirect(url_for('admin'))
+    return redirect(url_for('frontpage'))
 
 @app.route('/frontpage')
 def frontpage():
