@@ -8,12 +8,12 @@
 
 /* ================= ROOT VARIABLES ================= */
 :root{
-    --primary:#1e40af;
-    --accent:#2563eb;
-    --bg:#f1f5f9;
-    --text-dark:#0f172a;
-    --text-light:#475569;
-    --white:#ffffff;
+    --primary-blue: #06478c; /* Light blue from the header */
+    --accent-blue: #007bff; /* Button blue */
+    --text-dark: #212529; /* Heading text color */
+    --text-light: #495057; /* Body text color */
+    --white: #ffffff;
+
 }
 
 /* ================= BODY ================= */
@@ -36,15 +36,15 @@ body{
 }
 
 /* ================= HEADER ================= */
-.header{
-    background:linear-gradient(135deg,#0f172a,#1e40af);
-    padding:20px 80px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 2px 4px rgba(0,0,0,.08);
+/* --- Header Section --- */
+.header {
+    background-color: var(--primary-blue);
+    padding: 20px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-
 .logo{
     font-size:32px;
     font-weight:700;
@@ -53,73 +53,91 @@ body{
 }
 
 /* ================= NAV ================= */
-.nav{
-    display:flex;
-    gap:30px;
+.nav {
+    display: flex;
+    gap: 30px;
 }
 
-.nav button,
+/* Login/Register Links */
+/* Login/Register Links */
 .login-link,
-.register-link{
-    background:transparent;
-    color:white;
-    border:none;
-    padding:14px 16px;
+.register-link {
+    color: var(--white);
     text-decoration: none;
-    font-size:16px;
-    font-weight:700;
-    font-family: cursive;
-    cursor:pointer;
-    border-radius:12px;
-    transition:.3s;
-    position:relative;
-    overflow:hidden;
+    font-family: math;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
 }
 
-.nav button:hover,
-.register-link:hover{
-    background:linear-gradient(90deg,#268bff,#00d4ff);
-    transform:translateX(6px);
-    box-shadow:0 4px 12px rgba(38,139,255,.5);
+/* Glow + Hover Effects */
+.login-link:hover,
+.register-link:hover {
+    color: #fff;
+    border: 1px solid #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 10px #ffffffc4, 0 0 20px rgba(255,255,255,0.3);
 }
 
-.nav button.active{
-    background:linear-gradient(90deg,#00d4ff,#268bff);
-    box-shadow:0 4px 15px rgba(0,212,255,.6);
+/* Press Effect */
+.login-link:active,
+.register-link:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Shine effect */
-.nav button::before,
+/* Shine Animation */
 .login-link::before,
-.register-link::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:-100%;
-    width:100%;
-    height:100%;
-    background:linear-gradient(120deg,transparent,rgba(255,255,255,.3),transparent);
-    transition:.5s;
+.register-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.5s ease;
 }
 
-.nav button:hover::before,
+/* Trigger shine on hover */
 .login-link:hover::before,
-.register-link:hover::before{
-    left:100%;
+.register-link:hover::before {
+    left: 125%;
+    transition: left 0.7s ease;
 }
 
-/* ================= MENU ICON ================= */
-.menu-btn{
-    font-size:24px;
-    cursor:pointer;
-    color:white;
-    transition:.3s;
+/* Optional: Smooth text glow */
+.login-link span,
+.register-link span {
+    display: inline-block;
+    transition: text-shadow 0.4s ease;
 }
 
-.menu-btn:hover{
-    color:#38bdf8;
-    transform:scale(1.1);
+.login-link:hover span,
+.register-link:hover span {
+    text-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.7);
 }
+
+
+.nav {
+    display: flex;
+    gap: 30px;
+}
+
+
+
 
 /* ================= DASHBOARD ================= */
 .dashboard{

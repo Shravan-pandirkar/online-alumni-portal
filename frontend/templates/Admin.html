@@ -22,6 +22,8 @@
         </nav>
     </header>
 <!-- ================= LOGIN ================= -->
+ <!-- Popup -->
+<div id="popupContainer" class="popup-container"></div>
 <div class="login-box">
   <h2>Admin Login</h2>
   <input
@@ -39,7 +41,6 @@
   <div class="nav-dashboard">
     <button onclick="showSection('students')">Students</button>
     <button onclick="showSection('alumni')">Alumni</button>
-    <button onclick="showSection('teachers')">Teachers</button>
     <button onclick="showSection('events')">Events</button>
     <button onclick="handleSendMessage()">✉️ Send Message</button>
 
@@ -51,7 +52,7 @@
   <!-- STUDENTS SECTION -->
   <div id="students" class="section">
     <h3>Students</h3>
-    <button onclick="deleteSelected('students')">
+    <button class="delete-button" onclick="deleteSelected('students')">
       Delete Selected
     </button>
     <table id="studentsTable"></table>

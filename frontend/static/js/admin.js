@@ -31,6 +31,25 @@ const auth = getAuth(app);
 
 const eventsRef = collection(db, "events");
 
+ 
+function showPopup(message, type = "success", duration = 3000) {
+    const popupContainer = document.getElementById("popupContainer");
+
+    const popup = document.createElement("div");
+    popup.classList.add("popup-message");
+    if (type === "error") popup.classList.add("error");
+    popup.textContent = message;
+
+    popupContainer.appendChild(popup);
+
+    setTimeout(() => popup.classList.add("show"), 10);
+
+    setTimeout(() => {
+        popup.classList.remove("show");
+        setTimeout(() => popup.remove(), 500);
+    }, duration);
+}
+
 /**************** DATA STORE ****************/
 const dataStore = {
   students: [],
@@ -54,13 +73,13 @@ window.adminLogin = async () => {
   const pwd = document.getElementById("adminPassword").value;
 
   if (pwd !== ADMIN_PASSWORD) {
-    alert("Wrong Password ❌");
+    showPopup("Wrong Password ❌", "error");
     return;
   }
 
   await signInAnonymously(auth);
 
-  alert("Login Successful ✅");
+  showPopup("Login Successful ✅", "success");
   document.querySelector(".dashboard").classList.remove("hidden");
 
   if (!started) {
@@ -117,13 +136,13 @@ function loadUsersByRole(role, tableId, storeKey) {
 /**************** DELETE USERS ****************/
 window.deleteSelected = async type => {
   const checks = document.querySelectorAll(`#${type}Table input:checked`);
-  if (!checks.length) return alert("No records selected");
+  if (!checks.length) return showPopup("No records selected", "error");
 
   for (const c of checks) {
     await deleteDoc(doc(db, "users", c.dataset.id));
   }
 
-  alert("Deleted successfully 🗑️");
+  showPopup("Deleted successfully 🗑️", "success");
 };
 
 /**************** EVENTS ****************/
@@ -161,7 +180,7 @@ function loadEvents() {
 
 window.deleteEvent = async id => {
   await deleteDoc(doc(db, "events", id));
-  alert("Event deleted");
+  showPopup("Event deleted", "success");
 };
 
 /**************** CREATE EVENT TOGGLE ****************/
@@ -179,7 +198,7 @@ document.getElementById("createEventBtn").addEventListener("click", async () => 
   const description = document.getElementById("eventDescription").value.trim();
 
   if (!name || !date || !description) {
-    alert("Please fill all fields ❌");
+    showPopup("Please fill all fields ❌", "error");
     return;
   }
 
@@ -198,10 +217,10 @@ document.getElementById("createEventBtn").addEventListener("click", async () => 
     document.getElementById("eventDate").value = "";
     document.getElementById("eventDescription").value = "";
 
-    alert("Event created successfully 🎉");
+    showPopup("Event created successfully 🎉", "success");
   } catch (err) {
     console.error(err);
-    alert("Failed to create event ❌");
+    showPopup("Failed to create event ❌", "error");
   }
 });
 
