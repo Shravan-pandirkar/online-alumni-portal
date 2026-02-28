@@ -118,7 +118,7 @@ onAuthStateChanged(auth, async user => {
     let incomplete = !data.fullName || !data.phone || !data.role;
 
     if (data.role === "student") {
-      incomplete = incomplete || !data.stuYear || !data.committee;
+      incomplete = incomplete || !data.stuYear;
     }
 
     if (data.role === "alumni") {

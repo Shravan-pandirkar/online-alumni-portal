@@ -59,7 +59,7 @@ const dataStore = {
 
 /**************** COLUMN CONFIG ****************/
 const TABLE_FIELDS = {
-  students: ["fullName", "phone", "email", "dept", "stuYear", "committee", "lastLogin"],
+  students: ["fullName", "phone", "email", "dept", "stuYear", "lastLogin"],
   alumni: ["fullName", "phone", "email", "dept", "aluPass", "job", "designation", "experience", "city", "lastLogin"],
   teachers: ["fullName", "phone", "email", "dept", "experience", "lastLogin"]
 };
@@ -234,9 +234,23 @@ window.generateExcel = () => {
   const wb = XLSX.utils.book_new();
 
   Object.entries(dataStore).forEach(([key, val]) => {
+    const fields = TABLE_FIELDS[key];
+
+    // Only keep the columns shown in the table
+    const filtered = val.map(row => {
+      const obj = {};
+      fields.forEach(f => {
+        let value = row[f] ?? "";
+        // Convert Firestore Timestamps to readable string
+        if (value?.toDate) value = value.toDate().toLocaleString();
+        obj[f] = value;
+      });
+      return obj;
+    });
+
     XLSX.utils.book_append_sheet(
       wb,
-      XLSX.utils.json_to_sheet(val),
+      XLSX.utils.json_to_sheet(filtered),
       key.toUpperCase()
     );
   });

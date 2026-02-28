@@ -173,11 +173,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   stuYear: role.value === "student"
     ? Number(stuYear?.value || 0)
     : null,
-
-  committee: role.value === "student"
-    ? committee?.value || ""
-    : null,
-
   // ALUMNI
   aluPass: role.value === "alumni"
     ? Number(aluPass?.value || 0)
@@ -227,7 +222,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     viewStudent.style.display = "block";
     viewStuDept.innerText = data.dept || "-";
     viewYear.innerText = data.stuYear || "-";
-    viewCommittee.innerText = data.committee || "-";
   }
 
   if (data.role === "alumni") {
