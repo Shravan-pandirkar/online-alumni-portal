@@ -1,11 +1,4 @@
 /* ================= GLOBAL RESET ================= */
-:root {
-    --primary-blue: #06478c; /* Light blue from the header */
-    --accent-blue: #007bff; /* Button blue */
-    --text-dark: #212529; /* Heading text color */
-    --text-light: #495057; /* Body text color */
-    --white: #ffffff;
-}
 * {
     margin: 0;
     padding: 0;
@@ -13,160 +6,402 @@
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
-body {
-    background: #f4f6fb;
-    color: #1f2937;
-    min-height: 100vh;
+/* ================= DESIGN TOKENS ================= */
+:root {
+    --primary-blue: #06478c;
+    --accent-blue: #007bff;
+    --text-dark: #212529;
+    --text-light: #495057;
+    --white: #ffffff;
+
+    /* Light mode tokens */
+    --bg-body: #f4f6fb;
+    --bg-card: #ffffff;
+    --card-border: #00c6ff;
+    --card-shadow: rgba(0,123,255,.8);
+
+    /* Dashboard — light mode */
+    --body-color: #1f2937;
+    --section-bg: #ffffff;
+    --section-shadow: 0 15px 35px rgba(0,0,0,.08);
+    --section-heading: #1e3a8a;
+
+    --sidebar-bg: #ffffff;
+    --sidebar-shadow: 0 15px 35px rgba(0,0,0,.08);
+    --sidebar-btn-bg: #eff6ff;
+    --sidebar-btn-color: #1e3a8a;
+    --sidebar-btn-hover-bg: #2563eb;
+    --sidebar-btn-hover-color: #ffffff;
+    --sidebar-excel-bg: #22c55e;
+    --sidebar-excel-color: #ffffff;
+    --sidebar-excel-hover-bg: #16a34a;
+
+    --login-box-bg: #ffffff;
+    --login-box-shadow: 0 20px 40px rgba(0,0,0,.12);
+    --login-box-heading: #1e3a8a;
+    --login-input-border: #c7d2fe;
+    --login-btn-bg: #2563eb;
+    --login-btn-hover: #1e40af;
+
+    --delete-btn-bg: #ef4444;
+    --delete-btn-hover: #dc2626;
+
+    --table-thead-bg: #1e3a8a;
+    --table-thead-color: #ffffff;
+    --table-row-bg: #ffffff;
+    --table-row-even: #f8fafc;
+    --table-row-hover: #e0e7ff;
+    --table-border: #e5e7eb;
+    --table-text: #1f2937;
+
+    --create-box-bg: #f8fafc;
+    --create-box-border: #c7d2fe;
+    --create-input-border: #c7d2fe;
+    --create-input-bg: #ffffff;
+    --create-input-text: #1f2937;
+    --create-btn-bg: #2563eb;
+    --create-cancel-bg: #6b7280;
+
+    --toggle-btn-bg: #449cef;
+    --toggle-btn-hover: #002e39;
+
+    --popup-success: #4CAF50;
+    --popup-error: #f44336;
+
+    /* Shared palette */
+    --navy-950: #020818;
+    --navy-900: #040f2a;
+    --navy-800: #071840;
+    --navy-700: #0a2158;
+    --navy-600: #0d2b70;
+    --blue-500: #1d5cff;
+    --blue-400: #4d82ff;
+    --blue-300: #7aa3ff;
+    --cyan-400: #00d4ff;
+    --cyan-300: #5ee7ff;
+    --white-90: rgba(255,255,255,.90);
+    --white-60: rgba(255,255,255,.60);
+    --white-20: rgba(255,255,255,.20);
+    --white-08: rgba(255,255,255,.08);
+    --white-04: rgba(255,255,255,.04);
+    --text-primary:   #e8f0ff;
+    --text-secondary: #8aa3d6;
+    --text-muted:     #4a6091;
+    --border-subtle:  rgba(100,150,255,.18);
+    --border-strong:  rgba(100,150,255,.40);
+    --radius-sm:  8px;
+    --radius-md:  14px;
+    --radius-lg:  20px;
+    --radius-xl:  28px;
+    --shadow-glow: 0 0 40px rgba(29,92,255,.25);
+    --shadow-card: 0 8px 40px rgba(0,0,30,.5);
+    --transition: .28s cubic-bezier(.4,0,.2,1);
+    --transition-bounce: .4s cubic-bezier(.34,1.56,.64,1);
 }
 
-/* --- Header Section --- */
+/* ================= DARK MODE — OS ================= */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #080f1e;
+        --bg-card: #0d1f3c;
+        --body-color: #e8f0ff;
+
+        --section-bg: #0d1f3c;
+        --section-shadow: 0 15px 35px rgba(0,0,0,.4);
+        --section-heading: #5ee7ff;
+
+        --sidebar-bg: #0d1f3c;
+        --sidebar-shadow: 0 15px 35px rgba(0,0,0,.4);
+        --sidebar-btn-bg: rgba(29,92,255,.12);
+        --sidebar-btn-color: #8aa3d6;
+        --sidebar-btn-hover-bg: var(--blue-500);
+        --sidebar-btn-hover-color: #ffffff;
+        --sidebar-excel-bg: #16a34a;
+        --sidebar-excel-color: #ffffff;
+        --sidebar-excel-hover-bg: #15803d;
+
+        --login-box-bg: #0d1f3c;
+        --login-box-shadow: 0 20px 40px rgba(0,0,0,.4);
+        --login-box-heading: #5ee7ff;
+        --login-input-border: rgba(100,150,255,.3);
+        --login-btn-bg: var(--blue-500);
+        --login-btn-hover: #1d5cff;
+
+        --delete-btn-bg: #dc2626;
+        --delete-btn-hover: #b91c1c;
+
+        --table-thead-bg: rgba(29,92,255,.25);
+        --table-thead-color: #e8f0ff;
+        --table-row-bg: #0a1628;
+        --table-row-even: #0d1f3c;
+        --table-row-hover: rgba(29,92,255,.15);
+        --table-border: rgba(100,150,255,.15);
+        --table-text: #e8f0ff;
+
+        --create-box-bg: #071428;
+        --create-box-border: rgba(100,150,255,.25);
+        --create-input-border: rgba(100,150,255,.25);
+        --create-input-bg: rgba(255,255,255,.04);
+        --create-input-text: #e8f0ff;
+        --create-btn-bg: var(--blue-500);
+        --create-cancel-bg: #374151;
+
+        --toggle-btn-bg: var(--blue-400);
+        --toggle-btn-hover: var(--cyan-400);
+    }
+}
+
+/* ================= DARK MODE — CLASS ================= */
+.dark-mode {
+    --bg-body: #080f1e;
+    --bg-card: #0d1f3c;
+    --body-color: #e8f0ff;
+
+    --section-bg: #0d1f3c;
+    --section-shadow: 0 15px 35px rgba(0,0,0,.4);
+    --section-heading: #5ee7ff;
+
+    --sidebar-bg: #0d1f3c;
+    --sidebar-shadow: 0 15px 35px rgba(0,0,0,.4);
+    --sidebar-btn-bg: rgba(29,92,255,.12);
+    --sidebar-btn-color: #8aa3d6;
+    --sidebar-btn-hover-bg: var(--blue-500);
+    --sidebar-btn-hover-color: #ffffff;
+    --sidebar-excel-bg: #16a34a;
+    --sidebar-excel-color: #ffffff;
+    --sidebar-excel-hover-bg: #15803d;
+
+    --login-box-bg: #0d1f3c;
+    --login-box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    --login-box-heading: #5ee7ff;
+    --login-input-border: rgba(100,150,255,.3);
+    --login-btn-bg: var(--blue-500);
+    --login-btn-hover: #1d5cff;
+
+    --delete-btn-bg: #dc2626;
+    --delete-btn-hover: #b91c1c;
+
+    --table-thead-bg: rgba(29,92,255,.25);
+    --table-thead-color: #e8f0ff;
+    --table-row-bg: #0a1628;
+    --table-row-even: #0d1f3c;
+    --table-row-hover: rgba(29,92,255,.15);
+    --table-border: rgba(100,150,255,.15);
+    --table-text: #e8f0ff;
+
+    --create-box-bg: #071428;
+    --create-box-border: rgba(100,150,255,.25);
+    --create-input-border: rgba(100,150,255,.25);
+    --create-input-bg: rgba(255,255,255,.04);
+    --create-input-text: #e8f0ff;
+    --create-btn-bg: var(--blue-500);
+    --create-cancel-bg: #374151;
+
+    --toggle-btn-bg: var(--blue-400);
+    --toggle-btn-hover: var(--cyan-400);
+}
+
+/* ================= DARK MODE TOGGLE ================= */
+.dark-mode-toggle {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,.5);
+    color: #fff;
+    border-radius: 50px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: math;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.dark-mode-toggle:hover {
+    background: rgba(255,255,255,.15);
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,.3);
+    transform: translateY(-2px);
+}
+
+/* ================= BASE ================= */
+body {
+    background: var(--bg-body);
+    color: var(--body-color);
+    min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ================= HEADER ================= */
 .header {
-    background-color: var(--primary-blue);
-    padding: 20px 80px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 0 48px;
+    height: 90px;
+    background: rgba(4,15,42,.80);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 0 var(--white-04), 0 4px 30px rgba(0,0,20,.5);
 }
 
-.logo {  
-    font-family: math;  
-    font-size: 32px;  
-    font-weight: 700;  
-    color: var(--white);  
-    letter-spacing: 0.5px;  
-    position: relative;  
-    display: inline-block;  
-    transition: all 0.4s ease;  
-}  
-
-.nav {
-    display: flex;
-    gap: 30px;
-}
-
-/* Login/Register Links */
-/* Login/Register Links */
-.login-link,
-.register-link {
-    color: var(--white);
-    text-decoration: none;
-    font-family: math;
-    font-size: 18px;
-    font-weight: 700;
-    padding: 8px 20px;
-    border: 2px solid transparent;
-    border-radius: 50px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s ease;
-}
-
-/* Glow + Hover Effects */
-.login-link:hover,
-.register-link:hover {
-    color: #fff;
-    border: 1px solid #fff;
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 0 10px #ffffffc4, 0 0 20px rgba(255,255,255,0.3);
-}
-
-/* Press Effect */
-.login-link:active,
-.register-link:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* Shine Animation */
-.login-link::before,
-.register-link::before {
+/* Ambient glow bar */
+.header::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -75%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-        120deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.4) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    transform: skewX(-25deg);
-    transition: all 0.5s ease;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--blue-500) 30%,
+        var(--cyan-400) 60%,
+        transparent 100%);
+    opacity: .9;
 }
 
-/* Trigger shine on hover */
-.login-link:hover::before,
-.register-link:hover::before {
-    left: 125%;
-    transition: left 0.7s ease;
+/* ── LOGO ─ */
+.logo {
+    font-family: 'Sora', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, var(--white) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    cursor: default;
+    user-select: none;
 }
 
-/* Optional: Smooth text glow */
-.login-link span,
-.register-link span {
-    display: inline-block;
-    transition: text-shadow 0.4s ease;
-}
-
-.login-link:hover span,
-.register-link:hover span {
-    text-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(255,255,255,0.7);
-}
-
-
+/* ── NAV ─ */
 .nav {
     display: flex;
-    gap: 30px;
+    align-items: center;
+    gap: 6px;
 }
-/* Popup styles */
+
+.nav button,
+.login-link,
+.register-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--white-08);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    padding: 9px 18px;
+    border-radius: 99px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* Shimmer sweep */
+.nav button::after,
+.login-link::after,
+.register-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.15) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform .55s ease;
+}
+.nav button:hover::after,
+.login-link:hover::after,
+.register-link:hover::after {
+    transform: translateX(100%);
+}
+
+.nav button:hover,
+.login-link:hover,
+.register-link:hover {
+    background: linear-gradient(135deg, var(--blue-500), var(--cyan-400));
+    border-color: transparent;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(29,92,255,.45);
+}
+
+.nav button:active,
+.login-link:active,
+.register-link:active {
+    transform: translateY(0) scale(.97);
+}
+
+/* ── MENU BTN ─ */
+.menu-btn {
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+}
+.menu-btn:hover {
+    color: var(--cyan-400);
+    transform: scale(1.12);
+}
+
+/* ================= POPUP ================= */
 .popup-container {
-  position: fixed;
-  top: 60px; /* slightly below the header */
-  margin-left: 650px;
-  z-index: 1000;
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
 }
 
 .popup-message {
-  background-color: #4CAF50; /* green for success */
-  color: white;
-  padding: 15px 20px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.5s, transform 0.5s;
+    background-color: var(--popup-success);
+    color: white;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    font-family: math;
 }
 
 .popup-message.show {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .popup-message.error {
-  background-color: #f44336; /* red for error */
+    background-color: var(--popup-error);
 }
 
 /* ================= LOGIN BOX ================= */
 .login-box {
     max-width: 380px;
-    margin: 120px auto;
-    margin-top: 30px;
-    background: #ffffff;
+    margin: 30px auto;
+    background: var(--login-box-bg);
     padding: 35px;
     border-radius: 14px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    box-shadow: var(--login-box-shadow);
     text-align: center;
     animation: fadeUp 0.6s ease;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
 .login-box h2 {
     margin-bottom: 25px;
-    color: #1e3a8a;
+    color: var(--login-box-heading);
+    transition: color 0.4s ease;
 }
 
 .login-box input {
@@ -174,9 +409,17 @@ body {
     padding: 12px 14px;
     margin-bottom: 18px;
     border-radius: 8px;
-    border: 1px solid #c7d2fe;
+    border: 1px solid var(--login-input-border);
+    background: var(--create-input-bg);
+    color: var(--create-input-text);
     outline: none;
     font-size: 14px;
+    transition: border 0.3s ease, background 0.4s ease, color 0.4s ease;
+}
+
+.login-box input:focus {
+    border-color: var(--cyan-400);
+    box-shadow: 0 0 0 3px rgba(0,212,255,.15);
 }
 
 .login-box button {
@@ -184,23 +427,23 @@ body {
     padding: 12px;
     border: none;
     border-radius: 8px;
-    background: #2563eb;
+    background: var(--login-btn-bg);
     color: #fff;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .login-box button:hover {
-    background: #1e40af;
+    background: var(--login-btn-hover);
     transform: translateY(-2px);
 }
 
-/* ================= DASHBOARD ================= */
+/* ================= DASHBOARD LAYOUT ================= */
 .dashboard {
     display: flex;
-    padding: 25px 40px;
+    padding: 100px 40px;
     gap: 25px;
 }
 
@@ -211,151 +454,158 @@ body {
 /* ================= SIDEBAR NAV ================= */
 .nav-dashboard {
     width: 230px;
-    background: #ffffff;
+    background: var(--sidebar-bg);
     border-radius: 14px;
     margin-top: -110px;
     padding: 25px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    box-shadow: var(--sidebar-shadow);
     display: flex;
     flex-direction: column;
     gap: 14px;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
 .nav-dashboard button {
     padding: 12px;
     border-radius: 10px;
     border: none;
-    background: #eff6ff;
-    color: #1e3a8a;
+    background: var(--sidebar-btn-bg);
+    color: var(--sidebar-btn-color);
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
 }
 
 .nav-dashboard button:hover {
-    background: #2563eb;
-    color: #fff;
+    background: var(--sidebar-btn-hover-bg);
+    color: var(--sidebar-btn-hover-color);
     transform: translateX(4px);
 }
 
 .nav-dashboard .excel {
-    background: #22c55e;
-    color: #ffffff;
+    background: var(--sidebar-excel-bg);
+    color: var(--sidebar-excel-color);
 }
 
 .nav-dashboard .excel:hover {
-    background: #16a34a;
+    background: var(--sidebar-excel-hover-bg);
 }
 
 /* ================= MAIN SECTION ================= */
 .section {
     flex: 1;
-    background: #ffffff;
+    background: var(--section-bg);
     padding: 25px;
     margin-top: -110px;
     border-radius: 14px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    box-shadow: var(--section-shadow);
     animation: fadeUp 0.5s ease;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
 .section h3 {
     margin-bottom: 20px;
     font-size: 20px;
-    color: #1e3a8a;
+    color: var(--section-heading);
+    transition: color 0.4s ease;
 }
 
-/* ================= BUTTONS ================= */
+/* ================= DELETE / ACTION BUTTONS ================= */
 .section button {
     padding: 8px 14px;
     border-radius: 8px;
     border: none;
-    background: #ef4444;
+    background: var(--delete-btn-bg);
     color: #fff;
     font-weight: 600;
     cursor: pointer;
     margin-bottom: 15px;
-    transition: background 0.3s, transform 0.2s;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .section button:hover {
-    background: #dc2626;
+    background: var(--delete-btn-hover);
     transform: translateY(-2px);
 }
 
-/* ================= TABLE DESIGN ================= */
+/* ================= TABLE ================= */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
     border-radius: 12px;
     overflow: hidden;
+    transition: color 0.4s ease;
 }
 
 thead {
-    background: #1e3a8a;
-    color: #ffffff;
+    background: var(--table-thead-bg);
+    color: var(--table-thead-color);
+    transition: background 0.4s ease, color 0.4s ease;
 }
 
 th, td {
     padding: 14px 12px;
     text-align: left;
     font-size: 14px;
+    color: var(--table-text);
+    border-bottom: 1px solid var(--table-border);
+    transition: color 0.4s ease, border-color 0.4s ease;
 }
 
 th {
     font-weight: 600;
     letter-spacing: 0.3px;
+    color: var(--table-thead-color);
 }
 
 tbody tr {
-    background: #ffffff;
-    transition: background 0.3s;
+    background: var(--table-row-bg);
+    transition: background 0.3s ease;
 }
 
 tbody tr:nth-child(even) {
-    background: #f8fafc;
+    background: var(--table-row-even);
 }
 
 tbody tr:hover {
-    background: #e0e7ff;
+    background: var(--table-row-hover);
 }
 
-/* CHECKBOX */
 input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
+    accent-color: var(--cyan-400);
 }
 
-/* ================= EVENTS CREATE BOX ================= */
-/* CREATE EVENT BUTTON (UPDATED COLOR) */
-
+/* ================= TOGGLE CREATE EVENT BUTTON ================= */
 #toggleCreateEvent {
     padding: 8px 14px;
     border-radius: 8px;
     border: none;
-    background: #449cef;
+    background: var(--toggle-btn-bg);
     color: #fff;
     font-weight: 600;
     cursor: pointer;
     margin-bottom: 15px;
-    transition: background 0.3s, transform 0.2s;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 #toggleCreateEvent:hover {
-    background: #002e39;
+    background: var(--toggle-btn-hover);
     transform: translateY(-2px);
 }
 
-
-
+/* ================= CREATE EVENT BOX ================= */
 .create-event-box {
-    background: #f8fafc;
-    border: 1px solid #c7d2fe;
+    background: var(--create-box-bg);
+    border: 1px solid var(--create-box-border);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
     animation: fadeUp 0.4s ease;
+    transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .create-event-box input,
@@ -363,9 +613,24 @@ input[type="checkbox"] {
     width: 100%;
     padding: 10px 12px;
     border-radius: 8px;
-    border: 1px solid #c7d2fe;
+    border: 1px solid var(--create-input-border);
+    background: var(--create-input-bg);
+    color: var(--create-input-text);
     margin-bottom: 12px;
     font-size: 14px;
+    transition: border 0.3s ease, background 0.4s ease, color 0.4s ease;
+}
+
+.create-event-box input:focus,
+.create-event-box textarea:focus {
+    outline: none;
+    border-color: var(--cyan-400);
+    box-shadow: 0 0 0 3px rgba(0,212,255,.15);
+}
+
+.create-event-box input::placeholder,
+.create-event-box textarea::placeholder {
+    color: var(--text-muted);
 }
 
 .create-event-box textarea {
@@ -380,15 +645,17 @@ input[type="checkbox"] {
 
 .event-actions button {
     flex: 1;
-    background: #2563eb;
+    background: var(--create-btn-bg);
+    margin-bottom: 0;
 }
 
 .event-actions .cancel {
-    background: #6b7280;
+    background: var(--create-cancel-bg);
 }
 
 .event-actions button:hover {
     opacity: 0.9;
+    transform: translateY(-2px);
 }
 
 /* ================= ANIMATIONS ================= */
@@ -400,5 +667,38 @@ input[type="checkbox"] {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .nav-dashboard {
+        width: 100%;
+        margin-top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .nav-dashboard button {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .section {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px 20px;
+        height: auto;
     }
 }
