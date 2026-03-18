@@ -41,11 +41,9 @@ async function canDeleteEvent() {
 
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
-
   if (!snap.exists()) return false;
 
   const data = snap.data();
-
   const isTeacher = data.role === "teacher";
   const isCommitteeStudent =
     data.role === "student" &&
@@ -96,58 +94,53 @@ const alumniGrid = document.getElementById("alumniGrid");
 const searchInput = document.getElementById("alumniSearch");
 let allUsers = [];
 
-// ================== LOAD USERS ==================
-onAuthStateChanged(auth, async user => {
-  if (!user) {
-    window.location.href = "/login";
-    return;
+// ================== SKELETON LOADER ==================
+function showSkeletons(count = 6) {
+  alumniGrid.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    alumniGrid.innerHTML += `
+      <div class="card skeleton-card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="info">
+              <div class="skeleton skeleton-text" style="width:120px;height:14px;margin-bottom:6px;"></div>
+              <div class="skeleton skeleton-text" style="width:70px;height:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
-  try {
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-
-    if (!snap.exists()) {
-  showPopup("Please complete your profile", "error", 5000);
-  loadUsers(); // still load alumni
-  return;
 }
 
-    const data = snap.data();
-
-    // ===== CHECK REQUIRED FIELDS =====
-    let incomplete = !data.fullName || !data.phone || !data.role;
-
-    if (data.role === "student") {
-      incomplete = incomplete || !data.stuYear;
-    }
-
-    if (data.role === "alumni") {
-      incomplete = incomplete || !data.aluPass;
-    }
-
-    if (incomplete) {
-      showPopup("Edit your profile first!", "error", 5000);
-    }
-
-  } catch (err) {
-    console.error(err);
-    showPopup("Error checking profile", "error", 5000);
-  }
-  loadUsers();
-});
-
+// ================== LOAD USERS ==================
+// Try sessionStorage cache first for instant display
 let cachedUsers = null;
 
-const loader = document.getElementById("loader");
+const SESSION_KEY = "cachedAlumniUsers";
+
 async function loadUsers() {
+  // 1. Try in-memory cache
   if (cachedUsers) {
-    allUsers = cachedUsers;   // ✅ important
+    allUsers = cachedUsers;
     renderUsers(cachedUsers);
     return;
   }
 
-  alumniGrid.innerHTML = "";
-  loader.classList.remove("hidden");
+  // 2. Try sessionStorage cache (persists across section switches)
+  const stored = sessionStorage.getItem(SESSION_KEY);
+  if (stored) {
+    try {
+      cachedUsers = JSON.parse(stored);
+      allUsers = cachedUsers;
+      renderUsers(cachedUsers);
+      return; // instant render, no Firestore call
+    } catch (_) {}
+  }
+
+  // 3. No cache — fetch from Firestore, show skeletons while loading
+  showSkeletons(6);
 
   try {
     const q = query(
@@ -157,21 +150,53 @@ async function loadUsers() {
 
     const snapshot = await getDocs(q);
 
-    cachedUsers = snapshot.docs.map(d => ({
-      uid: d.id,
-      ...d.data()
-    }));
+    cachedUsers = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
 
-    allUsers = cachedUsers;   // ✅ FIX HERE
+    // Save to sessionStorage for next time
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(cachedUsers));
+
+    allUsers = cachedUsers;
     renderUsers(allUsers);
 
   } catch (error) {
     console.error(error);
     alumniGrid.innerHTML = "<p>Error loading users</p>";
-  } finally {
-    loader.classList.add("hidden");
   }
 }
+
+// ================== AUTH + LOAD IN PARALLEL ==================
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    window.location.href = "/login";
+    return;
+  }
+
+  // Start user list load immediately — don't wait for profile check
+  loadUsers();
+
+  // Profile check runs in parallel
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      showPopup("Please complete your profile", "error");
+      return;
+    }
+
+    const data = snap.data();
+    let incomplete = !data.fullName || !data.phone || !data.role;
+
+    if (data.role === "student") incomplete = incomplete || !data.stuYear;
+    if (data.role === "alumni")  incomplete = incomplete || !data.aluPass;
+
+    if (incomplete) showPopup("Edit your profile first!", "error");
+
+  } catch (err) {
+    console.error(err);
+    showPopup("Error checking profile", "error");
+  }
+});
 
 // ================== RENDER USERS ==================
 function renderUsers(users) {
@@ -186,7 +211,6 @@ function renderUsers(users) {
     const card = document.createElement("div");
     card.className = "card";
 
-    // ROLE BADGE
     const roleBadge =
       user.role === "alumni"
         ? `<span class="badge alumni">Alumni</span>`
@@ -194,7 +218,6 @@ function renderUsers(users) {
         ? `<span class="badge teacher">Teacher</span>`
         : `<span class="badge student">Student</span>`;
 
-    // DETAILS BY ROLE
     const details =
       user.role === "alumni"
         ? `
@@ -216,14 +239,12 @@ function renderUsers(users) {
           <p><b>Committee:</b> ${user.committee || "N/A"}</p>
         `;
 
-    // USE profilePic FROM FIRESTORE
     const profilePhoto = user.profilePic || DEFAULT_AVATAR;
 
-    // CARD STRUCTURE
     card.innerHTML = `
       <div class="card-top">
         <div class="card-left">
-          <img src="${profilePhoto}" class="profile-pic" alt="👤">
+          <img src="${profilePhoto}" class="profile-pic" alt="👤" loading="lazy">
           <div class="info">
             <h3>${user.fullName || "No Name"}</h3>
             ${roleBadge}
@@ -240,7 +261,6 @@ function renderUsers(users) {
       </div>
     `;
 
-    // TOGGLE DETAILS
     card.querySelector(".toggle-btn").addEventListener("click", () => {
       card.querySelector(".details").classList.toggle("hidden");
       card.querySelector(".arrow").classList.toggle("rotate");
@@ -258,10 +278,6 @@ searchInput.addEventListener("input", () => {
   );
   renderUsers(filtered);
 });
-
-
-
-
 
 // ================== DOM EVENTS ==================
 document.addEventListener("DOMContentLoaded", () => {
@@ -282,7 +298,6 @@ document.addEventListener("DOMContentLoaded", () => {
 const eventsRef = collection(db, "events");
 const eventsList = document.getElementById("eventsList");
 
-// LOAD EVENTS (REALTIME)
 onSnapshot(eventsRef, async snapshot => {
   eventsList.innerHTML = "";
 
@@ -291,10 +306,8 @@ onSnapshot(eventsRef, async snapshot => {
     return;
   }
 
-
   snapshot.forEach(eventDoc => {
     const event = eventDoc.data();
-    const user = auth.currentUser;
 
     const div = document.createElement("div");
     div.className = "event-item";
@@ -302,17 +315,13 @@ onSnapshot(eventsRef, async snapshot => {
     div.innerHTML = `
       <strong>${event.name}</strong>
       <p>📅 Date: ${event.date}</p>
-      ${
-        event.description
-          ? `<p class="event-desc">📝 Description: ${event.description}</p>`
-          : ""
-      }
+      ${event.description ? `<p class="event-desc">📝 Description: ${event.description}</p>` : ""}
     `;
 
     eventsList.appendChild(div);
   });
 });
-  
+
 // ================== SEND MESSAGE ROLE CHECK ==================
 async function handleSendMessage() {
   const user = auth.currentUser;
@@ -334,10 +343,8 @@ async function handleSendMessage() {
     const userData = snap.data();
 
     if (userData.role === "teacher") {
-      // ✅ Teacher allowed
       window.location.href = "/chat";
     } else {
-      // ❌ Not allowed
       showPopup("Only teachers can send messages", "error");
     }
   } catch (err) {
@@ -346,15 +353,4 @@ async function handleSendMessage() {
   }
 }
 
-// expose to HTML
 window.handleSendMessage = handleSendMessage;
-
-
-
-
-
-
-
-
-
-

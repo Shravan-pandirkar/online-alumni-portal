@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // 🔐 Create Auth user
+      // Create Auth user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -86,18 +86,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const user = userCredential.user;
 
-      // ✅ Save user data to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,         
+      // Fire Firestore write in background — no await
+      setDoc(doc(db, "users", user.uid), {
+        email: user.email,
         provider: "password",
         createdAt: serverTimestamp()
       });
 
       showPopup("Registration successful!", "success", 1000);
-
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 1000);
+      window.location.href = "/dashboard"; // redirect immediately
 
     } catch (error) {
       console.error(error);

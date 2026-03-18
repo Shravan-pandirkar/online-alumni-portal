@@ -80,8 +80,8 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     const user = cred.user;
 
-    // Save / update Firestore
-    await setDoc(
+    // Fire Firestore update in background — no await
+    setDoc(
       doc(db, "users", user.uid),
       {
         email: user.email,
@@ -92,9 +92,7 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
     );
 
     showPopup("Login successful!", "success");
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1000); 
+    window.location.href = "/dashboard"; // redirect immediately
 
   } catch (error) {
     if (error.code === "auth/user-not-found") {
@@ -102,14 +100,15 @@ document.querySelector(".login-form").addEventListener("submit", async (e) => {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         const user = cred.user;
 
-        await setDoc(doc(db, "users", user.uid), {
+        // Fire Firestore write in background — no await
+        setDoc(doc(db, "users", user.uid), {
           email: user.email,
           provider: "password",
           createdAt: serverTimestamp()
         });
 
         showPopup("Account created & logged in!", "success");
-        window.location.href = "/dashboard";
+        window.location.href = "/dashboard"; // redirect immediately
 
       } catch (err) {
         console.error(err);
@@ -132,13 +131,14 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // 🔑 SAFELY get email
+    // Safely get email
     const email =
       user.email ||
       user.providerData?.[0]?.email ||
       "unknown@gmail.com";
 
-    await setDoc(
+    // Fire Firestore update in background — no await
+    setDoc(
       doc(db, "users", user.uid),
       {
         email: email,
@@ -150,7 +150,7 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
     );
 
     showPopup("Google Login Successful!", "success");
-    window.location.href = "/dashboard";
+    window.location.href = "/dashboard"; // redirect immediately
 
   } catch (error) {
     console.error(error);
