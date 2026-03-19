@@ -807,13 +807,10 @@ function renderMessage(msgId, data, animate) {
   const actionsEl= row.querySelector(".msg-actions");
   const reactPkr = row.querySelector(".emoji-reaction-picker");
 
-  // Show/hide action bar on hover
-  row.addEventListener("mouseenter", () => {
-    if (!selectMode) actionsEl.style.opacity = "1";
-  });
+  // Hide reaction picker when mouse leaves the row
+  // (opacity of actionsEl is handled purely by CSS :hover — no JS needed)
   row.addEventListener("mouseleave", () => {
-    actionsEl.style.opacity = "0";
-    reactPkr.style.display = "none";
+    if (reactPkr) reactPkr.style.display = "none";
   });
 
   // REACT — toggle emoji picker
