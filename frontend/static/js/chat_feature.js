@@ -129,8 +129,9 @@ function init() {
       currentProfile = await ensureUserProfile(user);  // FIX: always ensure profile exists
       await setOnlineStatus(true);
 
-      // Update sidebar subtitle based on logged-in user role
-      updateSidebarLabel();
+      // Populate profile card + wire dropdown
+      populateMyProfile();
+      setupProfileDropdown();
 
       loadContacts();   // FIX: no await — let it stream in real-time
     } else {
@@ -1771,15 +1772,149 @@ function setupEventListeners() {
   });
 }
 
-// ── UPDATE SIDEBAR LABEL BASED ON ROLE ──────────────────────
+// ============================================================
+//  POPULATE MY PROFILE CARD  (top of sidebar)
+// ============================================================
+function populateMyProfile() {
+  if (!currentProfile) return;
+
+  const p        = currentProfile;
+  const role     = (p.role || "alumni").toLowerCase();
+  const name     = p.fullName || p.email || "Me";
+  const initials = name.split(" ").slice(0,2).map(n => n[0]?.toUpperCase()||"").join("");
+  const color    = stringToColor(currentUser.uid);
+
+  // ── Avatar ──
+  const avatarEl = document.getElementById("myAvatar");
+  if (avatarEl) {
+    if (p.profilePic) {
+      avatarEl.innerHTML = `<img src="${p.profilePic}"
+        onerror="this.style.display='none';this.parentElement.textContent='${initials}'">`;
+    } else {
+      avatarEl.textContent    = initials;
+      avatarEl.style.background = color;
+    }
+  }
+
+  // ── Name ──
+  const nameEl = document.getElementById("myName");
+  if (nameEl) nameEl.textContent = name;
+
+  // ── Meta subtitle ──
+  const metaEl = document.getElementById("myMeta");
+  if (metaEl) {
+    const parts =
+      role === "alumni"  ? [p.dept, p.aluPass  ? "Batch "+p.aluPass  : null, p.company]    :
+      role === "student" ? [p.dept, p.stuYear  ? "Year "+p.stuYear   : null, p.committee]  :
+      role === "teacher" ? [p.dept, p.designation]                                          :
+      [p.dept];
+    metaEl.textContent = parts.filter(Boolean).join(" · ") || p.email || "";
+  }
+
+  // ── Status dot ──
+  updateMyStatusDot(p.status || "online");
+
+  // ── Fill dropdown header ──
+  const dropHeader = document.getElementById("myDropdownHeader");
+  if (dropHeader) {
+    const roleBadge = `<span class="my-dropdown-role ${role}">${role.charAt(0).toUpperCase()+role.slice(1)}</span>`;
+    const dept = [p.dept, p.aluPass ? "Batch "+p.aluPass : null].filter(Boolean).join(" · ");
+    const avatarHTML = p.profilePic
+      ? `<div class="my-dropdown-avatar"><img src="${p.profilePic}"></div>`
+      : `<div class="my-dropdown-avatar" style="background:${color}">${initials}</div>`;
+    dropHeader.innerHTML = `
+      ${avatarHTML}
+      <div>
+        <div class="my-dropdown-name">${escapeHTML(name)}</div>
+        ${roleBadge}
+        ${dept ? `<div class="my-dropdown-dept">${escapeHTML(dept)}</div>` : ""}
+      </div>`;
+  }
+}
+
+function updateMyStatusDot(status) {
+  const dot = document.getElementById("myStatusDot");
+  if (!dot) return;
+  dot.className = "my-status-dot " + (status || "online");
+}
+
+// ── SIDEBAR LABEL (kept for backwards compat) ──
 function updateSidebarLabel() {
-  const sub = document.querySelector(".logo-sub");
-  if (!sub) return;
-  const role = (currentProfile?.role || "").toLowerCase();
-  sub.textContent =
-    role === "student" ? "Chat with Alumni" :
-    role === "teacher" ? "All Chats" :
-    "Alumni & Students";    // alumni sees both
+  populateMyProfile();
+}
+
+// ── Profile dropdown wiring ──
+function setupProfileDropdown() {
+  const menuBtn  = document.getElementById("myMenuBtn");
+  const dropdown = document.getElementById("myProfileDropdown");
+  if (!menuBtn || !dropdown) return;
+
+  // Toggle dropdown
+  menuBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    dropdown.classList.toggle("open");
+  });
+
+  // Close on outside click
+  document.addEventListener("click", e => {
+    if (!dropdown.contains(e.target) && e.target !== menuBtn)
+      dropdown.classList.remove("open");
+  });
+
+  // Status buttons
+  document.getElementById("setOnlineBtn")?.addEventListener("click", () => {
+    changeMyStatus("online"); dropdown.classList.remove("open");
+  });
+  document.getElementById("setAwayBtn")?.addEventListener("click", () => {
+    changeMyStatus("away"); dropdown.classList.remove("open");
+  });
+  document.getElementById("setOfflineBtn")?.addEventListener("click", () => {
+    changeMyStatus("offline"); dropdown.classList.remove("open");
+  });
+
+  // View profile — navigate to profile page
+  document.getElementById("goProfileBtn")?.addEventListener("click", () => {
+    dropdown.classList.remove("open");
+    window.location.href = "/profile";
+  });
+
+  // Logout
+  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+    dropdown.classList.remove("open");
+    try {
+      await setOnlineStatus(false);
+      await signOut(auth);
+      window.location.href = "/login";
+    } catch(err) {
+      console.error("Logout error:", err);
+      showToast("Logout failed. Try again.", "error");
+    }
+  });
+
+  // Status button (the dot) cycles online → away → offline
+  document.getElementById("myStatusBtn")?.addEventListener("click", e => {
+    e.stopPropagation();
+    const cur = currentProfile?.status || "online";
+    const next = cur === "online" ? "away" : cur === "away" ? "offline" : "online";
+    changeMyStatus(next);
+  });
+}
+
+async function changeMyStatus(status) {
+  if (!currentUser || !currentProfile) return;
+  currentProfile.status = status;
+  updateMyStatusDot(status);
+  try {
+    await updateDoc(doc(db, "users", currentUser.uid), { status });
+    showToast(
+      status === "online"  ? "You are now Online 🟢" :
+      status === "away"    ? "You are now Away 🟡" :
+      "You appear Offline ⚫",
+      "success"
+    );
+  } catch(err) {
+    console.error("Status update failed:", err);
+  }
 }
 
 // ── START ────────────────────────────────────────────────────

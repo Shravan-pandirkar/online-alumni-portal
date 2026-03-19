@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Alumni Chat | SGDTP Portal</title>
-  <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
   <link rel="stylesheet" href="/static/css/chat_feature.css" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -13,15 +12,58 @@
 
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
+
+    <!-- ── Top bar: logo + close ── -->
+    <div class="sidebar-topbar">
+      <div class="sidebar-logo">
         <span class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></span>
-        <div>
-          <p class="logo-title">SGDTP</p>
-          <p class="logo-sub">Alumni Chat</p>
-        </div>
+        <span class="logo-title">SGDTP</span>
       </div>
       <button class="sidebar-close" id="sidebarClose"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- ── My Profile Card ── -->
+    <div class="my-profile-card" id="myProfileCard">
+      <div class="my-profile-avatar" id="myAvatar"></div>
+      <div class="my-profile-info">
+        <div class="my-profile-name"  id="myName">Loading...</div>
+        <div class="my-profile-meta"  id="myMeta"></div>
+      </div>
+      <div class="my-profile-actions">
+        <button class="my-profile-btn" id="myStatusBtn" title="Set status">
+          <span class="my-status-dot online" id="myStatusDot"></span>
+        </button>
+        <button class="my-profile-btn" id="myMenuBtn" title="More">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+      </div>
+
+      <!-- Profile dropdown menu -->
+      <div class="my-profile-dropdown" id="myProfileDropdown">
+        <div class="my-dropdown-header" id="myDropdownHeader">
+          <!-- filled by JS -->
+        </div>
+        <div class="ctx-divider"></div>
+        <button class="ctx-item" id="setOnlineBtn">
+          <span style="width:10px;height:10px;border-radius:50%;background:#30d158;display:inline-block;flex-shrink:0;"></span>
+          Set Online
+        </button>
+        <button class="ctx-item" id="setAwayBtn">
+          <span style="width:10px;height:10px;border-radius:50%;background:#ffd60a;display:inline-block;flex-shrink:0;"></span>
+          Set Away
+        </button>
+        <button class="ctx-item" id="setOfflineBtn">
+          <span style="width:10px;height:10px;border-radius:50%;background:#4a6091;display:inline-block;flex-shrink:0;"></span>
+          Appear Offline
+        </button>
+        <div class="ctx-divider"></div>
+        <button class="ctx-item" id="goProfileBtn">
+          <i class="fa-solid fa-user"></i> View Profile
+        </button>
+        <button class="ctx-item ctx-danger" id="logoutBtn">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
     </div>
     <div class="search-wrap">
       <i class="fa-solid fa-magnifying-glass search-icon"></i>
