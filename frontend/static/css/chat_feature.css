@@ -1993,3 +1993,7 @@ body { display: flex; height: 100vh; }
   color: var(--text-secondary);
   margin-top: 2px;
 }
+
+.goProfileBtn{
+  text-decoration: none;
+}
