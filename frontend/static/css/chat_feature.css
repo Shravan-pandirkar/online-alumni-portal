@@ -1655,6 +1655,7 @@ body { display: flex; height: 100vh; }
   font-size: 14px;
   width: 18px;
   text-align: center;
+  text-decoration: none;
   flex-shrink: 0;
   background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
   -webkit-background-clip: text;
