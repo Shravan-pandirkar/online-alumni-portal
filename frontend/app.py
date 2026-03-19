@@ -5,7 +5,7 @@ app = Flask(__name__)
 # First page → Login
 @app.route('/')
 def home():
-    return redirect(url_for('frontpage'))
+    return redirect(url_for('login'))
 
 @app.route('/frontpage')
 def frontpage():
@@ -14,6 +14,10 @@ def frontpage():
 @app.route('/showevent')
 def showevent():
     return render_template('Events.html')
+
+@app.route('/alumnichat')
+def alumnichat():
+    return render_template('chat_feature.html')
 
 @app.route('/admin')
 def admin():
