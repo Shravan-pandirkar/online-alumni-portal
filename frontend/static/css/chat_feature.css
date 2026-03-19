@@ -946,3 +946,731 @@ body { display: flex; height: 100vh; }
   from { opacity:0; transform:scale(.88) translateY(20px); }
   to   { opacity:1; transform:scale(1)   translateY(0); }
 }
+
+/* ============================================================
+   MESSAGE ACTION BAR (Reply / Copy / React / Pin)
+   ============================================================ */
+
+.msg-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity .18s ease;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(4,15,42,.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(100,150,255,.25);
+  border-radius: 99px;
+  padding: 4px 6px;
+  box-shadow: 0 4px 20px rgba(0,0,20,.5);
+  z-index: 10;
+  white-space: nowrap;
+}
+
+/* Position left for sent, right for received */
+.message-row.sent     .msg-actions { right: calc(100% + 8px); }
+.message-row.received .msg-actions { left:  calc(100% + 8px); }
+
+.message-row { position: relative; }
+
+.msg-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: background .15s ease, color .15s ease, transform .15s ease;
+  padding: 0;
+}
+
+.msg-action-btn:hover {
+  background: rgba(29,92,255,.2);
+  color: var(--cyan-400);
+  transform: scale(1.15);
+}
+
+/* React button — emoji icon */
+.react-btn { font-size: 15px; }
+
+/* ============================================================
+   EMOJI REACTION PICKER (inline above bubble)
+   ============================================================ */
+.emoji-reaction-picker {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  display: flex;
+  gap: 4px;
+  background: rgba(4,15,42,.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(100,150,255,.30);
+  border-radius: 99px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 32px rgba(0,0,20,.5),
+              inset 0 1px 0 rgba(255,255,255,.1);
+  z-index: 20;
+  animation: liquidDrop .18s cubic-bezier(.34,1.3,.64,1);
+}
+
+.message-row.sent     .emoji-reaction-picker { right: 0; }
+.message-row.received .emoji-reaction-picker { left: 0; }
+
+.react-emoji {
+  font-size: 20px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), background .15s ease;
+}
+
+.react-emoji:hover {
+  transform: scale(1.4) translateY(-3px);
+  background: rgba(255,255,255,.08);
+}
+
+/* ============================================================
+   REACTION PILLS (shown on bubble)
+   ============================================================ */
+.reaction-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.reaction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(100,150,255,.20);
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .15s ease;
+  user-select: none;
+}
+
+.reaction-pill span {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.reaction-pill:hover {
+  background: rgba(29,92,255,.18);
+  border-color: rgba(29,92,255,.40);
+  transform: scale(1.08);
+}
+
+/* My own reaction highlighted */
+.reaction-pill.mine {
+  background: rgba(29,92,255,.22);
+  border-color: rgba(0,212,255,.45);
+}
+
+/* ============================================================
+   REPLY QUOTE (inside bubble)
+   ============================================================ */
+.reply-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  margin-bottom: 7px;
+  border-left: 3px solid var(--cyan-400);
+  background: rgba(0,212,255,.07);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.reply-quote-name {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--cyan-400);
+  letter-spacing: .2px;
+}
+
+.reply-quote-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   REPLY BAR (above input, shown when replying)
+   ============================================================ */
+.reply-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(4,15,42,.85);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0,212,255,.25);
+  border-bottom: 1px solid rgba(100,150,255,.10);
+  animation: slideDown .18s ease;
+}
+
+.reply-bar-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.reply-bar-icon {
+  color: var(--cyan-400);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.reply-bar-name {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cyan-400);
+  font-family: var(--font-display);
+  margin-bottom: 1px;
+}
+
+.reply-bar-text {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reply-bar-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: background .15s ease, color .15s ease;
+  flex-shrink: 0;
+}
+
+.reply-bar-close:hover {
+  background: rgba(255,69,58,.15);
+  color: #ff453a;
+}
+
+/* ============================================================
+   PIN BAR (below chat header)
+   ============================================================ */
+.pin-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: rgba(29,92,255,.08);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(29,92,255,.25);
+  cursor: pointer;
+  transition: background .18s ease;
+  animation: slideDown .2s ease;
+}
+
+.pin-bar:hover { background: rgba(29,92,255,.14); }
+
+.pin-bar-icon {
+  color: var(--cyan-400);
+  font-size: 13px;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.pin-bar-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pin-bar-count {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--cyan-400);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.pin-bar-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pin-bar-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: background .15s ease, color .15s ease;
+  flex-shrink: 0;
+}
+
+.pin-bar-close:hover {
+  background: rgba(255,69,58,.15);
+  color: #ff453a;
+}
+
+/* Pinned message indicator */
+.message-row.pinned-msg .bubble {
+  border-color: rgba(0,212,255,.35) !important;
+}
+
+.pin-icon {
+  position: absolute;
+  top: -6px;
+  font-size: 10px;
+  color: var(--cyan-400);
+  transform: rotate(45deg);
+  opacity: .8;
+}
+
+.message-row.sent .pin-icon     { right: 4px; }
+.message-row.received .pin-icon { left: 4px; }
+
+/* ============================================================
+   PINNED MESSAGE BANNER
+   ============================================================ */
+.pinned-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(29, 92, 255, .15),
+    rgba(0, 212, 255, .08)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(29, 92, 255, .25);
+  border-left: 3px solid var(--cyan-400);
+  flex-shrink: 0;
+  animation: slideDown .22s ease;
+  cursor: pointer;
+}
+
+.pinned-banner:hover { background: rgba(29,92,255,.22); }
+
+.pinned-icon {
+  color: var(--cyan-400);
+  font-size: 13px;
+  flex-shrink: 0;
+  animation: pinWiggle 2s ease-in-out infinite;
+}
+
+@keyframes pinWiggle {
+  0%,100% { transform: rotate(0deg);   }
+  20%      { transform: rotate(-15deg); }
+  40%      { transform: rotate(10deg);  }
+}
+
+.pinned-text {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
+.pinned-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+.pinned-close:hover { color: var(--text-primary); }
+
+/* Pin icon on pinned bubble */
+.pinned-msg { position: relative; }
+.pin-icon {
+  position: absolute;
+  top: -6px;
+  font-size: 10px;
+  color: var(--cyan-400);
+  opacity: .8;
+}
+.message-row.sent  .pin-icon { left: -14px; }
+.message-row.received .pin-icon { right: -14px; }
+
+/* ============================================================
+   WHATSAPP-STYLE MESSAGE HOVER ACTIONS  (complete rewrite)
+   ============================================================ */
+
+/* Make each message row position:relative for absolute children */
+.message-row {
+  position: relative;
+  padding: 2px 0;
+}
+
+/* Action bar — hidden by default, slides in on hover */
+.msg-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  /* Glass pill */
+  background: rgba(4, 15, 42, 0.90);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(100, 150, 255, .30);
+  border-radius: 99px;
+  padding: 3px 5px;
+  box-shadow:
+    0 4px 20px rgba(0,0,20,.6),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  z-index: 15;
+  white-space: nowrap;
+
+  /* Hidden until hover */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+  transform: translateY(-50%) scale(.92);
+}
+
+/* Sent messages: bar appears on left side */
+.message-row.sent     .msg-actions { right: calc(100% + 6px); left: auto; }
+/* Received messages: bar appears on right side */
+.message-row.received .msg-actions { left: calc(100% + 6px);  right: auto; }
+
+/* Show on hover */
+.message-row:hover .msg-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1);
+}
+
+/* Don't show in select mode */
+.messages-area.select-mode .message-row:hover .msg-actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Individual action button */
+.msg-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: background .12s ease, color .12s ease, transform .12s cubic-bezier(.34,1.56,.64,1);
+  padding: 0;
+  position: relative;
+}
+
+.msg-action-btn:hover {
+  background: rgba(29, 92, 255, .25);
+  color: var(--cyan-400);
+  transform: scale(1.18);
+}
+
+.msg-action-btn:active { transform: scale(.92); }
+
+/* Tooltip on each button */
+.msg-action-btn::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(4,15,42,.95);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
+  border: 1px solid var(--border-subtle);
+}
+
+.msg-action-btn:hover::after { opacity: 1; }
+
+/* React button — slightly larger emoji */
+.react-btn { font-size: 16px; }
+
+/* Divider between button groups */
+.action-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(100,150,255,.25);
+  margin: 0 1px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   EMOJI REACTION PICKER  (appears above bubble on react click)
+   ============================================================ */
+.emoji-reaction-picker {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  display: none;       /* toggled to flex by JS */
+  gap: 2px;
+  background: rgba(4, 15, 42, 0.95);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(100,150,255,.35);
+  border-radius: 99px;
+  padding: 6px 8px;
+  box-shadow:
+    0 10px 40px rgba(0,0,20,.6),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 0 20px rgba(29,92,255,.1);
+  z-index: 30;
+  animation: liquidDrop .18s cubic-bezier(.34,1.3,.64,1);
+}
+
+.message-row.sent     .emoji-reaction-picker { right: 0; }
+.message-row.received .emoji-reaction-picker { left: 0; }
+
+.react-emoji {
+  font-size: 22px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), background .12s ease;
+  user-select: none;
+}
+
+.react-emoji:hover {
+  transform: scale(1.45) translateY(-4px);
+  background: rgba(255,255,255,.1);
+}
+
+/* ============================================================
+   REACTION PILLS  (shown below bubble text)
+   ============================================================ */
+.reaction-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.reaction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(100,150,255,.20);
+  border-radius: 99px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s;
+  user-select: none;
+}
+
+.reaction-pill span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.reaction-pill:hover {
+  background: rgba(29,92,255,.18);
+  border-color: rgba(29,92,255,.4);
+  transform: scale(1.08);
+}
+
+/* Pill for a reaction the current user already made */
+.reaction-pill.mine {
+  background: rgba(29,92,255,.22);
+  border-color: rgba(29,92,255,.5);
+  box-shadow: 0 0 8px rgba(29,92,255,.2);
+}
+
+/* ============================================================
+   REPLY QUOTE inside bubble  (shows original message)
+   ============================================================ */
+.reply-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,.07);
+  border-left: 3px solid var(--cyan-400);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.reply-quote::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,255,.06), transparent);
+  pointer-events: none;
+}
+
+.reply-quote-name {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.reply-quote-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   REPLY BAR  (shown above input when replying to a message)
+   ============================================================ */
+.reply-bar {
+  display: none;      /* shown by JS when reply is active */
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, .08),
+    rgba(29, 92, 255, .06)
+  );
+  border-top: 1px solid rgba(0,212,255,.20);
+  border-left: 3px solid var(--cyan-400);
+  flex-shrink: 0;
+  animation: slideDown .18s ease;
+}
+
+.reply-bar-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.reply-bar-icon {
+  color: var(--cyan-400);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.reply-bar-name {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+}
+
+.reply-bar-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reply-bar-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color var(--transition), background var(--transition);
+  flex-shrink: 0;
+}
+.reply-bar-close:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,.08);
+}
+
+/* ============================================================
+   MOBILE  — action bar shown on tap instead of hover
+   ============================================================ */
+@media (max-width: 720px) {
+  /* On mobile, keep bar hidden — long press can show it via JS */
+  .message-row:hover .msg-actions {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .message-row.show-actions .msg-actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1);
+  }
+}

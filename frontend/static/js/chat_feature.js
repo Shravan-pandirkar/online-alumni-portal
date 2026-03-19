@@ -57,7 +57,9 @@ let emojiOpen      = false;
 let currentFilter  = "all";
 let allContacts    = [];
 let typingTimer    = null;
-let selectMode     = false;      // true when user is selecting messages to delete
+let selectMode     = false;
+let replyingTo     = null;   // { msgId, text, senderName } — currently quoted reply
+let pinnedMessages = [];     // array of pinned message objects      // true when user is selecting messages to delete
 let selectedMsgIds = new Set();  // set of message doc IDs currently selected
 
 // ── DOM ──────────────────────────────────────────────────────
@@ -104,6 +106,13 @@ const deleteModalTitle = el("deleteModalTitle");
 const deleteModalDesc  = el("deleteModalDesc");
 const confirmDeleteBtn = el("confirmDeleteBtn");
 const cancelDeleteBtn  = el("cancelDeleteBtn");
+const replyBar         = el("replyBar");
+const replyBarClose    = el("replyBarClose");
+const pinnedBanner     = el("pinnedBanner");
+const pinnedClose      = el("pinnedClose");
+const pinnedText       = el("pinnedText");
+const pinBar           = el("pinBar");
+const pinBarClose      = el("pinBarClose");
 
 // ============================================================
 //  INIT
@@ -585,8 +594,13 @@ async function openChat(user) {
   updateContactUnreadBadge(user.id, 0);
   await ensureChatRoom(activeChatId, user);
 
+  pinnedMessages = [];
+  cancelReply();
+  updatePinBar();
+  loadPinnedMessages(activeChatId);
   listenToMessages(activeChatId);
   unsubTyping = listenToTyping(activeChatId);
+  loadPinnedMessages(activeChatId);    // restore pinned messages on chat open
 
   closeSidebar();
   messageInput.focus();
@@ -727,32 +741,157 @@ function emptyConvoHTML() {
 }
 
 // ============================================================
-//  RENDER ONE BUBBLE
+//  RENDER ONE BUBBLE — with reply, react, copy, pin support
 // ============================================================
 function renderMessage(msgId, data, animate) {
-  const isSent = data.senderId === currentUser.uid;
-  const time   = data.timestamp ? formatTime(data.timestamp.toDate()) : "Just now";
+  const isSent     = data.senderId === currentUser.uid;
+  const time       = data.timestamp ? formatTime(data.timestamp.toDate()) : "Just now";
+  const isPinned   = pinnedMessages.some(p => p.msgId === msgId);
 
   const row          = document.createElement("div");
-  row.className      = "message-row " + (isSent ? "sent" : "received");
+  row.className      = "message-row " + (isSent ? "sent" : "received")
+                       + (isPinned ? " pinned-msg" : "");
   row.dataset.msgid  = msgId;
   row.dataset.sender = data.senderId;
+  row.dataset.text   = data.text;
   if (!animate) row.style.animation = "none";
 
   const tick = isSent ? `<i class="fa-solid fa-check-double read-tick"></i>` : "";
 
+  // Reply quote block (shown if this message is a reply)
+  const replyHTML = data.replyTo ? `
+    <div class="reply-quote">
+      <span class="reply-quote-name">${escapeHTML(data.replyTo.senderName)}</span>
+      <span class="reply-quote-text">${escapeHTML(data.replyTo.text.slice(0, 80))}${data.replyTo.text.length > 80 ? "…" : ""}</span>
+    </div>` : "";
+
+  // Reactions row (shown if any reactions exist)
+  const reactMap = data.reactions || {};
+  const reactHTML = Object.keys(reactMap).length > 0 ? `
+    <div class="reaction-row">
+      ${Object.entries(reactMap).map(([emoji, uids]) =>
+        `<span class="reaction-pill ${uids.includes(currentUser.uid) ? "mine" : ""}"
+               data-emoji="${emoji}" title="${uids.length} reaction${uids.length > 1 ? "s" : ""}">
+          ${emoji} ${uids.length > 1 ? `<span>${uids.length}</span>` : ""}
+        </span>`
+      ).join("")}
+    </div>` : "";
+
+  // Pin icon
+  const pinHTML = isPinned ? `<i class="fa-solid fa-thumbtack pin-icon" title="Pinned"></i>` : "";
+
   row.innerHTML = `
+    ${pinHTML}
     <div class="bubble">
+      ${replyHTML}
       ${escapeHTML(data.text)}
       <div class="bubble-time">${time} ${tick}</div>
     </div>
+    <div class="msg-actions">
+      <button class="msg-action-btn react-btn"  title="React">😊</button>
+      <button class="msg-action-btn reply-btn"  title="Reply"><i class="fa-solid fa-reply"></i></button>
+      <button class="msg-action-btn copy-btn"   title="Copy"><i class="fa-solid fa-copy"></i></button>
+      <button class="msg-action-btn pin-btn"    title="${isPinned ? "Unpin" : "Pin"}">
+        <i class="fa-solid fa-thumbtack${isPinned ? "" : "-slash"} fa-thumbtack"></i>
+      </button>
+    </div>
+    <div class="emoji-reaction-picker" style="display:none;">
+      ${["👍","❤️","😂","😮","😢","🔥","🙏","👏"].map(e =>
+        `<span class="react-emoji" data-emoji="${e}">${e}</span>`
+      ).join("")}
+    </div>
   `;
 
-  // Click handler: in select mode — toggle selection; else ignore
+  // ── Bind action buttons ──
+  const bubble   = row.querySelector(".bubble");
+  const actionsEl= row.querySelector(".msg-actions");
+  const reactPkr = row.querySelector(".emoji-reaction-picker");
+
+  // Show/hide action bar on hover
+  row.addEventListener("mouseenter", () => {
+    if (!selectMode) actionsEl.style.opacity = "1";
+  });
+  row.addEventListener("mouseleave", () => {
+    actionsEl.style.opacity = "0";
+    reactPkr.style.display = "none";
+  });
+
+  // REACT — toggle emoji picker
+  row.querySelector(".react-btn").addEventListener("click", e => {
+    e.stopPropagation();
+    const isOpen = reactPkr.style.display === "flex";
+    document.querySelectorAll(".emoji-reaction-picker").forEach(p => p.style.display = "none");
+    reactPkr.style.display = isOpen ? "none" : "flex";
+  });
+
+  // Pick a reaction emoji
+  row.querySelectorAll(".react-emoji").forEach(span => {
+    span.addEventListener("click", e => {
+      e.stopPropagation();
+      reactPkr.style.display = "none";
+      sendReaction(msgId, span.dataset.emoji);
+    });
+  });
+
+  // Click existing reaction pill to toggle it
+  row.querySelectorAll(".reaction-pill").forEach(pill => {
+    pill.addEventListener("click", () => sendReaction(msgId, pill.dataset.emoji));
+  });
+
+  // REPLY
+  row.querySelector(".reply-btn").addEventListener("click", () => {
+    startReply({
+      msgId,
+      text:       data.text,
+      senderName: data.senderId === currentUser.uid
+                  ? "You"
+                  : (activeContact?.fullName || "them")
+    });
+  });
+
+  // COPY
+  row.querySelector(".copy-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText(data.text)
+      .then(() => showToast("Message copied!", "success"))
+      .catch(() => {
+        // fallback for older browsers
+        const ta = document.createElement("textarea");
+        ta.value = data.text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast("Message copied!", "success");
+      });
+  });
+
+  // PIN / UNPIN
+  row.querySelector(".pin-btn").addEventListener("click", () => {
+    togglePin(msgId, data.text, data.senderId);
+  });
+
+  // SELECT MODE click
   row.addEventListener("click", () => {
     if (!selectMode) return;
     toggleMessageSelection(row, msgId, data.senderId);
   });
+
+  // Mobile: long-press to show action bar
+  let pressTimer = null;
+  row.addEventListener("touchstart", () => {
+    pressTimer = setTimeout(() => {
+      document.querySelectorAll(".message-row.show-actions")
+        .forEach(r => r.classList.remove("show-actions"));
+      row.classList.add("show-actions");
+    }, 500);
+  }, { passive: true });
+  row.addEventListener("touchend",   () => clearTimeout(pressTimer), { passive: true });
+  row.addEventListener("touchmove",  () => clearTimeout(pressTimer), { passive: true });
+
+  // Close actions on tap outside
+  document.addEventListener("touchstart", (e) => {
+    if (!row.contains(e.target)) row.classList.remove("show-actions");
+  }, { passive: true });
 
   messagesArea.appendChild(row);
 }
@@ -783,6 +922,142 @@ function updateSelectCount() {
 }
 
 // ============================================================
+//  REPLY
+// ============================================================
+function startReply(msgData) {
+  replyingTo = msgData;
+  const bar = document.getElementById("replyBar");
+  const nameEl = document.getElementById("replyBarName");
+  const textEl = document.getElementById("replyBarText");
+  if (!bar) return;
+  if (nameEl) nameEl.textContent = msgData.senderName;
+  if (textEl) textEl.textContent = msgData.text.slice(0, 100) + (msgData.text.length > 100 ? "…" : "");
+  bar.style.display = "flex";
+  messageInput?.focus();
+}
+
+function cancelReply() {
+  replyingTo = null;
+  const bar = document.getElementById("replyBar");
+  if (bar) bar.style.display = "none";
+}
+
+// ============================================================
+//  REACT
+// ============================================================
+async function sendReaction(msgId, emoji) {
+  if (!activeChatId || !currentUser) return;
+  try {
+    const msgRef  = doc(db, "chats", activeChatId, "messages", msgId);
+    const snap    = await getDoc(msgRef);
+    if (!snap.exists()) return;
+
+    const reactions = snap.data().reactions || {};
+    const uids      = reactions[emoji] || [];
+    const alreadyReacted = uids.includes(currentUser.uid);
+
+    // Toggle: if already reacted remove, else add
+    const newUids = alreadyReacted
+      ? uids.filter(u => u !== currentUser.uid)
+      : [...uids, currentUser.uid];
+
+    const updatedReactions = { ...reactions };
+    if (newUids.length === 0) delete updatedReactions[emoji];
+    else updatedReactions[emoji] = newUids;
+
+    await updateDoc(msgRef, { reactions: updatedReactions });
+
+    // Update DOM immediately (optimistic)
+    const row = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
+    if (row) {
+      const updatedData = { ...snap.data(), reactions: updatedReactions };
+      const newRow = document.createElement("div");
+      newRow.className   = row.className;
+      newRow.dataset.msgid  = row.dataset.msgid;
+      newRow.dataset.sender = row.dataset.sender;
+      newRow.dataset.text   = row.dataset.text;
+      newRow.style.animation = "none";
+      row.parentNode.replaceChild(newRow, row);
+      // Re-render into newRow by calling renderMessage logic inline
+      renderMessage(msgId, updatedData, false);
+      const fresh = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
+      if (fresh) fresh.style.animation = "none";
+    }
+  } catch(err) {
+    console.error("❌ sendReaction:", err);
+    showToast("Could not add reaction.", "error");
+  }
+}
+
+// ============================================================
+//  PIN / UNPIN
+// ============================================================
+async function togglePin(msgId, text, senderId) {
+  if (!activeChatId) return;
+  const alreadyPinned = pinnedMessages.some(p => p.msgId === msgId);
+
+  if (alreadyPinned) {
+    pinnedMessages = pinnedMessages.filter(p => p.msgId !== msgId);
+    showToast("Message unpinned.", "success");
+  } else {
+    if (pinnedMessages.length >= 3) {
+      showToast("Max 3 messages can be pinned.", "fill");
+      return;
+    }
+    pinnedMessages.push({ msgId, text, senderId });
+    showToast("Message pinned! 📌", "success");
+  }
+
+  // Save pinned list to Firestore chat room doc
+  try {
+    await updateDoc(doc(db, "chats", activeChatId), {
+      pinnedMessages: pinnedMessages
+    });
+  } catch(_) {}
+
+  updatePinBar();
+  refreshMessagePin(msgId, !alreadyPinned);
+}
+
+function updatePinBar() {
+  const bar     = document.getElementById("pinnedBanner");
+  const textEl  = document.getElementById("pinnedText");
+  if (!bar) return;
+
+  if (pinnedMessages.length === 0) {
+    bar.style.display = "none";
+    return;
+  }
+
+  bar.style.display = "flex";
+  const latest = pinnedMessages[pinnedMessages.length - 1];
+  const label  = pinnedMessages.length > 1
+    ? `${pinnedMessages.length} pinned — ${latest.text.slice(0, 50)}…`
+    : latest.text.slice(0, 70) + (latest.text.length > 70 ? "…" : "");
+  if (textEl) textEl.textContent = label;
+}
+
+function refreshMessagePin(msgId, isPinned) {
+  const row = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
+  if (!row) return;
+  if (isPinned) row.classList.add("pinned-msg");
+  else row.classList.remove("pinned-msg");
+  const pinBtn = row.querySelector(".pin-btn");
+  if (pinBtn) pinBtn.title = isPinned ? "Unpin" : "Pin";
+}
+
+// Load pinned messages when opening a chat
+async function loadPinnedMessages(chatId) {
+  try {
+    const snap = await getDoc(doc(db, "chats", chatId));
+    if (snap.exists()) {
+      pinnedMessages = snap.data().pinnedMessages || [];
+      updatePinBar();
+    }
+  } catch(_) {}
+}
+
+// ============================================================
 //  SEND MESSAGE
 //  FIX: isSending guard prevents double-send on rapid clicks
 //       or Enter key spam
@@ -806,12 +1081,25 @@ async function sendMessage() {
 
   try {
     // 1. Write message document
-    await addDoc(collection(db, "chats", activeChatId, "messages"), {
+    const msgData = {
       text,
       senderId:   currentUser.uid,
       senderName: currentProfile?.fullName || currentUser.displayName || currentUser.email,
-      timestamp:  serverTimestamp()
-    });
+      timestamp:  serverTimestamp(),
+      reactions:  {}
+    };
+
+    // Attach reply reference if replying to a message
+    if (replyingTo) {
+      msgData.replyTo = {
+        msgId:      replyingTo.msgId,
+        text:       replyingTo.text,
+        senderName: replyingTo.senderName
+      };
+      cancelReply();
+    }
+
+    await addDoc(collection(db, "chats", activeChatId, "messages"), msgData);
 
     // 2. Update chat room metadata
     const chatRef    = doc(db, "chats", activeChatId);
@@ -1235,6 +1523,54 @@ function setupEventListeners() {
   });
   deleteModal?.addEventListener("click", e => {
     if (e.target === deleteModal) deleteModal.style.display = "none";
+  });
+
+  // Reply bar close
+  replyBarClose?.addEventListener("click", cancelReply);
+
+  // Pinned banner click → scroll to pinned message
+  pinnedBanner?.addEventListener("click", (e) => {
+    if (e.target === pinnedClose || pinnedClose?.contains(e.target)) return;
+    if (pinnedMessages.length === 0) return;
+    const latest = pinnedMessages[pinnedMessages.length - 1];
+    const el2 = document.querySelector(`.message-row[data-msgid="${latest.msgId}"]`);
+    if (el2) {
+      el2.scrollIntoView({ behavior: "smooth", block: "center" });
+      el2.style.outline = "2px solid var(--cyan-400)";
+      setTimeout(() => el2.style.outline = "", 1500);
+    }
+  });
+
+  // Close pinned banner (just hides — doesn't unpin)
+  pinnedClose?.addEventListener("click", e => {
+    e.stopPropagation();
+    if (pinnedBanner) pinnedBanner.style.display = "none";
+  });
+
+  // Pin bar — click to scroll to pinned, X to unpin all
+  pinBar?.addEventListener("click", e => {
+    if (e.target.closest(".pin-bar-close")) {
+      pinnedMessages = [];
+      if (activeChatId) updateDoc(doc(db, "chats", activeChatId), { pinnedMessages: [] }).catch(() => {});
+      updatePinBar();
+      document.querySelectorAll(".message-row.pinned-msg")
+        .forEach(r => r.classList.remove("pinned-msg"));
+      showToast("All messages unpinned.", "success");
+      return;
+    }
+    if (pinnedMessages.length > 0) {
+      const latest = pinnedMessages[pinnedMessages.length - 1];
+      const target = document.querySelector(`.message-row[data-msgid="${latest.msgId}"]`);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+
+  // Close emoji reaction picker when clicking outside
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".emoji-reaction-picker") && !e.target.closest(".react-btn")) {
+      document.querySelectorAll(".emoji-reaction-picker")
+        .forEach(p => p.style.display = "none");
+    }
   });
 }
 
