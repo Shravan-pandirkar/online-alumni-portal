@@ -119,6 +119,10 @@ function init() {
       currentUser    = user;
       currentProfile = await ensureUserProfile(user);  // FIX: always ensure profile exists
       await setOnlineStatus(true);
+
+      // Update sidebar subtitle based on logged-in user role
+      updateSidebarLabel();
+
       loadContacts();   // FIX: no await — let it stream in real-time
     } else {
       showAuthPrompt();
@@ -250,7 +254,7 @@ function loadContacts() {
   if (cachedUsers && cachedUsers.length > 0) {
     allContacts = mergeUsersWithMeta(cachedUsers, cachedMeta || {});
     renderContactsWithFilter();
-    console.log(`[Chat] ⚡ Instant render from cache (${cachedUsers.length} alumni)`);
+    console.log(`[Chat] ⚡ Instant render from cache (${cachedUsers.length} contacts)`);
     // Still attach live listener to pick up changes — but no skeleton shown
   } else {
     showContactsSkeleton();
@@ -258,22 +262,42 @@ function loadContacts() {
 
   if (unsubContacts) unsubContacts();
 
-  // ── LAYER 2: Firestore real-time listener ──
-  const alumniQuery = query(
+  // ── LAYER 2: Build query based on the logged-in user's role ──
+  //
+  //  Alumni  → can chat with students + other alumni
+  //  Student → can chat with alumni only
+  //  Teacher → can chat with everyone
+  //
+  const myRole = (currentProfile?.role || "alumni").toLowerCase();
+
+  let rolesToLoad;
+  if (myRole === "teacher") {
+    rolesToLoad = ["alumni", "Alumni", "student", "Student", "teacher", "Teacher"];
+  } else if (myRole === "alumni") {
+    rolesToLoad = ["alumni", "Alumni", "student", "Student"];
+  } else {
+    // student — sees alumni only
+    rolesToLoad = ["alumni", "Alumni"];
+  }
+
+  console.log(`[Chat] Logged in as ${myRole} — loading roles:`, rolesToLoad);
+
+  // Firestore "in" supports max 10 values — safe here
+  const contactQuery = query(
     collection(db, "users"),
-    where("role", "in", ["alumni", "Alumni", "ALUMNI"])
+    where("role", "in", rolesToLoad)
   );
 
-  unsubContacts = onSnapshot(alumniQuery, async (snapshot) => {
+  unsubContacts = onSnapshot(contactQuery, async (snapshot) => {
 
     let users = [];
     snapshot.forEach(s => {
       if (s.id !== currentUser.uid) users.push({ id: s.id, ...s.data() });
     });
 
-    // ── LAYER 4: Fallback — try all users if no alumni role match ──
+    // ── LAYER 4: Fallback — load all users if nothing matched ──
     if (users.length === 0) {
-      console.warn("[Chat] No alumni found — falling back to all users");
+      console.warn("[Chat] No contacts found — falling back to all users");
       try {
         const allSnap = await getDocs(collection(db, "users"));
         allSnap.forEach(s => {
@@ -283,10 +307,14 @@ function loadContacts() {
     }
 
     if (users.length === 0) {
-      contactsList.innerHTML = `
+      const emptyLabel =
+        (currentProfile?.role || "").toLowerCase() === "student"
+          ? "No alumni registered yet"
+          : "No contacts found";
+      if (contactsList) contactsList.innerHTML = `
         <div class="no-results">
           <i class="fa-solid fa-users-slash"></i>
-          No alumni registered yet
+          ${emptyLabel}
         </div>`;
       return;
     }
@@ -376,11 +404,15 @@ async function fetchAllChatMeta(users) {
 function renderContactsWithFilter() {
   const q = searchInput.value.toLowerCase().trim();
   let list = allContacts.filter(u =>
-    (u.fullName || "").toLowerCase().includes(q) ||
-    (u.dept     || "").toLowerCase().includes(q) ||
-    (u.aluPass  || "").includes(q) ||
-    (u.company  || "").toLowerCase().includes(q) ||
-    (u.email    || "").toLowerCase().includes(q)
+    (u.fullName     || "").toLowerCase().includes(q) ||
+    (u.dept         || "").toLowerCase().includes(q) ||
+    (u.aluPass      || "").includes(q) ||
+    (u.stuYear      || "").includes(q) ||
+    (u.company      || "").toLowerCase().includes(q) ||
+    (u.committee    || "").toLowerCase().includes(q) ||
+    (u.designation  || "").toLowerCase().includes(q) ||
+    (u.email        || "").toLowerCase().includes(q) ||
+    (u.role         || "").toLowerCase().includes(q)
   );
   if (currentFilter === "online") list = list.filter(u => u.status === "online");
   if (currentFilter === "unread") list = list.filter(u => u.unread > 0);
@@ -418,12 +450,32 @@ function renderContacts(list) {
          <div class="avatar-circle" style="background:${color};display:none">${initials}</div>`
       : `<div class="avatar-circle" style="background:${color}">${initials}</div>`;
 
-    // Subtitle: dept + passout year (alumni-specific fields from dashboard.js)
-    const subtitle = [
-      user.dept    ? user.dept : null,
-      user.aluPass ? `Batch ${user.aluPass}` : null,
-      user.company ? user.company : null
-    ].filter(Boolean).join(" · ") || user.email || "Alumni";
+    // Role badge — different for alumni / student / teacher
+    const roleLabel = (user.role || "").toLowerCase();
+    const roleBadgeHTML =
+      roleLabel === "alumni"  ? `<span style="
+          display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;
+          font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+          background:rgba(29,92,255,.18);color:#7aa3ff;
+          border:1px solid rgba(29,92,255,.35);margin-right:5px;">Alumni</span>` :
+      roleLabel === "student" ? `<span style="
+          display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;
+          font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+          background:rgba(34,197,94,.15);color:#6ee7a7;
+          border:1px solid rgba(34,197,94,.30);margin-right:5px;">Student</span>` :
+      roleLabel === "teacher" ? `<span style="
+          display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;
+          font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+          background:rgba(245,158,11,.15);color:#fcd34d;
+          border:1px solid rgba(245,158,11,.30);margin-right:5px;">Teacher</span>` : "";
+
+    // Subtitle: dept + batch/year info based on role
+    const subtitleParts =
+      roleLabel === "alumni"  ? [user.dept, user.aluPass ? "Batch " + user.aluPass : null, user.company] :
+      roleLabel === "student" ? [user.dept, user.stuYear ? "Year " + user.stuYear : null, user.committee] :
+      roleLabel === "teacher" ? [user.dept, user.designation] :
+      [user.dept];
+    const subtitle = subtitleParts.filter(Boolean).join(" · ") || user.email || "";
 
     item.innerHTML = `
       <div class="contact-avatar">
@@ -434,6 +486,7 @@ function renderContacts(list) {
       </div>
       <div class="contact-info">
         <div class="contact-name">${escapeHTML(user.fullName || user.email || "Unknown")}</div>
+        <div style="margin-bottom:3px;">${roleBadgeHTML}</div>
         <div class="contact-preview" style="color:var(--text-muted);font-size:11px;margin-bottom:2px;">
           ${escapeHTML(subtitle)}
         </div>
@@ -510,8 +563,13 @@ async function openChat(user) {
 
   headerName.textContent = displayName;
   headerStatus.className = "header-status " + (user.status || "offline");
-  const statusSub = [user.dept, user.aluPass ? "Batch " + user.aluPass : null, user.company]
-    .filter(Boolean).join(" · ");
+  const roleL = (user.role || "").toLowerCase();
+  const statusSubParts =
+    roleL === "alumni"  ? [user.dept, user.aluPass ? "Batch " + user.aluPass : null, user.company] :
+    roleL === "student" ? [user.dept, user.stuYear ? "Year " + user.stuYear : null, user.committee] :
+    roleL === "teacher" ? [user.dept, user.designation] :
+    [user.dept];
+  const statusSub = statusSubParts.filter(Boolean).join(" · ");
   headerStatus.textContent =
     user.status === "online" ? "Online" + (statusSub ? " — " + statusSub : "") :
     user.status === "away"   ? "Away" + (statusSub ? " — " + statusSub : "") :
@@ -1178,6 +1236,17 @@ function setupEventListeners() {
   deleteModal?.addEventListener("click", e => {
     if (e.target === deleteModal) deleteModal.style.display = "none";
   });
+}
+
+// ── UPDATE SIDEBAR LABEL BASED ON ROLE ──────────────────────
+function updateSidebarLabel() {
+  const sub = document.querySelector(".logo-sub");
+  if (!sub) return;
+  const role = (currentProfile?.role || "").toLowerCase();
+  sub.textContent =
+    role === "student" ? "Chat with Alumni" :
+    role === "teacher" ? "All Chats" :
+    "Alumni & Students";    // alumni sees both
 }
 
 // ── START ────────────────────────────────────────────────────
