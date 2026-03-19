@@ -951,52 +951,7 @@ body { display: flex; height: 100vh; }
    MESSAGE ACTION BAR (Reply / Copy / React / Pin)
    ============================================================ */
 
-.msg-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-
-  /* Position ABOVE the bubble — avoids horizontal overflow entirely */
-  position: absolute;
-  bottom: calc(100% + 5px);   /* just above the bubble */
-  z-index: 20;
-  white-space: nowrap;
-
-  /* Liquid glass pill */
-  background: rgba(4, 15, 42, 0.92);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(100, 150, 255, .30);
-  border-radius: 99px;
-  padding: 4px 6px;
-  box-shadow:
-    0 4px 20px rgba(0,0,20,.6),
-    inset 0 1px 0 rgba(255,255,255,.08);
-
-  /* Hidden by default — fade + pop in on hover */
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(4px) scale(.92);
-  transition: opacity .15s ease, transform .15s cubic-bezier(.34,1.56,.64,1);
-}
-
-/* Sent messages: pill aligns to RIGHT edge of bubble */
-.message-row.sent     .msg-actions { right: 0; left: auto; }
-/* Received messages: pill aligns to LEFT edge of bubble */
-.message-row.received .msg-actions { left: 0;  right: auto; }
-
-/* Show on hover */
-.message-row:hover .msg-actions {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-}
-
-/* Don't show in select mode */
-.messages-area.select-mode .message-row:hover .msg-actions {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
+/* msg-actions replaced by ctx-menu */
 
 .msg-action-btn {
   background: none;
@@ -1369,124 +1324,6 @@ body { display: flex; height: 100vh; }
 .message-row.received .pin-icon { right: -14px; }
 
 /* ============================================================
-   WHATSAPP-STYLE MESSAGE HOVER ACTIONS  (complete rewrite)
-   ============================================================ */
-
-/* Make each message row position:relative for absolute children */
-.message-row {
-  position: relative;
-  padding: 2px 0;
-}
-
-/* Action bar — hidden by default, slides in on hover */
-.msg-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-
-  /* Glass pill */
-  background: rgba(4, 15, 42, 0.90);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(100, 150, 255, .30);
-  border-radius: 99px;
-  padding: 3px 5px;
-  box-shadow:
-    0 4px 20px rgba(0,0,20,.6),
-    inset 0 1px 0 rgba(255,255,255,.08);
-  z-index: 15;
-  white-space: nowrap;
-
-  /* Hidden until hover */
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .15s ease, transform .15s ease;
-  transform: translateY(-50%) scale(.92);
-}
-
-/* Sent messages: bar appears on left side */
-.message-row.sent     .msg-actions { right: calc(100% + 6px); left: auto; }
-/* Received messages: bar appears on right side */
-.message-row.received .msg-actions { left: calc(100% + 6px);  right: auto; }
-
-/* Show on hover */
-.message-row:hover .msg-actions {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(-50%) scale(1);
-}
-
-/* Don't show in select mode */
-.messages-area.select-mode .message-row:hover .msg-actions {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Individual action button */
-.msg-action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: var(--text-secondary);
-  transition: background .12s ease, color .12s ease, transform .12s cubic-bezier(.34,1.56,.64,1);
-  padding: 0;
-  position: relative;
-}
-
-.msg-action-btn:hover {
-  background: rgba(29, 92, 255, .25);
-  color: var(--cyan-400);
-  transform: scale(1.18);
-}
-
-.msg-action-btn:active { transform: scale(.92); }
-
-/* Tooltip on each button */
-.msg-action-btn::after {
-  content: attr(title);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(4,15,42,.95);
-  color: var(--text-primary);
-  font-family: var(--font-main);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 7px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .12s ease;
-  border: 1px solid var(--border-subtle);
-}
-
-.msg-action-btn:hover::after { opacity: 1; }
-
-/* React button — slightly larger emoji */
-.react-btn { font-size: 16px; }
-
-/* Divider between button groups */
-.action-divider {
-  width: 1px;
-  height: 16px;
-  background: rgba(100,150,255,.25);
-  margin: 0 1px;
-  flex-shrink: 0;
-}
-
-/* ============================================================
    EMOJI REACTION PICKER  (appears above bubble on react click)
    ============================================================ */
 /* emoji-reaction-picker defined above */
@@ -1677,4 +1514,184 @@ body { display: flex; height: 100vh; }
     pointer-events: auto;
     transform: translateY(-50%) scale(1);
   }
+}
+
+/* ============================================================
+   WHATSAPP-STYLE CONTEXT MENU
+   ============================================================ */
+
+/* Bubble cursor hint */
+.bubble {
+  cursor: pointer;
+  user-select: text;
+}
+
+/* ── Context Menu Container ── */
+.ctx-menu {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  min-width: 200px;
+
+  /* Liquid glass background */
+  background: linear-gradient(
+    160deg,
+    rgba(10, 20, 60, 0.96) 0%,
+    rgba(5,  15, 42, 0.98) 100%
+  );
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+
+  /* Double-border glass edge */
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  outline: 1px solid rgba(29, 92, 255, 0.18);
+  outline-offset: -2px;
+
+  border-radius: 16px;
+  padding: 8px 0;
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 20, 0.70),
+    0  4px 16px rgba(0, 0, 20, 0.40),
+    0  0   30px rgba(29, 92, 255, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* Open state animation */
+.ctx-menu.open {
+  animation: ctxPop .2s cubic-bezier(.34, 1.4, .64, 1) both;
+}
+
+@keyframes ctxPop {
+  from { opacity: 0; transform: scale(.88) translateY(-6px); filter: blur(3px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);    filter: blur(0); }
+}
+
+/* Shimmer overlay */
+.ctx-menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,.07) 0%,
+    transparent           50%,
+    rgba(0,212,255,.04)   100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Quick emoji row ── */
+.ctx-emoji-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px 10px 10px;
+  gap: 2px;
+  border-bottom: 1px solid rgba(100, 150, 255, .12);
+  margin-bottom: 4px;
+}
+
+.ctx-emoji {
+  font-size: 22px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), background .12s ease;
+  user-select: none;
+}
+
+.ctx-emoji:hover {
+  transform: scale(1.45) translateY(-3px);
+  background: rgba(255, 255, 255, .08);
+}
+
+/* ── Menu Items ── */
+.ctx-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 18px;
+  background: none;
+  border: none;
+  color: rgba(232, 240, 255, 0.82);
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background .12s ease, color .12s ease, padding-left .12s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover fill */
+.ctx-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(29,92,255,.15),
+    rgba(0,212,255,.06)
+  );
+  opacity: 0;
+  transition: opacity .12s ease;
+  z-index: -1;
+}
+
+.ctx-item:hover::before   { opacity: 1; }
+.ctx-item:hover           { color: #fff; padding-left: 22px; }
+.ctx-item:active          { transform: scale(.97); }
+
+/* Icon */
+.ctx-item i {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: transform .12s ease;
+}
+
+.ctx-item:hover i { transform: scale(1.15); }
+
+/* Danger item (Delete) */
+.ctx-danger { color: rgba(255, 100, 100, .80) !important; }
+.ctx-danger i {
+  background: linear-gradient(135deg, #ff453a, #ff6b6b) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.ctx-danger::before {
+  background: linear-gradient(90deg, rgba(255,69,58,.15), rgba(255,107,107,.06)) !important;
+}
+.ctx-danger:hover { color: #ff453a !important; }
+
+/* Divider */
+.ctx-divider {
+  height: 1px;
+  margin: 4px 10px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100,150,255,.25) 30%,
+    rgba(0,212,255,.15)   70%,
+    transparent
+  );
+}
+
+/* ── Mobile: no hover indicator on bubble ── */
+@media (max-width: 720px) {
+  .bubble { cursor: default; }
 }

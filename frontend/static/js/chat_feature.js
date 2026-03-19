@@ -741,12 +741,193 @@ function emptyConvoHTML() {
 }
 
 // ============================================================
-//  RENDER ONE BUBBLE — with reply, react, copy, pin support
+//  CONTEXT MENU — one global menu, repositioned per message
+// ============================================================
+let ctxMenu        = null;   // the shared context menu DOM element
+let ctxMenuMsgId   = null;   // which message the menu is open for
+let ctxMenuData    = null;   // data of that message
+
+function buildContextMenu() {
+  if (ctxMenu) return;   // already built
+
+  ctxMenu = document.createElement("div");
+  ctxMenu.className = "ctx-menu";
+  ctxMenu.id        = "ctxMenu";
+  ctxMenu.innerHTML = `
+    <!-- Quick emoji row -->
+    <div class="ctx-emoji-row">
+      ${["👍","❤️","😂","😮","😢","🔥","🙏","👏"].map(e =>
+        `<span class="ctx-emoji" data-emoji="${e}">${e}</span>`
+      ).join("")}
+    </div>
+    <div class="ctx-divider"></div>
+    <!-- Menu items -->
+    <button class="ctx-item" data-action="reply">
+      <i class="fa-solid fa-reply"></i> Reply
+    </button>
+    <button class="ctx-item" data-action="copy">
+      <i class="fa-regular fa-copy"></i> Copy
+    </button>
+    <button class="ctx-item" data-action="react">
+      <i class="fa-regular fa-face-smile"></i> React
+    </button>
+    <button class="ctx-item" data-action="pin">
+      <i class="fa-solid fa-thumbtack"></i> <span class="pin-label">Pin</span>
+    </button>
+    <button class="ctx-item" data-action="select">
+      <i class="fa-regular fa-check-square"></i> Select
+    </button>
+    <div class="ctx-divider"></div>
+    <button class="ctx-item ctx-danger" data-action="delete">
+      <i class="fa-solid fa-trash"></i> Delete
+    </button>
+  `;
+  document.body.appendChild(ctxMenu);
+
+  // ── Emoji quick-react ──
+  ctxMenu.querySelectorAll(".ctx-emoji").forEach(span => {
+    span.addEventListener("click", e => {
+      e.stopPropagation();
+      if (ctxMenuMsgId) sendReaction(ctxMenuMsgId, span.dataset.emoji);
+      closeCtxMenu();
+    });
+  });
+
+  // ── Menu item actions ──
+  ctxMenu.addEventListener("click", e => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    e.stopPropagation();
+    const action = btn.dataset.action;
+    const msgId  = ctxMenuMsgId;
+    const data   = ctxMenuData;
+    closeCtxMenu();
+
+    if (action === "reply") {
+      startReply({
+        msgId,
+        text:       data.text,
+        senderName: data.senderId === currentUser.uid
+                    ? "You"
+                    : (activeContact?.fullName || "them")
+      });
+    }
+    else if (action === "copy") {
+      navigator.clipboard.writeText(data.text)
+        .then(() => showToast("Copied!", "success"))
+        .catch(() => {
+          const ta = document.createElement("textarea");
+          ta.value = data.text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+          showToast("Copied!", "success");
+        });
+    }
+    else if (action === "react") {
+      // Already handled by emoji row — this is a fallback label-click
+    }
+    else if (action === "pin") {
+      togglePin(msgId, data.text, data.senderId);
+    }
+    else if (action === "select") {
+      enterSelectMode();
+      const row = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
+      if (row) toggleMessageSelection(row, msgId, data.senderId);
+    }
+    else if (action === "delete") {
+      if (data.senderId !== currentUser.uid) {
+        showToast("You can only delete your own messages.", "fill");
+        return;
+      }
+      showDeleteModal("Delete Message?",
+        "This will permanently delete this message for everyone.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, "chats", activeChatId, "messages", msgId));
+            document.querySelector(`.message-row[data-msgid="${msgId}"]`)?.remove();
+            cacheClear();
+            showToast("Message deleted.", "success");
+          } catch(err) {
+            showToast("Could not delete.", "error");
+          }
+        }
+      );
+    }
+  });
+
+  // Close on outside click
+  document.addEventListener("click", e => {
+    if (ctxMenu && !ctxMenu.contains(e.target)) closeCtxMenu();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeCtxMenu();
+  });
+}
+
+function openCtxMenu(row, msgId, data, triggerEl) {
+  buildContextMenu();
+  ctxMenuMsgId = msgId;
+  ctxMenuData  = data;
+
+  // Update pin label
+  const isPinned = pinnedMessages.some(p => p.msgId === msgId);
+  const pinLabel = ctxMenu.querySelector(".pin-label");
+  if (pinLabel) pinLabel.textContent = isPinned ? "Unpin" : "Pin";
+
+  // Show menu so we can measure it
+  ctxMenu.style.visibility = "hidden";
+  ctxMenu.style.display    = "block";
+  ctxMenu.classList.add("open");
+
+  // Calculate position — appear beside the bubble, clamped to viewport
+  const menuW  = ctxMenu.offsetWidth;
+  const menuH  = ctxMenu.offsetHeight;
+  const isSent = row.classList.contains("sent");
+  const rect   = (triggerEl || row.querySelector(".bubble") || row).getBoundingClientRect();
+  const vpW    = window.innerWidth;
+  const vpH    = window.innerHeight;
+
+  let left, top;
+
+  if (isSent) {
+    // Sent: menu appears to the LEFT of the bubble
+    left = rect.left - menuW - 8;
+    if (left < 8) left = rect.right + 8;   // flip right if no space
+  } else {
+    // Received: menu appears to the RIGHT of the bubble
+    left = rect.right + 8;
+    if (left + menuW > vpW - 8) left = rect.left - menuW - 8;  // flip left
+  }
+
+  // Vertical: align to top of bubble, clamp to viewport
+  top = rect.top + window.scrollY;
+  if (top + menuH > vpH + window.scrollY - 8) {
+    top = vpH + window.scrollY - menuH - 8;
+  }
+  if (top < window.scrollY + 8) top = window.scrollY + 8;
+
+  ctxMenu.style.left       = left + "px";
+  ctxMenu.style.top        = top  + "px";
+  ctxMenu.style.visibility = "visible";
+}
+
+function closeCtxMenu() {
+  if (!ctxMenu) return;
+  ctxMenu.classList.remove("open");
+  ctxMenu.style.display = "none";
+  ctxMenuMsgId = null;
+  ctxMenuData  = null;
+}
+
+// ============================================================
+//  RENDER ONE BUBBLE
 // ============================================================
 function renderMessage(msgId, data, animate) {
-  const isSent     = data.senderId === currentUser.uid;
-  const time       = data.timestamp ? formatTime(data.timestamp.toDate()) : "Just now";
-  const isPinned   = pinnedMessages.some(p => p.msgId === msgId);
+  const isSent   = data.senderId === currentUser.uid;
+  const time     = data.timestamp ? formatTime(data.timestamp.toDate()) : "Just now";
+  const isPinned = pinnedMessages.some(p => p.msgId === msgId);
 
   const row          = document.createElement("div");
   row.className      = "message-row " + (isSent ? "sent" : "received")
@@ -758,27 +939,28 @@ function renderMessage(msgId, data, animate) {
 
   const tick = isSent ? `<i class="fa-solid fa-check-double read-tick"></i>` : "";
 
-  // Reply quote block (shown if this message is a reply)
+  // Reply quote
   const replyHTML = data.replyTo ? `
     <div class="reply-quote">
       <span class="reply-quote-name">${escapeHTML(data.replyTo.senderName)}</span>
       <span class="reply-quote-text">${escapeHTML(data.replyTo.text.slice(0, 80))}${data.replyTo.text.length > 80 ? "…" : ""}</span>
     </div>` : "";
 
-  // Reactions row (shown if any reactions exist)
-  const reactMap = data.reactions || {};
+  // Reaction pills
+  const reactMap  = data.reactions || {};
   const reactHTML = Object.keys(reactMap).length > 0 ? `
     <div class="reaction-row">
       ${Object.entries(reactMap).map(([emoji, uids]) =>
         `<span class="reaction-pill ${uids.includes(currentUser.uid) ? "mine" : ""}"
                data-emoji="${emoji}" title="${uids.length} reaction${uids.length > 1 ? "s" : ""}">
-          ${emoji} ${uids.length > 1 ? `<span>${uids.length}</span>` : ""}
+          ${emoji}${uids.length > 1 ? ` <span>${uids.length}</span>` : ""}
         </span>`
       ).join("")}
     </div>` : "";
 
-  // Pin icon
-  const pinHTML = isPinned ? `<i class="fa-solid fa-thumbtack pin-icon" title="Pinned"></i>` : "";
+  // Pin indicator
+  const pinHTML = isPinned
+    ? `<i class="fa-solid fa-thumbtack pin-icon" title="Pinned"></i>` : "";
 
   row.innerHTML = `
     ${pinHTML}
@@ -787,108 +969,60 @@ function renderMessage(msgId, data, animate) {
       ${escapeHTML(data.text)}
       <div class="bubble-time">${time} ${tick}</div>
     </div>
-    <div class="msg-actions">
-      <button class="msg-action-btn react-btn"  title="React">😊</button>
-      <button class="msg-action-btn reply-btn"  title="Reply"><i class="fa-solid fa-reply"></i></button>
-      <button class="msg-action-btn copy-btn"   title="Copy"><i class="fa-solid fa-copy"></i></button>
-      <button class="msg-action-btn pin-btn"    title="${isPinned ? "Unpin" : "Pin"}">
-        <i class="fa-solid fa-thumbtack${isPinned ? "" : "-slash"} fa-thumbtack"></i>
-      </button>
-    </div>
-    <div class="emoji-reaction-picker" style="display:none;">
-      ${["👍","❤️","😂","😮","😢","🔥","🙏","👏"].map(e =>
-        `<span class="react-emoji" data-emoji="${e}">${e}</span>`
-      ).join("")}
-    </div>
+    ${reactHTML}
   `;
 
-  // ── Bind action buttons ──
-  const bubble   = row.querySelector(".bubble");
-  const actionsEl= row.querySelector(".msg-actions");
-  const reactPkr = row.querySelector(".emoji-reaction-picker");
-
-  // Hide reaction picker when mouse leaves the row
-  // (opacity of actionsEl is handled purely by CSS :hover — no JS needed)
-  row.addEventListener("mouseleave", () => {
-    if (reactPkr) reactPkr.style.display = "none";
-  });
-
-  // REACT — toggle emoji picker
-  row.querySelector(".react-btn").addEventListener("click", e => {
-    e.stopPropagation();
-    const isOpen = reactPkr.style.display === "flex";
-    document.querySelectorAll(".emoji-reaction-picker").forEach(p => p.style.display = "none");
-    reactPkr.style.display = isOpen ? "none" : "flex";
-  });
-
-  // Pick a reaction emoji
-  row.querySelectorAll(".react-emoji").forEach(span => {
-    span.addEventListener("click", e => {
-      e.stopPropagation();
-      reactPkr.style.display = "none";
-      sendReaction(msgId, span.dataset.emoji);
-    });
-  });
-
-  // Click existing reaction pill to toggle it
+  // ── Reaction pill click to toggle ──
   row.querySelectorAll(".reaction-pill").forEach(pill => {
-    pill.addEventListener("click", () => sendReaction(msgId, pill.dataset.emoji));
-  });
-
-  // REPLY
-  row.querySelector(".reply-btn").addEventListener("click", () => {
-    startReply({
-      msgId,
-      text:       data.text,
-      senderName: data.senderId === currentUser.uid
-                  ? "You"
-                  : (activeContact?.fullName || "them")
+    pill.addEventListener("click", e => {
+      e.stopPropagation();
+      sendReaction(msgId, pill.dataset.emoji);
     });
   });
 
-  // COPY
-  row.querySelector(".copy-btn").addEventListener("click", () => {
-    navigator.clipboard.writeText(data.text)
-      .then(() => showToast("Message copied!", "success"))
-      .catch(() => {
-        // fallback for older browsers
-        const ta = document.createElement("textarea");
-        ta.value = data.text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        ta.remove();
-        showToast("Message copied!", "success");
-      });
+  // ── Open context menu on bubble click / long-press ──
+  const bubble = row.querySelector(".bubble");
+
+  // Desktop: right-click OR left-click on bubble
+  bubble.addEventListener("contextmenu", e => {
+    e.preventDefault();
+    if (!selectMode) openCtxMenu(row, msgId, data, bubble);
   });
 
-  // PIN / UNPIN
-  row.querySelector(".pin-btn").addEventListener("click", () => {
-    togglePin(msgId, data.text, data.senderId);
+  // Desktop: click small arrow indicator on bubble hover
+  bubble.addEventListener("click", e => {
+    if (selectMode) {
+      toggleMessageSelection(row, msgId, data.senderId);
+      return;
+    }
+    // Single click on bubble also opens menu (like WhatsApp web)
+    // Small delay so it doesn't fire on text selection
+    clearTimeout(bubble._clickTimer);
+    bubble._clickTimer = setTimeout(() => {
+      openCtxMenu(row, msgId, data, bubble);
+    }, 180);
   });
 
-  // SELECT MODE click
-  row.addEventListener("click", () => {
+  // If user is selecting text, cancel the menu
+  bubble.addEventListener("mousedown", () => {
+    clearTimeout(bubble._clickTimer);
+  });
+
+  // SELECT MODE click on row
+  row.addEventListener("click", e => {
     if (!selectMode) return;
     toggleMessageSelection(row, msgId, data.senderId);
   });
 
-  // Mobile: long-press to show action bar
+  // Mobile: long-press to open context menu
   let pressTimer = null;
-  row.addEventListener("touchstart", () => {
+  row.addEventListener("touchstart", e => {
     pressTimer = setTimeout(() => {
-      document.querySelectorAll(".message-row.show-actions")
-        .forEach(r => r.classList.remove("show-actions"));
-      row.classList.add("show-actions");
+      if (!selectMode) openCtxMenu(row, msgId, data, bubble);
     }, 500);
   }, { passive: true });
-  row.addEventListener("touchend",   () => clearTimeout(pressTimer), { passive: true });
-  row.addEventListener("touchmove",  () => clearTimeout(pressTimer), { passive: true });
-
-  // Close actions on tap outside
-  document.addEventListener("touchstart", (e) => {
-    if (!row.contains(e.target)) row.classList.remove("show-actions");
-  }, { passive: true });
+  row.addEventListener("touchend",  () => clearTimeout(pressTimer), { passive: true });
+  row.addEventListener("touchmove", () => clearTimeout(pressTimer), { passive: true });
 
   messagesArea.appendChild(row);
 }
