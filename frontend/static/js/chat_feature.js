@@ -547,6 +547,8 @@ async function openChat(user) {
 
   activeContact = user;
   activeChatId  = getChatId(currentUser.uid, user.id);
+  // Clear reaction cache for the new chat session
+  Object.keys(reactionCache).forEach(k => delete reactionCache[k]);
 
   // Highlight in sidebar
   document.querySelectorAll(".contact-item").forEach(el =>
@@ -689,6 +691,9 @@ function listenToMessages(chatId) {
           lastDateLabel = label;
         }
 
+        // Seed reaction cache so optimistic updates work immediately
+        if (data.reactions) reactionCache[docSnap.id] = { ...data.reactions };
+
         renderMessage(docSnap.id, data, false);
         renderedMsgIds.add(docSnap.id);   // mark as rendered
       });
@@ -704,6 +709,16 @@ function listenToMessages(chatId) {
       if (renderedMsgIds.has(change.doc.id)) return;     // already in DOM — skip
 
       const data = change.doc.data();
+
+      // Keep reaction cache in sync for every change
+      if (data.reactions) reactionCache[change.doc.id] = { ...data.reactions };
+      else delete reactionCache[change.doc.id];
+
+      // If message already in DOM and only reactions changed — update pills only
+      if (renderedMsgIds.has(change.doc.id) && change.type === "modified") {
+        updateReactionRowDOM(change.doc.id, data.reactions || {});
+        return;
+      }
 
       // Clear "no messages yet" placeholder if present
       const placeholder = messagesArea.querySelector(".empty-convo");
@@ -1074,50 +1089,101 @@ function cancelReply() {
 }
 
 // ============================================================
-//  REACT
+//  REACT  — optimistic UI + toggle (add/remove)
 // ============================================================
+
+// In-memory cache of reactions per message so we don't need
+// a Firestore read before every update
+const reactionCache = {};   // { [msgId]: { [emoji]: [uid, ...] } }
+
 async function sendReaction(msgId, emoji) {
   if (!activeChatId || !currentUser) return;
+
+  // ── Step 1: Read current reactions from cache (no Firestore read needed) ──
+  const current  = reactionCache[msgId] || {};
+  const uids     = current[emoji] || [];
+  const isMine   = uids.includes(currentUser.uid);
+
+  // ── Step 2: Calculate new state ──
+  const newUids  = isMine
+    ? uids.filter(u => u !== currentUser.uid)   // REMOVE my reaction
+    : [...uids, currentUser.uid];               // ADD my reaction
+
+  const updated  = { ...current };
+  if (newUids.length === 0) delete updated[emoji];
+  else updated[emoji] = newUids;
+
+  // ── Step 3: Update cache immediately ──
+  reactionCache[msgId] = updated;
+
+  // ── Step 4: Update DOM instantly (no Firestore wait) ──
+  updateReactionRowDOM(msgId, updated);
+
+  // ── Step 5: Write to Firestore in background ──
   try {
-    const msgRef  = doc(db, "chats", activeChatId, "messages", msgId);
-    const snap    = await getDoc(msgRef);
-    if (!snap.exists()) return;
-
-    const reactions = snap.data().reactions || {};
-    const uids      = reactions[emoji] || [];
-    const alreadyReacted = uids.includes(currentUser.uid);
-
-    // Toggle: if already reacted remove, else add
-    const newUids = alreadyReacted
-      ? uids.filter(u => u !== currentUser.uid)
-      : [...uids, currentUser.uid];
-
-    const updatedReactions = { ...reactions };
-    if (newUids.length === 0) delete updatedReactions[emoji];
-    else updatedReactions[emoji] = newUids;
-
-    await updateDoc(msgRef, { reactions: updatedReactions });
-
-    // Update DOM immediately (optimistic)
-    const row = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
-    if (row) {
-      const updatedData = { ...snap.data(), reactions: updatedReactions };
-      const newRow = document.createElement("div");
-      newRow.className   = row.className;
-      newRow.dataset.msgid  = row.dataset.msgid;
-      newRow.dataset.sender = row.dataset.sender;
-      newRow.dataset.text   = row.dataset.text;
-      newRow.style.animation = "none";
-      row.parentNode.replaceChild(newRow, row);
-      // Re-render into newRow by calling renderMessage logic inline
-      renderMessage(msgId, updatedData, false);
-      const fresh = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
-      if (fresh) fresh.style.animation = "none";
-    }
+    const msgRef = doc(db, "chats", activeChatId, "messages", msgId);
+    await updateDoc(msgRef, { reactions: updated });
   } catch(err) {
     console.error("❌ sendReaction:", err);
-    showToast("Could not add reaction.", "error");
+    // Rollback cache and DOM on failure
+    reactionCache[msgId] = current;
+    updateReactionRowDOM(msgId, current);
+    showToast("Could not save reaction.", "error");
   }
+}
+
+// ============================================================
+//  UPDATE REACTION ROW IN DOM  (surgical — no bubble re-render)
+// ============================================================
+function updateReactionRowDOM(msgId, reactMap) {
+  const row = document.querySelector(`.message-row[data-msgid="${msgId}"]`);
+  if (!row) return;
+
+  // Find or create the reaction-row container
+  let reactRow = row.querySelector(".reaction-row");
+
+  if (Object.keys(reactMap).length === 0) {
+    // No reactions left — remove the row
+    if (reactRow) reactRow.remove();
+    return;
+  }
+
+  if (!reactRow) {
+    // Create it and insert after the bubble
+    reactRow = document.createElement("div");
+    reactRow.className = "reaction-row";
+    const bubble = row.querySelector(".bubble");
+    if (bubble) bubble.insertAdjacentElement("afterend", reactRow);
+    else row.appendChild(reactRow);
+  }
+
+  // Re-build pills
+  reactRow.innerHTML = Object.entries(reactMap).map(([emoji, uids]) => {
+    const isMine = uids.includes(currentUser.uid);
+    const count  = uids.length;
+    return `
+      <span class="reaction-pill ${isMine ? "mine" : ""} new-reaction"
+            data-emoji="${emoji}"
+            data-msgid="${msgId}"
+            title="${count} reaction${count > 1 ? "s" : ""}${isMine ? " (tap to remove)" : ""}">
+        ${emoji}${count > 1 ? ` <span>${count}</span>` : ""}
+      </span>`;
+  }).join("");
+
+  // Bind click on every pill to toggle reaction
+  reactRow.querySelectorAll(".reaction-pill").forEach(pill => {
+    pill.addEventListener("click", e => {
+      e.stopPropagation();
+      sendReaction(pill.dataset.msgid, pill.dataset.emoji);
+    });
+  });
+
+  // Animate new pills
+  requestAnimationFrame(() => {
+    reactRow.querySelectorAll(".new-reaction").forEach(p => {
+      p.classList.remove("new-reaction");
+    });
+  });
 }
 
 // ============================================================

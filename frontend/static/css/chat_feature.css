@@ -1695,3 +1695,61 @@ body { display: flex; height: 100vh; }
 @media (max-width: 720px) {
   .bubble { cursor: default; }
 }
+
+/* ============================================================
+   REACTION PILL — instant pop animation + remove hint
+   ============================================================ */
+
+/* Pop in animation for new reactions */
+@keyframes reactionPop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.reaction-pill {
+  animation: reactionPop .25s cubic-bezier(.34,1.56,.64,1) both;
+  cursor: pointer;
+}
+
+/* Mine pill — glowing blue to show "you reacted — click to remove" */
+.reaction-pill.mine {
+  background: linear-gradient(
+    135deg,
+    rgba(29,92,255,.30),
+    rgba(0,212,255,.18)
+  );
+  border-color: rgba(29,92,255,.55);
+  box-shadow: 0 0 10px rgba(29,92,255,.25);
+}
+
+.reaction-pill.mine:hover {
+  /* Red tint on hover = visual hint that clicking removes it */
+  background: rgba(255,69,58,.20);
+  border-color: rgba(255,69,58,.45);
+  box-shadow: 0 0 8px rgba(255,69,58,.2);
+  transform: scale(1.1);
+}
+
+/* Tooltip on mine pill */
+.reaction-pill.mine::after {
+  content: "Tap to remove";
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(4,15,42,.96);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+  border: 1px solid var(--border-subtle);
+}
+
+.reaction-pill.mine:hover::after { opacity: 1; }
