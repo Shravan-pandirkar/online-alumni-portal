@@ -1872,21 +1872,56 @@ function setupProfileDropdown() {
     changeMyStatus("offline"); dropdown.classList.remove("open");
   });
 
-  // View profile — navigate to profile page
+  // View profile — it's an <a href="/profile"> so just close the dropdown
+  // Middle-click / Ctrl+click will open in new tab automatically
   document.getElementById("goProfileBtn")?.addEventListener("click", () => {
     dropdown.classList.remove("open");
-    window.location.href = "/profile";
+    // href="/profile" on the <a> tag handles the navigation
   });
 
-  // Logout
-  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  // Logout — confirm → set offline → sign out → redirect to Flask /login
+  document.getElementById("logoutBtn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
     dropdown.classList.remove("open");
+
+    // Ask for confirmation first
+    const confirmed = confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
+
+    const btn     = document.getElementById("logoutBtn");
+    const spinner = document.getElementById("logoutSpinner");
+    const label   = btn?.querySelector("span:first-of-type");
+
+    // Show loading spinner
+    if (spinner) spinner.style.display = "inline";
+    if (label)   label.textContent = "Logging out...";
+    if (btn)     btn.style.pointerEvents = "none";
+
     try {
+      // 1. Mark user offline in Firestore
       await setOnlineStatus(false);
+
+      // 2. Stop all real-time Firestore listeners
+      if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+      if (unsubContacts) { unsubContacts(); unsubContacts = null; }
+      if (unsubTyping)   { unsubTyping();   unsubTyping   = null; }
+
+      // 3. Clear sessionStorage cache
+      cacheClear();
+      Object.keys(reactionCache).forEach(k => delete reactionCache[k]);
+
+      // 4. Firebase Auth sign out
       await signOut(auth);
-      window.location.href = "/login";
+
+      // 5. Redirect to Flask login page
+      //    Using window.location.replace so back-button won't return to chat
+      window.location.replace("/login");
+
     } catch(err) {
-      console.error("Logout error:", err);
+      console.error("❌ Logout error:", err);
+      if (spinner) spinner.style.display = "none";
+      if (label)   label.textContent = "Logout";
+      if (btn)     btn.style.pointerEvents = "auto";
       showToast("Logout failed. Try again.", "error");
     }
   });
