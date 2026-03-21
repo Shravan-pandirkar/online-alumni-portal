@@ -47,8 +47,7 @@ The **SGDTP Online Alumni Portal** is a modern, web-based platform designed to b
 | 🔐 **Authentication** | Secure login via Email/Password and Google Sign-In (Firebase Auth) |
 | 👤 **Alumni Profiles** | Register and manage personal alumni profiles |
 | 📅 **Events** | View upcoming alumni meets, campus events, and announcements |
-| 🏠 **Home Feed** | Stay updated with the latest college news |
-| 🖼️ **Media Uploads** | Upload profile pictures and media via Cloudinary |
+| 🏠 **Home Feed** | Stay updated with the latest college news
 | ⚡ **Fast Load Times** | Skeleton shimmer loaders and sessionStorage caching for instant UX |
 | 📱 **Responsive UI** | Optimized for desktop and mobile browsers |
 
@@ -168,7 +167,6 @@ online-alumni-portal/
 ├── about/                      # About us page
 ├── showevent/                  # Events page
 │
-├── firebaseConfig.js           # Firebase project configuration
 └── README.md                   # Project documentation
 ```
 
@@ -190,13 +188,13 @@ The portal is built with performance-first principles to ensure a fast, snappy e
 
 This project was developed as an academic capstone by:
 
-| Name | GitHub |
+| Name | Role |
 |---|---|
-| **Sarthak Bhoir** | [@sarthakbhoir](https://github.com/sarthakbhoir) |
-| **Shravan Pandirkar** | [@shravanpandirkar](https://github.com/shravanpandirkar) |
-| **Raj Patil** | [@rajpatil](https://github.com/rajpatil) |
+| **Sarthak Bhoir** | Designer |
+| **Shravan Pandirkar** | Developer |
+| **Raj Patil** | Tester |
 
-> 📍 B.E. Computer Engineering — Pillai HOC College of Engineering and Technology, Rasayani, Maharashtra, India.
+> 📍 Diploma. Computer Engineering — SGDTP.
 
 ---
 
@@ -210,14 +208,14 @@ This project was developed as an academic capstone by:
 
 ## 📄 License
 
-This project was developed as an academic project at **Pillai HOC College of Engineering and Technology**.  
+This project was developed as an academic project at **SGDTP**.  
 © 2025 Sarthak Bhoir, Shravan Pandirkar, Raj Patil. All rights reserved.
 
 ---
 
 <div align="center">
 
-Made with ❤️ by the SGDTP Alumni Portal Team
+Made with ❤️ by the Alumni Portal Team
 
 ⭐ **If you found this project helpful, consider giving it a star!**
 
