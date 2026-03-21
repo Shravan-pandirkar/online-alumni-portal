@@ -756,7 +756,6 @@ function buildContextMenu() {
     <div class="ctx-divider"></div>
     <button class="ctx-item" data-action="reply"><i class="fa-solid fa-reply"></i> Reply</button>
     <button class="ctx-item" data-action="copy"><i class="fa-regular fa-copy"></i> Copy</button>
-    <button class="ctx-item" data-action="react"><i class="fa-regular fa-face-smile"></i> React</button>
     <button class="ctx-item" data-action="pin"><i class="fa-solid fa-thumbtack"></i> <span class="pin-label">Pin</span></button>
     <button class="ctx-item" data-action="select"><i class="fa-regular fa-check-square"></i> Select</button>
     <div class="ctx-divider"></div>
