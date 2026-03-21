@@ -2,12 +2,11 @@
 
 <br/>
 
-# 🎓 SGDTP Online Alumni Portal
+# 🎓 Online Alumni Portal
 
 **Reconnect. Network. Grow.**
 
-A full-stack alumni engagement platform built for the SGDTP community at  
-**Pillai HOC College of Engineering and Technology**, Rasayani.
+A full-stack alumni engagement platform built for the SGDTP community
 
 <br/>
 
