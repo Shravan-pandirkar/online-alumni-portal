@@ -82,15 +82,15 @@ function showPopup(message, type = "success") {
 // ================== SECTION SWITCH ==================
 function showSection(section) {
   document.querySelectorAll(".view").forEach(v => v.style.display = "none");
-  if (section === "alumni") document.getElementById("searchView").style.display = "block";
-  if (section === "events") document.getElementById("eventsView").style.display = "block";
-  if (section === "message") document.getElementById("messagesView").style.display = "block";
+  if (section === "alumni")   document.getElementById("searchView").style.display  = "block";
+  if (section === "events")   document.getElementById("eventsView").style.display  = "block";
+  if (section === "message")  document.getElementById("messagesView").style.display = "block";
 }
 window.showSection = showSection;
 showSection("alumni");
 
 // ================== ALUMNI SEARCH ==================
-const alumniGrid = document.getElementById("alumniGrid");
+const alumniGrid  = document.getElementById("alumniGrid");
 const searchInput = document.getElementById("alumniSearch");
 let allUsers = [];
 
@@ -103,9 +103,9 @@ function showSkeletons(count = 6) {
         <div class="card-top">
           <div class="card-left">
             <div class="skeleton skeleton-avatar"></div>
-            <div class="info">
-              <div class="skeleton skeleton-text" style="width:120px;height:14px;margin-bottom:6px;"></div>
-              <div class="skeleton skeleton-text" style="width:70px;height:12px;"></div>
+            <div class="info" style="flex:1">
+              <div class="skeleton skeleton-text" style="width:140px;height:14px;margin-bottom:8px;"></div>
+              <div class="skeleton skeleton-text" style="width:80px;height:12px;"></div>
             </div>
           </div>
         </div>
@@ -114,32 +114,31 @@ function showSkeletons(count = 6) {
   }
 }
 
-// ================== LOAD USERS ==================
-// Try sessionStorage cache first for instant display
+// ================== CACHE KEYS ==================
+const SESSION_KEY = "cachedAlumniUsers";
 let cachedUsers = null;
 
-const SESSION_KEY = "cachedAlumniUsers";
-
+// ================== LOAD USERS ==================
 async function loadUsers() {
-  // 1. Try in-memory cache
+  // 1. In-memory cache
   if (cachedUsers) {
     allUsers = cachedUsers;
     renderUsers(cachedUsers);
     return;
   }
 
-  // 2. Try sessionStorage cache (persists across section switches)
+  // 2. sessionStorage cache
   const stored = sessionStorage.getItem(SESSION_KEY);
   if (stored) {
     try {
       cachedUsers = JSON.parse(stored);
       allUsers = cachedUsers;
       renderUsers(cachedUsers);
-      return; // instant render, no Firestore call
+      return;
     } catch (_) {}
   }
 
-  // 3. No cache — fetch from Firestore, show skeletons while loading
+  // 3. Fetch from Firestore
   showSkeletons(6);
 
   try {
@@ -149,12 +148,9 @@ async function loadUsers() {
     );
 
     const snapshot = await getDocs(q);
-
     cachedUsers = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
 
-    // Save to sessionStorage for next time
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(cachedUsers));
-
     allUsers = cachedUsers;
     renderUsers(allUsers);
 
@@ -164,6 +160,35 @@ async function loadUsers() {
   }
 }
 
+// ================== ROLE-BASED CHAT NAV ==================
+/**
+ * Injects the correct chat link into #chatNavLink based on the
+ * logged-in user's role from Firestore.
+ *
+ *  student  → "🎓 Chat with Alumni"
+ *  alumni   → "🗨️ Chat with Alumni & Students"
+ *  teacher  → "🗨️ Alumni Chat"  (default / existing behaviour)
+ */
+function renderChatNavLink(role) {
+  const chatNavLink = document.getElementById("chatNavLink");
+  if (!chatNavLink) return;
+
+  const chatUrl = "/alumnichat"; // adjust if your Flask route differs
+
+  let label = "🗨️ Alumni Chat"; // default (teacher)
+
+  if (role === "student") {
+    label = "🎓 Chat with Alumni";
+  } else if (role === "alumni") {
+    label = "🗨️ Chat with Alumni & Students";
+  }
+
+  // Build an <a> that matches the existing .register-link style
+  chatNavLink.innerHTML = `
+    <a href="${chatUrl}" class="register-link">${label}</a>
+  `;
+}
+
 // ================== AUTH + LOAD IN PARALLEL ==================
 onAuthStateChanged(auth, async user => {
   if (!user) {
@@ -171,10 +196,10 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  // Start user list load immediately — don't wait for profile check
+  // Start user list immediately — don't block on profile check
   loadUsers();
 
-  // Profile check runs in parallel
+  // Profile check + chat nav run in parallel
   try {
     const userRef = doc(db, "users", user.uid);
     const snap = await getDoc(userRef);
@@ -185,11 +210,15 @@ onAuthStateChanged(auth, async user => {
     }
 
     const data = snap.data();
-    let incomplete = !data.fullName || !data.phone || !data.role;
 
+    // ── Inject role-based chat nav link ──────────────────────
+    renderChatNavLink(data.role);
+    // ─────────────────────────────────────────────────────────
+
+    // Profile completeness check
+    let incomplete = !data.fullName || !data.phone || !data.role;
     if (data.role === "student") incomplete = incomplete || !data.stuYear;
     if (data.role === "alumni")  incomplete = incomplete || !data.aluPass;
-
     if (incomplete) showPopup("Edit your profile first!", "error");
 
   } catch (err) {
@@ -284,9 +313,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById("menuBtn");
   if (menuBtn) menuBtn.addEventListener("click", toggleSidebar);
 
-  const toggleBtn = document.getElementById("toggleCreateEvent");
-  const box = document.getElementById("createEventBox");
-  const cancelBtn = document.getElementById("cancelEventBtn");
+  const toggleBtn  = document.getElementById("toggleCreateEvent");
+  const box        = document.getElementById("createEventBox");
+  const cancelBtn  = document.getElementById("cancelEventBtn");
 
   if (toggleBtn && box) {
     toggleBtn.addEventListener("click", () => box.classList.toggle("hidden"));
@@ -294,8 +323,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ================== EVENTS ==================
-const eventsRef = collection(db, "events");
+// ================== EVENTS LISTENER ==================
+const eventsRef  = collection(db, "events");
 const eventsList = document.getElementById("eventsList");
 
 onSnapshot(eventsRef, async snapshot => {
@@ -333,7 +362,7 @@ async function handleSendMessage() {
 
   try {
     const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
+    const snap    = await getDoc(userRef);
 
     if (!snap.exists()) {
       showPopup("User profile not found", "error");

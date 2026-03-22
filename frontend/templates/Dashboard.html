@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/static/css/Dashboard.css">
 </head>
+
+<body>
+
+<!-- ================== DELETE MODAL ================== -->
 <div id="deleteModal" class="modal hidden">
   <div class="modal-content">
     <h3>Delete Event</h3>
     <p>Are you sure you want to delete this event?</p>
-
     <div class="modal-actions">
       <button id="confirmDeleteBtn" class="danger">Delete</button>
       <button id="cancelDeleteBtn">Cancel</button>
@@ -18,63 +22,56 @@
   </div>
 </div>
 
-<body>
+<!-- ================== HEADER ================== -->
 <header class="header">
-        <div class="logo">SGDTP Alumni Portal</div>
-        <nav class="nav">
-           <a href="{{ url_for('profile') }}" class="register-link">👤 My Profile</a>
-           <button onclick="showSection('alumni')">🔎 Search Alumni</button>
-               <button onclick="showSection('events')">🥳 Events</button>
-               <a href="{{ url_for('alumnichat') }}" class="register-link">🗨️ Alumni Chat</a>
-        </nav>
-    </header>
+  <div class="logo">SGDTP Alumni Portal</div>
+  <nav class="nav">
+    <a href="{{ url_for('profile') }}" class="register-link">👤 My Profile</a>
+    <button onclick="showSection('alumni')">🔎 Search Alumni</button>
+    <button onclick="showSection('events')">🥳 Events</button>
 
-        <!-- Popup Message -->
+    <!--
+      Chat link is injected here by Dashboard.js after reading
+      the logged-in user's role from Firestore.
+      • student  → "Chat with Alumni"
+      • alumni   → "Chat with Alumni & Students"
+      • teacher  → "Alumni Chat"
+    -->
+    <span id="chatNavLink"></span>
+  </nav>
+</header>
+
+<!-- ================== POPUP TOAST ================== -->
 <div id="popup" class="popup hidden">
   <span id="popupMessage"></span>
 </div>
 
+<!-- ================== DASHBOARD WRAPPER ================== -->
 <div class="dashboard">
 
- 
-</div>
+  <div class="content" id="content">
 
-    <div class="content" id="content">
-
-    <!-- SEARCH -->
+    <!-- ── SEARCH VIEW ── -->
     <section id="searchView" class="view">
-        <div class="search-header">
-            <h1 class="searchtext">Search Alumni or Students</h1>
-            <input type="text" id="alumniSearch" placeholder="Search by name, year, or company...">
-        </div>
-                  <!-- Loading Bar -->
-  <div id="loader" class="loader hidden"></div>
-        <div class="alumni-grid" id="alumniGrid">
-
-    <!-- Alumni cards will load here dynamically -->
-    </div>
-    
-
+      <div class="search-header">
+        <h1 class="searchtext">Search Alumni or Students</h1>
+        <input type="text" id="alumniSearch" placeholder="Search by name, year, or company...">
+      </div>
+      <div id="loader" class="loader hidden"></div>
+      <div class="alumni-grid" id="alumniGrid">
+        <!-- Alumni cards load here dynamically -->
+      </div>
     </section>
 
-    <!-- EVENTS -->
-<!-- EVENTS -->
-<section id="eventsView" class="view" style="display:none">
+    <!-- ── EVENTS VIEW ── -->
+    <section id="eventsView" class="view" style="display:none">
+      <h1 class="eventstext">Upcoming Events 🎉</h1>
+      <div id="eventsList"></div>
+    </section>
 
-  <h1 class="eventstext">Upcoming Events 🎉</h1>
+  </div><!-- /content -->
 
-
-
-  <div id="eventsList"></div>
-
-</section>
-
-
-
-
-</div>
-
-</div>
+</div><!-- /dashboard -->
 
 <script type="module" src="/static/js/Dashboard.js"></script>
 
