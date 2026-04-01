@@ -1998,3 +1998,220 @@ body { display: flex; height: 100vh; }
 .goProfileBtn{
   text-decoration: none;
 }
+
+/* ============================================================
+   THEME TOGGLE + LIGHT MODE — appended to chat_feature.css
+   ============================================================ */
+
+/* ── SIDEBAR TOPBAR ACTIONS (toggle + close together) ── */
+.sidebar-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+
+.sidebar-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── THEME TOGGLE BUTTON ─────────────────────────────────── */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--white-08);
+  cursor: pointer;
+  font-size: 17px;
+  transition: border-color .3s ease, box-shadow .3s ease;
+  flex-shrink: 0;
+  position: relative;
+  overflow: visible;
+}
+
+.theme-toggle-btn::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--cyan-400);
+  opacity: 0;
+  transform: scale(.7);
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+}
+
+.theme-toggle-btn:hover::before { opacity: .55; transform: scale(1); }
+
+.theme-toggle-btn:hover {
+  border-color: var(--cyan-400);
+  box-shadow: 0 0 12px rgba(0,212,255,.35), 0 4px 14px rgba(29,92,255,.25);
+}
+
+.theme-toggle-btn:active { transform: scale(.9); }
+
+#themeIcon { display: block; line-height: 1; transition: transform .3s ease; }
+
+/* ── LIGHT MODE TOKENS ───────────────────────────────────── */
+body.light {
+  --navy-950: #f0f4ff;
+  --navy-900: #e4ecff;
+  --navy-800: #d0dcff;
+  --navy-700: #bcd0ff;
+  --blue-500: #1d5cff;
+  --blue-400: #2d6aff;
+  --blue-300: #1a4fd6;
+  --cyan-400: #0099cc;
+  --cyan-300: #007aaa;
+  --white-90: rgba(0,0,0,.88);
+  --white-60: rgba(0,0,0,.60);
+  --white-20: rgba(0,0,0,.15);
+  --white-08: rgba(0,0,0,.06);
+  --white-04: rgba(0,0,0,.03);
+  --text-primary:   #0d1b3e;
+  --text-secondary: #2d4a8a;
+  --text-muted:     #7a96cc;
+  --border-subtle:  rgba(29,92,255,.18);
+  --border-strong:  rgba(29,92,255,.38);
+  --glass-bg:       rgba(224,234,255,.75);
+  --bubble-sent:        rgba(29,92,255,.15);
+  --bubble-sent-border: rgba(29,92,255,.30);
+  --bubble-recv:        rgba(255,255,255,.92);
+  --bubble-recv-border: rgba(29,92,255,.12);
+
+  background: #eef2ff;
+  color: #0d1b3e;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(29,92,255,.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0,153,204,.05) 0%, transparent 50%),
+    radial-gradient(rgba(29,92,255,.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px;
+}
+
+/* Sidebar */
+body.light .sidebar {
+  background: rgba(240,244,255,.94);
+  border-right-color: rgba(29,92,255,.12);
+}
+
+body.light .sidebar-logo .logo-title {
+  background: linear-gradient(135deg, #1a4fd6 0%, #007aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light .my-profile-card {
+  background: linear-gradient(135deg, rgba(29,92,255,.10), rgba(0,153,204,.06));
+  border-color: rgba(29,92,255,.18);
+}
+
+body.light .search-wrap input {
+  background: rgba(255,255,255,.85);
+  border-color: rgba(29,92,255,.18);
+  color: #0d1b3e;
+}
+
+body.light .search-wrap input:focus {
+  background: #fff;
+  border-color: var(--blue-400);
+}
+
+body.light .contact-item:hover,
+body.light .contact-item.active { background: rgba(255,255,255,.80); }
+
+body.light .contact-name { color: #0d1b3e; }
+
+/* Chat area */
+body.light .chat-main {
+  background: #eef2ff;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(29,92,255,.06) 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(0,153,204,.04) 0%, transparent 55%),
+    radial-gradient(rgba(29,92,255,.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px;
+}
+
+body.light .chat-header {
+  background: rgba(240,244,255,.92);
+  border-bottom-color: rgba(29,92,255,.12);
+}
+
+body.light .chat-header-info h3 { color: #0d1b3e; }
+
+/* Bubbles */
+body.light .message-row.sent .bubble {
+  background: var(--bubble-sent);
+  border-color: var(--bubble-sent-border);
+  color: #0d1b3e;
+  box-shadow: 0 2px 8px rgba(29,92,255,.10);
+}
+
+body.light .message-row.received .bubble {
+  background: var(--bubble-recv);
+  border-color: var(--bubble-recv-border);
+  color: #0d1b3e;
+  backdrop-filter: none;
+}
+
+/* Input area */
+body.light .message-input-area {
+  background: rgba(240,244,255,.94);
+  border-top-color: rgba(29,92,255,.12);
+}
+
+body.light .input-wrap {
+  background: rgba(255,255,255,.85);
+  border-color: rgba(29,92,255,.18);
+}
+
+body.light .input-wrap:focus-within {
+  background: #fff;
+  border-color: var(--blue-400);
+}
+
+body.light .input-wrap textarea { color: #0d1b3e; }
+
+/* Modal */
+body.light .modal-content {
+  background: linear-gradient(135deg, #e8eeff, #dce8ff);
+  border-color: rgba(29,92,255,.22);
+}
+body.light .modal-content h3 { color: #0d1b3e; }
+body.light .modal-content p  { color: #2d4a8a; }
+
+/* Dropdowns */
+body.light .more-dropdown,
+body.light .my-profile-dropdown,
+body.light .ctx-menu {
+  background: rgba(240,244,255,.98);
+  border-color: rgba(29,92,255,.15);
+}
+body.light .dropdown-item,
+body.light .ctx-item { color: #0d1b3e; }
+
+/* Empty state */
+body.light .empty-state h2 {
+  background: linear-gradient(135deg, #0a1a3e 0%, #1a4fd6 60%, #007aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.light .empty-state p { color: #2d4a8a; }
+
+/* Pinned banner */
+body.light .pinned-banner {
+  background: linear-gradient(135deg, rgba(29,92,255,.10), rgba(0,153,204,.06));
+  border-bottom-color: rgba(29,92,255,.15);
+}
+
+/* Profile card name/meta in light mode */
+body.light .my-profile-name { color: #0d1b3e; }
+body.light .my-profile-meta { color: #2d4a8a; }

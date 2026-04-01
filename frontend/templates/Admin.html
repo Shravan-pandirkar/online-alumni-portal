@@ -3,103 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/static/images/admin.png">
-  <title>Alumni portal Admin panel</title>
-
-  <!-- CSS -->
+  <title>Alumni Portal Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/Admin.css">
-
-  <!-- Excel Library (REQUIRED for Generate Report) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
-   <header class="header">
-        <div class="logo">SGDTP Alumni Portal</div>
-        <nav class="nav">
-           <a href="{{ url_for('login') }}" class="login-link">Login</a>
-           <a href="{{ url_for('register') }}" class="register-link">Register</a>
-           <a href="{{ url_for('admin') }}" class="login-link">Admin Login</a>
-        </nav>
-    </header>
-<!-- ================= LOGIN ================= -->
- <!-- Popup -->
-<div id="popupContainer" class="popup-container"></div>
-<div class="login-box">
-  <h2>Admin Login</h2>
-  <input
-    type="password"
-    id="adminPassword"
-    placeholder="Enter Admin Password"
-  >
-  <button onclick="adminLogin()">Login</button>
-</div>
 
-<!-- ================= DASHBOARD ================= -->
-<div class="dashboard hidden">
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="logo">SGDTP Alumni Portal</div>
+    <nav class="nav">
+      <a href="{{ url_for('login') }}" class="login-link">🔑 Login</a>
+      <a href="{{ url_for('register') }}" class="register-link">✨ Register</a>
+      <a href="{{ url_for('admin') }}" class="login-link">🛡️ Admin Login</a>
+      <!-- Dark / Light mode toggle — same as all other pages -->
+      <button id="themeToggle" class="theme-toggle-btn" title="Toggle light/dark mode">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </nav>
+  </header>
 
-  <!-- NAVIGATION -->
-  <div class="nav-dashboard">
-    <button onclick="showSection('students')">Students</button>
-    <button onclick="showSection('alumni')">Alumni</button>
-    <button onclick="showSection('events')">Events</button>
-    <button onclick="handleSendMessage()">✉️ Send Message</button>
+  <!-- ── POPUP ── -->
+  <div id="popupContainer" class="popup-container"></div>
 
-    <button class="excel" onclick="generateExcel()">
-      Generate Report
-    </button>
+  <!-- ── LOGIN BOX ── -->
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+    <button onclick="adminLogin()">Login</button>
   </div>
 
-  <!-- STUDENTS SECTION -->
-  <div id="students" class="section">
-    <h3>Students</h3>
-    <button class="delete-button" onclick="deleteSelected('students')">
-      Delete Selected
-    </button>
-    <table id="studentsTable"></table>
+  <!-- ── DASHBOARD ── -->
+  <div class="dashboard hidden">
+
+    <!-- SIDEBAR NAV -->
+    <div class="nav-dashboard">
+      <button onclick="showSection('students')">👨‍🎓 Students</button>
+      <button onclick="showSection('alumni')">🎓 Alumni</button>
+      <button onclick="showSection('teachers')">👨‍🏫 Teachers</button>
+      <button onclick="showSection('events')">🎉 Events</button>
+      <button onclick="handleSendMessage()">✉️ Send Message</button>
+      <button class="excel" onclick="generateExcel()">📊 Generate Report</button>
+    </div>
+
+    <!-- STUDENTS -->
+    <div id="students" class="section">
+      <h3>Students</h3>
+      <button onclick="deleteSelected('studentsTable')">🗑️ Delete Selected</button>
+      <table id="studentsTable"></table>
+    </div>
+
+    <!-- ALUMNI -->
+    <div id="alumni" class="section hidden">
+      <h3>Alumni</h3>
+      <button onclick="deleteSelected('alumniTable')">🗑️ Delete Selected</button>
+      <table id="alumniTable"></table>
+    </div>
+
+    <!-- TEACHERS -->
+    <div id="teachers" class="section hidden">
+      <h3>Teachers</h3>
+      <button onclick="deleteSelected('teachersTable')">🗑️ Delete Selected</button>
+      <table id="teachersTable"></table>
+    </div>
+
+    <!-- EVENTS -->
+    <div id="events" class="section hidden">
+      <h3>Events</h3>
+      <button id="toggleCreateEvent">➕ Create Event</button>
+
+      <div id="createEventBox" class="create-event-box hidden">
+        <input type="text" id="eventName" placeholder="Event Name">
+        <input type="date" id="eventDate">
+        <textarea id="eventDescription" placeholder="Event Description"></textarea>
+        <div class="event-actions">
+          <button id="createEventBtn">Create</button>
+          <button id="cancelEventBtn" class="cancel">Cancel</button>
+        </div>
+      </div>
+
+      <table id="eventsTable"></table>
+    </div>
+
   </div>
 
-  <!-- ALUMNI SECTION -->
-  <div id="alumni" class="section hidden">
-    <h3>Alumni</h3>
-    <button onclick="deleteSelected('alumni')">
-      Delete Selected
-    </button>
-    <table id="alumniTable"></table>
-  </div>
-
-  <!-- TEACHERS SECTION -->
-  <div id="teachers" class="section hidden">
-    <h3>Teachers</h3>
-    <button onclick="deleteSelected('teachers')">
-      Delete Selected
-    </button>
-    <table id="teachersTable"></table>
-  </div>
-
-  <!-- EVENTS SECTION -->
-  <div id="events" class="section hidden">
-    <h3>Events</h3>
-      <!-- Toggle Button -->
-  <button id="toggleCreateEvent" class="create-event-btn">
-    ➕ Create Event
-  </button>
-
-  <div id="createEventBox" class="create-event-box hidden">
-  <input type="text" id="eventName" placeholder="Event Name">
-  <input type="date" id="eventDate" placeholder="Event Date">
-    <textarea id="eventDescription" placeholder="Event Description"></textarea>
-
-  <div class="event-actions">
-    <button id="createEventBtn">Create</button>
-    <button id="cancelEventBtn" class="cancel">Cancel</button>
-  </div>
-</div>
-    <table id="eventsTable"></table>
-  </div>
-
-</div>
-
-<!-- ADMIN JS (MODULE) -->
-<script type="module" src="/static/js/admin.js"></script>
+  <script type="module" src="/static/js/admin.js"></script>
 </body>
 </html>

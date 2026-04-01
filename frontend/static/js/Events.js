@@ -1,3 +1,9 @@
+// ============================================================
+//  SGDTP ALUMNI PORTAL — EVENTS PAGE JS
+//  Theme toggle: same localStorage key + same animation as
+//  Dashboard.js & FrontPage.js — theme persists across pages
+// ============================================================
+
 // ================== FIREBASE IMPORTS ==================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -20,37 +26,61 @@ const firebaseConfig = {
   measurementId: "G-1X15S9CD6V"
 };
 
-// ================== INITIALIZE FIREBASE ==================
+// ================== INITIALIZE ==================
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ============================================================
+//  THEME TOGGLE — identical to Dashboard.js & FrontPage.js
+// ============================================================
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme) {
+  const icon = document.getElementById("themeIcon");
+  if (theme === "light") {
+    document.body.classList.add("light");
+    if (icon) icon.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    if (icon) icon.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains("light") ? "dark" : "light";
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme immediately — no flash on load
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
 // ================== DOM ELEMENTS ==================
 const eventsList = document.getElementById("eventsList");
-const loader = document.getElementById("loader");
+const loader     = document.getElementById("loader");
 
-// ================== FIRESTORE COLLECTION ==================
-const eventsRef = collection(db, "events");
-
-// ================== REALTIME EVENTS LIST ==================
+// ================== FIRESTORE LISTENER ==================
+const eventsRef   = collection(db, "events");
 const eventsQuery = query(eventsRef, orderBy("date", "asc"));
 
-// ✅ SHOW LOADER BEFORE FETCH
 loader.classList.remove("hidden");
 eventsList.innerHTML = "";
 
 onSnapshot(
   eventsQuery,
-  async snapshot => {
-    // ✅ HIDE LOADER ON DATA LOAD
+  snapshot => {
     loader.classList.add("hidden");
     eventsList.innerHTML = "";
 
     if (snapshot.empty) {
-      eventsList.innerHTML = "<p>No events available</p>";
+      eventsList.innerHTML = `
+        <div class="event-item" style="text-align:center; padding: 40px;">
+          <p style="font-size:16px; color: var(--text-muted);">No upcoming events at the moment 📭</p>
+        </div>
+      `;
       return;
     }
-
 
     snapshot.forEach(docSnap => {
       const event = docSnap.data();
@@ -61,23 +91,36 @@ onSnapshot(
       eventCard.innerHTML = `
         <h3>${event.name}</h3>
         <hr />
-        <p>📅 Date: ${event.date}</p>
-        ${
-          event.description
-            ? `<p class="event-desc">📝 Description: ${event.description}</p>`
-            : ""
-        }
+        <p>📅 <strong>Date:</strong> ${event.date}</p>
+        ${event.description
+          ? `<p class="event-desc">📝 <strong>Description:</strong> ${event.description}</p>`
+          : ""}
       `;
 
-
-      // ✅ VERY IMPORTANT
       eventsList.appendChild(eventCard);
     });
   },
   error => {
-    // ❌ ERROR HANDLING
     loader.classList.add("hidden");
-    eventsList.innerHTML = "<p>Error loading events</p>";
+    eventsList.innerHTML = `
+      <div class="event-item" style="text-align:center; padding: 40px;">
+        <p style="color:#ff8080;">⚠️ Error loading events. Please try again.</p>
+      </div>
+    `;
     console.error("Firestore error:", error);
   }
 );
+
+// ================== DOM READY ==================
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("themeToggle")
+    ?.addEventListener("click", toggleTheme);
+
+  // Trigger fade-in on events header
+  const eventsHeader = document.querySelector(".events-header");
+  if (eventsHeader) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => eventsHeader.classList.add("visible"));
+    });
+  }
+});

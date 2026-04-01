@@ -14,21 +14,29 @@
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="sidebar">
 
-    <!-- ── Top bar: logo + close ── -->
+    <!-- ── Top bar: logo + theme toggle + close ── -->
     <div class="sidebar-topbar">
       <div class="sidebar-logo">
         <span class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></span>
         <span class="logo-title">Chat with Alumni</span>
       </div>
-      <button class="sidebar-close" id="sidebarClose"><i class="fa-solid fa-xmark"></i></button>
+      <div class="sidebar-topbar-actions">
+        <!-- Dark / Light mode toggle — same as all other pages -->
+        <button id="themeToggle" class="theme-toggle-btn" title="Toggle light/dark mode">
+          <span id="themeIcon">☀️</span>
+        </button>
+        <button class="sidebar-close" id="sidebarClose">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
     </div>
 
     <!-- ── My Profile Card ── -->
     <div class="my-profile-card" id="myProfileCard">
       <div class="my-profile-avatar" id="myAvatar"></div>
       <div class="my-profile-info">
-        <div class="my-profile-name"  id="myName">Loading...</div>
-        <div class="my-profile-meta"  id="myMeta"></div>
+        <div class="my-profile-name" id="myName">Loading...</div>
+        <div class="my-profile-meta" id="myMeta"></div>
       </div>
       <div class="my-profile-actions">
         <button class="my-profile-btn" id="myStatusBtn" title="Set status">
@@ -41,16 +49,15 @@
 
       <!-- Profile dropdown menu -->
       <div class="my-profile-dropdown" id="myProfileDropdown">
-        <div class="my-dropdown-header" id="myDropdownHeader">
-          <!-- filled by JS -->
-        </div>
+        <div class="my-dropdown-header" id="myDropdownHeader"></div>
         <div class="ctx-divider"></div>
         <div class="ctx-divider"></div>
-        <a class="ctx-item" id="goProfileBtn" href="/profile" title="Go to your profile">
+        <a class="ctx-item goProfileBtn" id="goProfileBtn" href="/profile" title="Go to your profile">
           <i class="fa-solid fa-user"></i> View Profile
         </a>
       </div>
     </div>
+
     <div class="search-wrap">
       <i class="fa-solid fa-magnifying-glass search-icon"></i>
       <input type="text" id="searchInput" placeholder="Search..." autocomplete="off"/>
@@ -58,7 +65,6 @@
     <div class="filter-tabs">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="online">Online</button>
-      <button class="filter-btn" data-filter="unread">Unread</button>
     </div>
     <div class="contacts-list" id="contactsList"></div>
   </aside>
@@ -104,8 +110,6 @@
 
         <!-- Normal actions -->
         <div class="chat-header-actions" id="headerActions">
-          
-          <!-- Dropdown -->
           <div class="more-dropdown" id="moreDropdown">
             <button class="dropdown-item" id="selectMsgsBtn">
               <i class="fa-solid fa-check-square"></i> Select Messages
@@ -139,7 +143,7 @@
         <span class="dots"><span></span><span></span><span></span></span>
       </div>
 
-      <!-- ── Reply Bar (shown when replying) ── -->
+      <!-- ── Reply Bar ── -->
       <div class="reply-bar" id="replyBar" style="display:none;">
         <div class="reply-bar-body">
           <div class="reply-bar-icon"><i class="fa-solid fa-reply"></i></div>
@@ -155,7 +159,6 @@
 
       <!-- ── Message Input ── -->
       <div class="message-input-area">
-        <button class="attach-btn" title="Attach"><i class="fa-solid fa-paperclip"></i></button>
         <div class="input-wrap">
           <textarea id="messageInput" placeholder="Type a message..." rows="1"></textarea>
           <button class="emoji-btn" id="emojiBtn" title="Emoji">

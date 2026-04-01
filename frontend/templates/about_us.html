@@ -4,25 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
-    <title>About us</title>
+    <title>About Us — SGDTP Alumni Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/about_us.css">
-    <script src="/static/js/about_us.js"></script>
 </head>
 <body>
 
-    
     <header class="header">
         <div class="logo">SGDTP Alumni Portal</div>
         <nav class="nav">
-           <a href="{{ url_for('login') }}" class="login-link" target="_blank">Login</a>
-           <a href="{{ url_for('register') }}" class="register-link" target="_blank">Register</a>
+            <a href="{{ url_for('login') }}" class="login-link" target="_blank">🔑 Login</a>
+            <a href="{{ url_for('register') }}" class="register-link" target="_blank">✨ Register</a>
+            <!-- Dark / Light mode toggle — same as all other pages -->
+            <button id="themeToggle" class="theme-toggle-btn" title="Toggle light/dark mode">
+                <span id="themeIcon">☀️</span>
+            </button>
         </nav>
     </header>
 
-<main class="container">
+    <main class="container">
         <section class="about-us">
             <div class="content">
-                <h1>About us</h1>
+                <h1>About Us</h1>
                 <p>The Online Alumni Portal connects alumni with their college and friends.</p>
                 <p>It keeps everyone informed, engaged, and connected.</p>
                 <p>Alumni can share memories, achievements, and support students.</p>
@@ -30,8 +35,8 @@
                 <p>Together, we celebrate the spirit of our college.</p>
             </div>
             <div class="illustration-wrapper">
-    <img class="illustration" src="/static/images/about_us.jpg" alt="Illustration of a team meeting" />
-</div>
+                <img class="illustration" src="/static/images/about_us.jpg" alt="Illustration of a team meeting" />
+            </div>
         </section>
 
         <h2 class="team-heading">Team</h2>
@@ -42,13 +47,10 @@
                 <div class="icon-placeholder"><i class="fas fa-user-circle">👤</i></div>
                 <div class="name">Sarthak Bhoir</div>
             </div>
-
             <div class="member-card">
                 <div class="icon-placeholder"><i class="fas fa-user-circle">👤</i></div>
                 <div class="name">Shravan Pandirkar</div>
-                
             </div>
-
             <div class="member-card">
                 <div class="icon-placeholder"><i class="fas fa-user-circle">👤</i></div>
                 <div class="name">Raj Patil</div>
@@ -56,5 +58,6 @@
         </section>
     </main>
 
+    <script src="/static/js/about_us.js"></script>
 </body>
 </html>

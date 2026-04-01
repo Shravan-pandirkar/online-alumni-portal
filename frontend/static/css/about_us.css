@@ -1,39 +1,13 @@
-/* =====================
-   DESIGN TOKENS
-   ===================== */
+/* ============================================================
+   SGDTP ALUMNI PORTAL — ABOUT US PAGE CSS
+   Dark mode default · light mode via body.light
+   Toggle pattern identical to Dashboard / FrontPage / Events
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── DARK MODE TOKENS (default) ─────────────────────────── */
 :root {
-    --primary-blue: #06478c;
-    --accent-blue: #007bff;
-    --text-dark: #212529;
-    --text-light: #495057;
-    --white: #ffffff;
-
-    /* Light mode tokens */
-    --bg-body: #ffffff;
-    --bg-card: #ffffff;
-    --card-border: #00c6ff;
-    --card-shadow: rgba(0, 123, 255, 0.8);
-    --label-color: #000000;
-    --form-title-color: #06478c;
-    --divider-color: #777;
-
-    /* About / Team light mode */
-    --about-heading-color: #1f2937;
-    --about-desc-color: #374151;
-    --team-heading-color: #1f2937;
-    --member-card-bg: linear-gradient(180deg, #f7fbff 0%, #ebf5ff 100%);
-    --member-card-bg-hover: linear-gradient(180deg, #ffffff 0%, #eef6ff 100%);
-    --member-card-border: #d6e9ff;
-    --member-card-border-hover: #a6d4ff;
-    --member-card-shadow: 0 2px 4px rgba(0,0,0,.04), 0 8px 16px rgba(0,0,0,.06);
-    --member-card-shadow-hover: 0 6px 12px rgba(0,0,0,.06), 0 18px 32px rgba(0,0,0,.12);
-    --icon-color: #6a9cff;
-    --icon-bg: #d1e5ff;
-    --role-color: #555;
-    --divider-line: #ccc;
-    --name-color: #1f2937;
-
-    /* Shared palette */
     --navy-950: #020818;
     --navy-900: #040f2a;
     --navy-800: #071840;
@@ -44,11 +18,13 @@
     --blue-300: #7aa3ff;
     --cyan-400: #00d4ff;
     --cyan-300: #5ee7ff;
-    --white-90: rgba(255,255,255,.90);
-    --white-60: rgba(255,255,255,.60);
-    --white-20: rgba(255,255,255,.20);
-    --white-08: rgba(255,255,255,.08);
-    --white-04: rgba(255,255,255,.04);
+
+    --white:          #ffffff;
+    --white-90:       rgba(255,255,255,.90);
+    --white-60:       rgba(255,255,255,.60);
+    --white-20:       rgba(255,255,255,.20);
+    --white-08:       rgba(255,255,255,.08);
+    --white-04:       rgba(255,255,255,.04);
     --text-primary:   #e8f0ff;
     --text-secondary: #8aa3d6;
     --text-muted:     #4a6091;
@@ -64,105 +40,112 @@
     --shadow-card: 0 8px 40px rgba(0,0,30,.5);
     --transition: .28s cubic-bezier(.4,0,.2,1);
     --transition-bounce: .4s cubic-bezier(.34,1.56,.64,1);
+
+    /* About-specific — dark */
+    --bg-body:                    #020818;
+    --about-heading-color:        #e8f0ff;
+    --about-desc-color:           #8aa3d6;
+    --team-heading-color:         #e8f0ff;
+    --member-card-bg:             linear-gradient(180deg, #0d1f3c 0%, #071428 100%);
+    --member-card-bg-hover:       linear-gradient(180deg, #112244 0%, #0a1a38 100%);
+    --member-card-border:         rgba(100,150,255,.20);
+    --member-card-border-hover:   #00d4ff;
+    --member-card-shadow:         0 2px 4px rgba(0,0,0,.3), 0 8px 16px rgba(0,0,0,.4);
+    --member-card-shadow-hover:   0 6px 24px rgba(29,92,255,.35), 0 0 30px rgba(0,212,255,.15);
+    --icon-color:                 #00d4ff;
+    --icon-bg:                    rgba(0,212,255,.12);
+    --role-color:                 #8aa3d6;
+    --divider-line:               rgba(100,150,255,.20);
+    --name-color:                 #e8f0ff;
 }
 
-/* =====================
-   DARK MODE — OS
-   ===================== */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-body: #0d1117;
-        --bg-card: #161b22;
-        --card-border: #00c6ff;
-        --card-shadow: rgba(0,198,255,.5);
-        --label-color: #c9d1d9;
-        --form-title-color: #58a6ff;
-        --divider-color: #8b949e;
+/* ── LIGHT MODE TOKENS ───────────────────────────────────── */
+body.light {
+    --navy-950: #f0f4ff;
+    --navy-900: #e4ecff;
+    --navy-800: #d0dcff;
+    --navy-700: #bcd0ff;
+    --blue-500: #1d5cff;
+    --blue-400: #2d6aff;
+    --blue-300: #1a4fd6;
+    --cyan-400: #0099cc;
+    --cyan-300: #007aaa;
 
-        --about-heading-color: #e8f0ff;
-        --about-desc-color: #8aa3d6;
-        --team-heading-color: #e8f0ff;
-        --member-card-bg: linear-gradient(180deg, #0d1f3c 0%, #071428 100%);
-        --member-card-bg-hover: linear-gradient(180deg, #112244 0%, #0a1a38 100%);
-        --member-card-border: rgba(100,150,255,.2);
-        --member-card-border-hover: var(--cyan-400);
-        --member-card-shadow: 0 2px 4px rgba(0,0,0,.3), 0 8px 16px rgba(0,0,0,.4);
-        --member-card-shadow-hover: 0 6px 24px rgba(29,92,255,.35), 0 0 30px rgba(0,212,255,.15);
-        --icon-color: var(--cyan-400);
-        --icon-bg: rgba(0,212,255,.12);
-        --role-color: var(--text-secondary);
-        --divider-line: rgba(100,150,255,.2);
-        --name-color: #e8f0ff;
-    }
+    --white-90: rgba(0,0,0,.88);
+    --white-60: rgba(0,0,0,.60);
+    --white-20: rgba(0,0,0,.15);
+    --white-08: rgba(0,0,0,.06);
+    --white-04: rgba(0,0,0,.03);
+    --text-primary:   #0d1b3e;
+    --text-secondary: #2d4a8a;
+    --text-muted:     #7a96cc;
+    --border-subtle:  rgba(29,92,255,.18);
+    --border-strong:  rgba(29,92,255,.38);
+    --shadow-card:    0 8px 40px rgba(29,92,255,.10);
+
+    /* About-specific — light */
+    --bg-body:                    #eef2ff;
+    --about-heading-color:        #0d1b3e;
+    --about-desc-color:           #2d4a8a;
+    --team-heading-color:         #0d1b3e;
+    --member-card-bg:             linear-gradient(180deg, #f7fbff 0%, #ebf5ff 100%);
+    --member-card-bg-hover:       linear-gradient(180deg, #ffffff 0%, #eef6ff 100%);
+    --member-card-border:         #d6e9ff;
+    --member-card-border-hover:   #a6d4ff;
+    --member-card-shadow:         0 2px 4px rgba(0,0,0,.04), 0 8px 16px rgba(0,0,0,.06);
+    --member-card-shadow-hover:   0 6px 12px rgba(0,0,0,.06), 0 18px 32px rgba(0,0,0,.12);
+    --icon-color:                 #6a9cff;
+    --icon-bg:                    #d1e5ff;
+    --role-color:                 #555;
+    --divider-line:               #ccc;
+    --name-color:                 #1f2937;
+
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(29,92,255,.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0,153,204,.05) 0%, transparent 50%),
+        radial-gradient(rgba(29,92,255,.04) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 32px 32px;
 }
 
-/* =====================
-   DARK MODE — CLASS
-   ===================== */
-.dark-mode {
-    --bg-body: #0d1117;
-    --bg-card: #161b22;
-    --card-border: #00c6ff;
-    --card-shadow: rgba(0,198,255,.5);
-    --label-color: #c9d1d9;
-    --form-title-color: #58a6ff;
-    --divider-color: #8b949e;
-
-    --about-heading-color: #e8f0ff;
-    --about-desc-color: #8aa3d6;
-    --team-heading-color: #e8f0ff;
-    --member-card-bg: linear-gradient(180deg, #0d1f3c 0%, #071428 100%);
-    --member-card-bg-hover: linear-gradient(180deg, #112244 0%, #0a1a38 100%);
-    --member-card-border: rgba(100,150,255,.2);
-    --member-card-border-hover: var(--cyan-400);
-    --member-card-shadow: 0 2px 4px rgba(0,0,0,.3), 0 8px 16px rgba(0,0,0,.4);
-    --member-card-shadow-hover: 0 6px 24px rgba(29,92,255,.35), 0 0 30px rgba(0,212,255,.15);
-    --icon-color: var(--cyan-400);
-    --icon-bg: rgba(0,212,255,.12);
-    --role-color: var(--text-secondary);
-    --divider-line: rgba(100,150,255,.2);
-    --name-color: #e8f0ff;
+body.light .header {
+    background: rgba(240,244,255,.88);
 }
 
-/* =====================
-   DARK MODE TOGGLE
-   ===================== */
-.dark-mode-toggle {
-    background: transparent;
-    border: 2px solid rgba(255,255,255,.5);
-    color: #fff;
-    border-radius: 50px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-size: 16px;
-    font-family: math;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.dark-mode-toggle:hover {
-    background: rgba(255,255,255,.15);
-    border-color: #fff;
-    box-shadow: 0 0 10px rgba(255,255,255,.3);
-    transform: translateY(-2px);
+body.light .logo {
+    background: linear-gradient(135deg, #1a4fd6 0%, #007aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* =====================
-   BASE
-   ===================== */
+/* ── RESET & BASE ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
 body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    color: var(--text-dark);
+    font-family: 'DM Sans', sans-serif;
     background-color: var(--bg-body);
-    transition: background-color 0.4s ease, color 0.4s ease;
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color .4s ease, color .4s ease;
+
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(29,92,255,.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0,212,255,.08) 0%, transparent 50%),
+        radial-gradient(rgba(100,150,255,.04) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 32px 32px;
 }
 
-/* =====================
-   FADE-IN UTILITY
-   ===================== */
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy-900); }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--blue-500), var(--cyan-400));
+    border-radius: 99px;
+}
+
+/* ── FADE-IN UTILITY ─────────────────────────────────────── */
 .fade-in {
     opacity: 0;
     transform: translateY(20px);
@@ -173,9 +156,9 @@ body {
     transform: translateY(0);
 }
 
-/* =====================
+/* ============================================================
    HEADER
-   ===================== */
+   ============================================================ */
 .header {
     position: sticky;
     top: 0;
@@ -212,7 +195,7 @@ body {
     font-size: 30px;
     font-weight: 800;
     letter-spacing: -0.3px;
-    background: linear-gradient(135deg, var(--white) 100%);
+    background: linear-gradient(135deg, var(--blue-300) 0%, var(--cyan-300) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -262,9 +245,7 @@ body {
 }
 .nav button:hover::after,
 .login-link:hover::after,
-.register-link:hover::after {
-    transform: translateX(100%);
-}
+.register-link:hover::after { transform: translateX(100%); }
 
 .nav button:hover,
 .login-link:hover,
@@ -278,33 +259,71 @@ body {
 
 .nav button:active,
 .login-link:active,
-.register-link:active {
-    transform: translateY(0) scale(.97);
-}
+.register-link:active { transform: translateY(0) scale(.97); }
 
-/* ── MENU BTN ─ */
-.menu-btn {
-    font-size: 20px;
+/* ── THEME TOGGLE BUTTON ─────────────────────────────────── */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-subtle);
+    background: var(--white-08);
     cursor: pointer;
-    color: var(--text-secondary);
-    transition: var(--transition);
-    background: none;
-    border: none;
-    padding: 4px;
-    border-radius: var(--radius-sm);
-}
-.menu-btn:hover {
-    color: var(--cyan-400);
-    transform: scale(1.12);
+    font-size: 19px;
+    transition: border-color .3s ease, box-shadow .3s ease;
+    flex-shrink: 0;
+    position: relative;
+    overflow: visible;
 }
 
-/* =====================
+.theme-toggle-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan-400);
+    opacity: 0;
+    transform: scale(.7);
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+}
+
+.theme-toggle-btn:hover::before {
+    opacity: .55;
+    transform: scale(1);
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--cyan-400);
+    box-shadow: 0 0 14px rgba(0,212,255,.35), 0 4px 16px rgba(29,92,255,.25);
+}
+
+.theme-toggle-btn:active { transform: scale(.9); }
+
+#themeIcon {
+    display: block;
+    line-height: 1;
+    transition: transform .3s ease;
+}
+
+/* ============================================================
    ABOUT US SECTION
-   ===================== */
+   ============================================================ */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+}
+
 .about-us {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 60px;
     padding: 60px 0;
 }
 
@@ -314,77 +333,82 @@ body {
 }
 
 .about-us h1 {
-    font-family: cursive;
+    font-family: 'Sora', sans-serif;
     font-size: 40px;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.5px;
-    margin-top: 0;
     margin-bottom: 20px;
-    margin-left: 70px;
     color: var(--about-heading-color);
-    transition: color 0.4s ease;
+    transition: color .4s ease;
+
+    background: linear-gradient(135deg, #ffffff 0%, #a8c8ff 55%, var(--cyan-300) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 
     opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    transform: translateY(30px);
+    animation: fadeSlideUp .8s ease-out forwards;
+    animation-delay: .1s;
+}
+
+body.light .about-us h1 {
+    background: linear-gradient(135deg, #0a1a3e 0%, #1a4fd6 60%, #007aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .about-us p {
-    font-family: cursive;
-    font-size: 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
     font-weight: 400;
-    line-height: 1.7;
-    letter-spacing: 0.2px;
-    margin: 5px;
-    margin-left: 70px;
+    line-height: 1.75;
     color: var(--about-desc-color);
-    transition: color 0.4s ease;
+    transition: color .4s ease;
+    margin: 6px 0;
 
     opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    transform: translateY(20px);
+    animation: fadeSlideUp .8s ease-out forwards;
+    animation-delay: .2s;
 }
 
-.illustration-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding-left: 50px;
-}
-
+/* ── ILLUSTRATION ─ */
 .illustration-wrapper {
-    width: 100%;
-    max-width: 400px;
-    margin-right: 120px;
-    /* Outer frame layer */
+    flex: 1;
+    max-width: 420px;
     padding: 12px;
     background: linear-gradient(135deg, #c9a84c, #f0d080, #a0722a, #f0d080, #c9a84c);
     border-radius: 18px;
     box-shadow:
         0 0 0 3px #7a5010,
         0 0 0 6px #f0d080,
-        0 8px 32px rgba(100, 60, 0, 0.35),
-        inset 0 1px 2px rgba(255, 240, 160, 0.5);
+        0 8px 32px rgba(100,60,0,.35),
+        inset 0 1px 2px rgba(255,240,160,.5);
     position: relative;
+    transition: transform var(--transition-bounce), box-shadow var(--transition);
 
-    /* Carry the animation from the image up to the wrapper */
     opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    transform: translateY(30px);
+    animation: fadeSlideUp .8s ease-out forwards;
+    animation-delay: .3s;
 }
 
-/* Inner decorative border */
+.illustration-wrapper:hover {
+    transform: translateY(-6px) scale(1.01);
+}
+
 .illustration-wrapper::before {
     content: '';
     position: absolute;
     inset: 6px;
     border-radius: 12px;
-    border: 2px solid rgba(255, 220, 100, 0.6);
+    border: 2px solid rgba(255,220,100,.6);
     pointer-events: none;
     z-index: 1;
 }
 
-/* Crown ornament */
 .illustration-wrapper::after {
     content: '✦';
     position: absolute;
@@ -393,7 +417,7 @@ body {
     transform: translateX(-50%);
     font-size: 22px;
     color: #4c5dc9;
-    text-shadow: 0 0 8px rgba(76, 201, 197, 0.8);
+    text-shadow: 0 0 8px rgba(76,201,197,.8);
     z-index: 2;
 }
 
@@ -402,196 +426,149 @@ body {
     height: auto;
     display: block;
     border-radius: 8px;
-    position: relative;
-    z-index: 0;
-
-    /* Animation now lives on the wrapper, so reset these here */
-    opacity: 1;
-    transform: none;
-    animation: none;
 }
 
-/* =====================
+/* ============================================================
    TEAM SECTION
-   ===================== */
+   ============================================================ */
 .team-heading {
     text-align: center;
-    font-size: 36px;
-    font-family: cursive;
+    font-family: 'Sora', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
     margin-top: 50px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: var(--team-heading-color);
-    transition: color 0.4s ease;
+    transition: color .4s ease;
+
+    background: linear-gradient(135deg, #ffffff 0%, #a8c8ff 55%, var(--cyan-300) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 
     opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    animation: fadeSlideUp .8s ease-out forwards;
+    animation-delay: .2s;
+}
+
+body.light .team-heading {
+    background: linear-gradient(135deg, #0a1a3e 0%, #1a4fd6 60%, #007aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .team-divider {
-    border: 0;
+    border: none;
     height: 1px;
     background-color: var(--divider-line);
     width: 60%;
-    margin: 0 auto 50px auto;
-    transition: background-color 0.4s ease;
+    margin: 0 auto 50px;
+    transition: background-color .4s ease;
 }
 
 .team-members {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     gap: 30px;
     padding-bottom: 50px;
-    opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
 }
 
-/* =====================
-   MEMBER CARD
-   ===================== */
+/* ── MEMBER CARD ─ */
 .member-card {
     background: var(--member-card-bg);
     border: 1px solid var(--member-card-border);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 32px 22px;
     text-align: center;
     flex: 1;
-    max-width: 300px;
+    max-width: 280px;
     box-shadow: var(--member-card-shadow);
     transition:
-        transform 0.3s cubic-bezier(0.4,0,0.2,1),
-        box-shadow 0.3s cubic-bezier(0.4,0,0.2,1),
-        border-color 0.3s ease,
-        background 0.4s ease;
+        transform .3s cubic-bezier(.4,0,.2,1),
+        box-shadow .3s cubic-bezier(.4,0,.2,1),
+        border-color .3s ease,
+        background .4s ease;
 
     opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    transform: translateY(30px);
+    animation: fadeSlideUp .8s ease-out forwards;
 }
 
+.member-card:nth-child(1) { animation-delay: .1s; }
+.member-card:nth-child(2) { animation-delay: .2s; }
+.member-card:nth-child(3) { animation-delay: .3s; }
+
 .member-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-8px);
     border-color: var(--member-card-border-hover);
     box-shadow: var(--member-card-shadow-hover);
     background: var(--member-card-bg-hover);
 }
 
-.member-card:active {
-    transform: translateY(-3px);
-}
+.member-card:active { transform: translateY(-4px); }
 
-/* =====================
-   CARD INTERNALS
-   ===================== */
+/* ── CARD INTERNALS ─ */
 .icon-placeholder {
-    font-size: 60px;
+    font-size: 56px;
     color: var(--icon-color);
-    margin-bottom: 15px;
-    transition: color 0.4s ease;
-
-    opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    margin-bottom: 16px;
+    transition: color .4s ease;
 }
 
 .icon-placeholder i {
     background-color: var(--icon-bg);
     border-radius: 50%;
-    padding: 15px;
-    margin-right: auto;
-    transition: background-color 0.4s ease;
+    padding: 12px;
+    transition: background-color .4s ease;
 }
 
 .name {
-    font-size: 20px;
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
     font-weight: 700;
-    font-family: math;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     color: var(--name-color);
-    transition: color 0.4s ease;
-
-    opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    transition: color .4s ease;
 }
 
 .role {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--role-color);
-    transition: color 0.4s ease;
-
-    opacity: 0;
-    transform: translateY(40px);
-    animation: fadeSlideUp 0.9s ease-out forwards;
+    transition: color .4s ease;
 }
 
-/* =====================
+/* ============================================================
    ANIMATIONS
-   ===================== */
+   ============================================================ */
 @keyframes fadeSlideUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* =====================
+/* ============================================================
    RESPONSIVE
-   ===================== */
+   ============================================================ */
 @media (max-width: 768px) {
-    .about-us {
-        flex-direction: column;
-        text-align: center;
-    }
+    .header { padding: 0 20px; height: 70px; }
+    .logo { font-size: 18px; }
+    .nav { gap: 4px; }
+    .login-link, .register-link { padding: 8px 12px; font-size: 12px; }
 
-    .about-us .content {
-        max-width: 100%;
-        margin-bottom: 30px;
-    }
-
-    .about-us h1,
-    .about-us p {
-        margin-left: 20px;
-        margin-right: 20px;
-    }
-
-    .illustration-container {
-        padding-left: 0;
-    }
-
-    .team-members {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .member-card {
-        max-width: 80%;
-    }
+    .container { padding: 0 20px 60px; }
+    .about-us { flex-direction: column; gap: 40px; padding: 40px 0; }
+    .about-us .content { max-width: 100%; }
+    .about-us h1 { font-size: 30px; }
+    .about-us p { font-size: 15px; }
+    .illustration-wrapper { max-width: 100%; }
+    .team-members { flex-direction: column; align-items: center; }
+    .member-card { max-width: 80%; }
+    .team-heading { font-size: 26px; }
 }
 
 @media (max-width: 480px) {
-    .header {
-        flex-direction: column;
-        gap: 10px;
-        padding: 16px 20px;
-        height: auto;
-    }
-
-    .nav a {
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .about-us h1 {
-        font-size: 28px;
-    }
-
-    .about-us p {
-        font-size: 16px;
-    }
-
-    .team-heading {
-        font-size: 26px;
-    }
+    .header { flex-direction: column; gap: 10px; padding: 14px 20px; height: auto; }
+    .about-us h1 { font-size: 26px; }
+    .about-us p { font-size: 14px; }
+    .member-card { max-width: 100%; }
 }

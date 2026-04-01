@@ -1,18 +1,144 @@
-// Universal script.js for all pages
+// ============================================================
+//  SGDTP ALUMNI PORTAL — FRONT PAGE JS
+//  Theme toggle uses same localStorage key as Dashboard.js
+//  so the mode persists across all pages seamlessly
+// ============================================================
+
+// ── THEME TOGGLE ──────────────────────────────────────────
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme, animate = false) {
+    const icon = document.getElementById("themeIcon");
+    const btn  = document.getElementById("themeToggle");
+
+    if (animate && icon && btn) {
+        // ── 1. Burst ring ──
+        btn.classList.add("bursting");
+        setTimeout(() => btn.classList.remove("bursting"), 500);
+
+        // ── 2. Full-page ripple ──
+        fireRipple(theme, btn);
+
+        // ── 3. Icon exit ──
+        btn.classList.add("theme-icon-exit");
+
+        setTimeout(() => {
+            // swap class + icon mid-flight
+            btn.classList.remove("theme-icon-exit");
+
+            if (theme === "light") {
+                document.body.classList.add("light");
+                if (icon) icon.textContent = "🌙";
+            } else {
+                document.body.classList.remove("light");
+                if (icon) icon.textContent = "☀️";
+            }
+
+            // ── 4. Icon enter bounce ──
+            btn.classList.add("theme-icon-enter");
+            setTimeout(() => btn.classList.remove("theme-icon-enter"), 460);
+
+        }, 220); // half of exit duration
+
+    } else {
+        // Silent apply (on page load — no animation)
+        if (theme === "light") {
+            document.body.classList.add("light");
+            if (icon) icon.textContent = "🌙";
+        } else {
+            document.body.classList.remove("light");
+            if (icon) icon.textContent = "☀️";
+        }
+    }
+}
+
+function fireRipple(nextTheme, btn) {
+    // Create ripple element
+    const ripple = document.createElement("div");
+    ripple.id = "themeRipple";
+
+    // Position it over the button
+    const rect = btn.getBoundingClientRect();
+    const cx   = rect.left + rect.width  / 2;
+    const cy   = rect.top  + rect.height / 2;
+    const size = Math.hypot(window.innerWidth, window.innerHeight) * 2.2;
+
+    ripple.style.cssText = `
+        width:  ${size}px;
+        height: ${size}px;
+        left:   ${cx - size / 2}px;
+        top:    ${cy - size / 2}px;
+    `;
+
+    ripple.classList.add(nextTheme === "light" ? "ripple-light" : "ripple-dark");
+    document.body.appendChild(ripple);
+
+    // Trigger expand on next frame
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            ripple.classList.add("ripple-expanding");
+        });
+    });
+
+    // Remove after animation
+    setTimeout(() => ripple.remove(), 650);
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains("light");
+    const next    = isLight ? "dark" : "light";
+    applyTheme(next, true);           // animated
+    localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme immediately (no animation — avoid flash on load)
+applyTheme(localStorage.getItem(THEME_KEY) || "dark", false);
+
+// ── MAIN DOM LOGIC ────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     console.log("SGDTP Alumni Portal Loaded!");
 
-       const container = document.querySelector(".container");
+    // ── Theme toggle listener ──
+    document.getElementById("themeToggle")
+        ?.addEventListener("click", toggleTheme);
 
-    // Add fade-in class
-    container.classList.add("fade-in");
 
-    // Trigger the animation after a tiny delay
-    setTimeout(() => {
-        container.classList.add("visible");
-    }, 100); // delay 100ms to ensure CSS transition works
+    // ── About Us Button ──
+    const aboutButton = document.querySelector(".about-button");
+    if (aboutButton) {
+        // Click → fade out then navigate
+        aboutButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            sessionStorage.setItem("animateButtonNextPage", "true");
+            document.body.style.opacity = "0";
+            document.body.style.transition = "opacity .5s ease";
+            setTimeout(() => {
+                window.location.href = aboutButton.getAttribute("href");
+            }, 500);
+        });
 
-    // --- Highlight active nav link ---
+        // Restore animation if coming back from About page
+        if (sessionStorage.getItem("animateButtonNextPage") === "true") {
+            sessionStorage.removeItem("animateButtonNextPage");
+        }
+    }
+
+    // ── Login / Register links — smooth page transition ──
+    const links = document.querySelectorAll(".login-link, .register-link");
+    links.forEach(link => {
+        link.addEventListener("click", (e) => {
+            // Don't intercept if it opens in a new tab
+            if (link.getAttribute("target") === "_blank") return;
+            e.preventDefault();
+            document.body.style.opacity = "0";
+            document.body.style.transition = "opacity .5s ease";
+            setTimeout(() => {
+                window.location.href = link.getAttribute("href");
+            }, 500);
+        });
+    });
+
+    // ── Highlight active nav link ──
     const navLinks = document.querySelectorAll(".nav a");
     navLinks.forEach(link => {
         link.addEventListener("click", () => {
@@ -21,80 +147,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // --- Dynamic greeting (only if element exists) ---
-    const welcomeHeading = document.querySelector(".welcome-heading");
-    if (welcomeHeading) {
-        const hour = new Date().getHours();
-        let greeting = "Welcome";
-        if (hour < 12) greeting = "Good Morning";
-        else if (hour < 18) greeting = "Good Afternoon";
-        else greeting = "Good Evening";
-
-        welcomeHeading.textContent = `${greeting}, SGDTP Alumni Portal`;
-    }
-
-    // --- About Us Button Animation ---
-    const aboutButton = document.querySelector(".about-button");
-    if (aboutButton) {
-        const colors = ["#0c10fcff", "#7873f5", "#00c6ff", "#873cffff", "#0aa5ffff"];
-        let colorIndex = 0;
-        let colorInterval;
-
-        // Start color cycle on hover
-        aboutButton.addEventListener("mouseenter", () => {
-            colorInterval = setInterval(() => {
-                aboutButton.style.backgroundColor = colors[colorIndex];
-                colorIndex = (colorIndex + 1) % colors.length;
-            }, 500);
-        });
-
-        // Stop color cycle on mouse leave
-        aboutButton.addEventListener("mouseleave", () => {
-            clearInterval(colorInterval);
-            aboutButton.style.backgroundColor = "#007bff"; // reset original color
-        });
-
-        // Click event: animate page fade-out + store flag
-        aboutButton.addEventListener("click", (e) => {
-            e.preventDefault(); // prevent instant navigation
-            sessionStorage.setItem("animateButtonNextPage", "true");
-            document.body.style.opacity = "0"; // fade-out
-            setTimeout(() => {
-                window.location.href = aboutButton.getAttribute("href");
-            }, 600); // match transition duration
-        });
-
-        // Trigger animation if coming from previous page
-        if (sessionStorage.getItem("animateButtonNextPage") === "true") {
-            setInterval(() => {
-                aboutButton.style.backgroundColor = colors[colorIndex];
-                colorIndex = (colorIndex + 1) % colors.length;
-            }, 500);
-
-            sessionStorage.removeItem("animateButtonNextPage");
-        }
-    }
-
-    // --- Login/Register link hover effects + smooth page switch ---
-    const links = document.querySelectorAll(".login-link, .register-link");
-    links.forEach(link => {
-        // Hover animation
-        link.addEventListener("mouseover", () => {
-            link.style.transform = "translateY(-3px)";
-            link.style.color = "#f1f1f1";
-        });
-        link.addEventListener("mouseout", () => {
-            link.style.transform = "translateY(0)";
-            link.style.color = "#ffffff";
-        });
-
-        // Smooth page transition on click
-        link.addEventListener("click", (e) => {
-            e.preventDefault();
-            document.body.style.opacity = "0"; // fade-out
-            setTimeout(() => {
-                window.location.href = link.getAttribute("href");
-            }, 600); // match CSS transition
+    // ── Fade body back in on page load (after transition) ──
+    document.body.style.opacity = "0";
+    document.body.style.transition = "opacity .5s ease";
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.body.style.opacity = "1";
         });
     });
 });

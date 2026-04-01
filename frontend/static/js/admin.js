@@ -1,9 +1,42 @@
+// ============================================================
+//  SGDTP ALUMNI PORTAL — ADMIN JS
+//  Theme toggle uses same localStorage key as all other pages
+// ============================================================
+
+// ── THEME TOGGLE ──────────────────────────────────────────
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme) {
+  const icon = document.getElementById("themeIcon");
+  if (theme === "light") {
+    document.body.classList.add("light");
+    if (icon) icon.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    if (icon) icon.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains("light") ? "dark" : "light";
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme on load — runs after DOM since script is at end of body
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("themeToggle")
+    ?.addEventListener("click", toggleTheme);
+});
+
 /**************** FIREBASE IMPORTS ****************/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getFirestore,
   collection,
-  getDocs,           // ✅ faster one-time fetch
+  getDocs,
   deleteDoc,
   doc,
   query,
@@ -60,7 +93,7 @@ const dataStore = {
 /**************** COLUMN CONFIG ****************/
 const TABLE_FIELDS = {
   students: ["fullName", "phone", "email", "dept", "stuYear", "lastLogin"],
-  alumni: ["fullName", "phone", "email", "dept", "aluPass", "job", "designation", "experience", "city", "lastLogin"],
+  alumni:   ["fullName", "phone", "email", "dept", "aluPass", "job", "designation", "experience", "city", "lastLogin"],
   teachers: ["fullName", "phone", "email", "dept", "experience", "lastLogin"]
 };
 
@@ -99,11 +132,10 @@ function startAdmin() {
   loadAllData();
 }
 
-/**************** LOAD ALL DATA IN PARALLEL ✅ ****************/
+/**************** LOAD ALL DATA IN PARALLEL ****************/
 async function loadAllData() {
   showPopup("Loading data...", "success", 1500);
 
-  // All 4 fetches run at the same time — much faster than sequential
   await Promise.all([
     loadUsersByRole("student",  "studentsTable", "students"),
     loadUsersByRole("alumni",   "alumniTable",   "alumni"),
@@ -114,15 +146,13 @@ async function loadAllData() {
   showPopup("Data loaded ✅", "success");
 }
 
-// Exposed so a Refresh button in HTML can call it
 window.refreshData = loadAllData;
 
-/**************** LOAD USERS ✅ ****************/
+/**************** LOAD USERS ****************/
 async function loadUsersByRole(role, tableId, storeKey) {
-  const table = document.getElementById(tableId);
+  const table  = document.getElementById(tableId);
   const fields = TABLE_FIELDS[storeKey];
 
-  // Show loading placeholder immediately
   table.innerHTML = `
     <tr>
       <th>Select</th>
@@ -136,8 +166,8 @@ async function loadUsersByRole(role, tableId, storeKey) {
   `;
 
   try {
-    const q = query(collection(db, "users"), where("role", "==", role));
-    const snap = await getDocs(q);   // ✅ one-time fetch, no live listener overhead
+    const q    = query(collection(db, "users"), where("role", "==", role));
+    const snap = await getDocs(q);
 
     table.innerHTML = "";
     dataStore[storeKey] = [];
@@ -184,22 +214,20 @@ async function loadUsersByRole(role, tableId, storeKey) {
 
 /**************** DELETE USERS ****************/
 window.deleteSelected = async type => {
-  const checks = document.querySelectorAll(`#${type}Table input:checked`);
+  const checks = document.querySelectorAll(`#${type} input:checked`);
   if (!checks.length) return showPopup("No records selected", "error");
 
   try {
-    // Delete all selected docs in parallel ✅
     await Promise.all(
       [...checks].map(c => deleteDoc(doc(db, "users", c.dataset.id)))
     );
 
     showPopup("Deleted successfully 🗑️", "success");
 
-    // Reload the affected table only
     const storeKey = type === "studentsTable" ? "students"
                    : type === "alumniTable"   ? "alumni"
                    : "teachers";
-    const roleMap = { students: "student", alumni: "alumni", teachers: "teacher" };
+    const roleMap  = { students: "student", alumni: "alumni", teachers: "teacher" };
     await loadUsersByRole(roleMap[storeKey], type, storeKey);
 
   } catch (err) {
@@ -208,7 +236,7 @@ window.deleteSelected = async type => {
   }
 };
 
-/**************** EVENTS ✅ ****************/
+/**************** EVENTS ****************/
 async function loadEvents() {
   const table = document.getElementById("eventsTable");
 
@@ -225,24 +253,18 @@ async function loadEvents() {
   `;
 
   try {
-    const snap = await getDocs(eventsRef);   // ✅ one-time fetch
+    const snap = await getDocs(eventsRef);
 
     table.innerHTML = `
       <tr>
-        <th>Name</th>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Created By</th>
-        <th>Created At</th>
-        <th>Action</th>
+        <th>Name</th><th>Date</th><th>Description</th>
+        <th>Created By</th><th>Created At</th><th>Action</th>
       </tr>
     `;
 
     if (snap.empty) {
       table.insertRow().innerHTML = `
-        <td colspan="6" style="text-align:center; padding:12px; color:#aaa;">
-          No events found.
-        </td>
+        <td colspan="6" style="text-align:center; padding:12px; color:#aaa;">No events found.</td>
       `;
       return;
     }
@@ -255,9 +277,7 @@ async function loadEvents() {
         <td>${e.description ?? ""}</td>
         <td>${e.createdBy ?? ""}</td>
         <td>${e.createdAt?.toDate?.().toLocaleString() ?? ""}</td>
-        <td>
-          <button onclick="deleteEvent('${d.id}')">Delete</button>
-        </td>
+        <td><button onclick="deleteEvent('${d.id}')">🗑️ Delete</button></td>
       `;
     });
 
@@ -277,7 +297,7 @@ window.deleteEvent = async id => {
   try {
     await deleteDoc(doc(db, "events", id));
     showPopup("Event deleted 🗑️", "success");
-    await loadEvents();   // ✅ reload events table after delete
+    await loadEvents();
   } catch (err) {
     console.error("Delete event error:", err);
     showPopup("Failed to delete event ❌", "error");
@@ -286,10 +306,15 @@ window.deleteEvent = async id => {
 
 /**************** CREATE EVENT TOGGLE ****************/
 const toggleCreateEventBtn = document.getElementById("toggleCreateEvent");
-const createEventBox = document.getElementById("createEventBox");
+const createEventBox       = document.getElementById("createEventBox");
+const cancelEventBtn       = document.getElementById("cancelEventBtn");
 
 toggleCreateEventBtn.addEventListener("click", () => {
   createEventBox.classList.toggle("hidden");
+});
+
+cancelEventBtn.addEventListener("click", () => {
+  createEventBox.classList.add("hidden");
 });
 
 /**************** CREATE EVENT ****************/
@@ -313,14 +338,12 @@ document.getElementById("createEventBtn").addEventListener("click", async () => 
       createdAt: serverTimestamp()
     });
 
-    // Reset form
-    document.getElementById("eventName").value = "";
-    document.getElementById("eventDate").value = "";
+    document.getElementById("eventName").value        = "";
+    document.getElementById("eventDate").value        = "";
     document.getElementById("eventDescription").value = "";
 
+    createEventBox.classList.add("hidden");
     showPopup("Event created successfully 🎉", "success");
-
-    // ✅ Reload events table so new event appears immediately
     await loadEvents();
 
   } catch (err) {
@@ -339,8 +362,7 @@ window.generateExcel = () => {
   const wb = XLSX.utils.book_new();
 
   Object.entries(dataStore).forEach(([key, val]) => {
-    const fields = TABLE_FIELDS[key];
-
+    const fields   = TABLE_FIELDS[key];
     const filtered = val.map(row => {
       const obj = {};
       fields.forEach(f => {

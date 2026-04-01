@@ -1,74 +1,13 @@
-/* ================= GLOBAL RESET ================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Arial, sans-serif;
-}
+/* ============================================================
+   SGDTP ALUMNI PORTAL — ADMIN PANEL CSS
+   Dark mode default · light mode via body.light
+   Toggle pattern identical to Dashboard / FrontPage / Events
+   ============================================================ */
 
-/* ================= DESIGN TOKENS ================= */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── DARK MODE TOKENS (default) ─────────────────────────── */
 :root {
-    --primary-blue: #06478c;
-    --accent-blue: #007bff;
-    --text-dark: #212529;
-    --text-light: #495057;
-    --white: #ffffff;
-
-    /* Light mode tokens */
-    --bg-body: #f4f6fb;
-    --bg-card: #ffffff;
-    --card-border: #00c6ff;
-    --card-shadow: rgba(0,123,255,.8);
-
-    /* Dashboard — light mode */
-    --body-color: #1f2937;
-    --section-bg: #ffffff;
-    --section-shadow: 0 15px 35px rgba(0,0,0,.08);
-    --section-heading: #1e3a8a;
-
-    --sidebar-bg: #ffffff;
-    --sidebar-shadow: 0 15px 35px rgba(0,0,0,.08);
-    --sidebar-btn-bg: #eff6ff;
-    --sidebar-btn-color: #1e3a8a;
-    --sidebar-btn-hover-bg: #2563eb;
-    --sidebar-btn-hover-color: #ffffff;
-    --sidebar-excel-bg: #22c55e;
-    --sidebar-excel-color: #ffffff;
-    --sidebar-excel-hover-bg: #16a34a;
-
-    --login-box-bg: #ffffff;
-    --login-box-shadow: 0 20px 40px rgba(0,0,0,.12);
-    --login-box-heading: #1e3a8a;
-    --login-input-border: #c7d2fe;
-    --login-btn-bg: #2563eb;
-    --login-btn-hover: #1e40af;
-
-    --delete-btn-bg: #ef4444;
-    --delete-btn-hover: #dc2626;
-
-    --table-thead-bg: #1e3a8a;
-    --table-thead-color: #ffffff;
-    --table-row-bg: #ffffff;
-    --table-row-even: #f8fafc;
-    --table-row-hover: #e0e7ff;
-    --table-border: #e5e7eb;
-    --table-text: #1f2937;
-
-    --create-box-bg: #f8fafc;
-    --create-box-border: #c7d2fe;
-    --create-input-border: #c7d2fe;
-    --create-input-bg: #ffffff;
-    --create-input-text: #1f2937;
-    --create-btn-bg: #2563eb;
-    --create-cancel-bg: #6b7280;
-
-    --toggle-btn-bg: #449cef;
-    --toggle-btn-hover: #002e39;
-
-    --popup-success: #4CAF50;
-    --popup-error: #f44336;
-
-    /* Shared palette */
     --navy-950: #020818;
     --navy-900: #040f2a;
     --navy-800: #071840;
@@ -79,11 +18,13 @@
     --blue-300: #7aa3ff;
     --cyan-400: #00d4ff;
     --cyan-300: #5ee7ff;
-    --white-90: rgba(255,255,255,.90);
-    --white-60: rgba(255,255,255,.60);
-    --white-20: rgba(255,255,255,.20);
-    --white-08: rgba(255,255,255,.08);
-    --white-04: rgba(255,255,255,.04);
+
+    --white:          #ffffff;
+    --white-90:       rgba(255,255,255,.90);
+    --white-60:       rgba(255,255,255,.60);
+    --white-20:       rgba(255,255,255,.20);
+    --white-08:       rgba(255,255,255,.08);
+    --white-04:       rgba(255,255,255,.04);
     --text-primary:   #e8f0ff;
     --text-secondary: #8aa3d6;
     --text-muted:     #4a6091;
@@ -93,145 +34,164 @@
     --radius-md:  14px;
     --radius-lg:  20px;
     --radius-xl:  28px;
-    --shadow-glow: 0 0 40px rgba(29,92,255,.25);
-    --shadow-card: 0 8px 40px rgba(0,0,30,.5);
     --transition: .28s cubic-bezier(.4,0,.2,1);
     --transition-bounce: .4s cubic-bezier(.34,1.56,.64,1);
-}
 
-/* ================= DARK MODE — OS ================= */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-body: #080f1e;
-        --bg-card: #0d1f3c;
-        --body-color: #e8f0ff;
+    /* Admin-specific — dark */
+    --bg-body:              #080f1e;
+    --body-color:           #e8f0ff;
 
-        --section-bg: #0d1f3c;
-        --section-shadow: 0 15px 35px rgba(0,0,0,.4);
-        --section-heading: #5ee7ff;
+    --section-bg:           #0d1f3c;
+    --section-shadow:       0 15px 35px rgba(0,0,0,.4);
+    --section-heading:      #5ee7ff;
 
-        --sidebar-bg: #0d1f3c;
-        --sidebar-shadow: 0 15px 35px rgba(0,0,0,.4);
-        --sidebar-btn-bg: rgba(29,92,255,.12);
-        --sidebar-btn-color: #8aa3d6;
-        --sidebar-btn-hover-bg: var(--blue-500);
-        --sidebar-btn-hover-color: #ffffff;
-        --sidebar-excel-bg: #16a34a;
-        --sidebar-excel-color: #ffffff;
-        --sidebar-excel-hover-bg: #15803d;
-
-        --login-box-bg: #0d1f3c;
-        --login-box-shadow: 0 20px 40px rgba(0,0,0,.4);
-        --login-box-heading: #5ee7ff;
-        --login-input-border: rgba(100,150,255,.3);
-        --login-btn-bg: var(--blue-500);
-        --login-btn-hover: #1d5cff;
-
-        --delete-btn-bg: #dc2626;
-        --delete-btn-hover: #b91c1c;
-
-        --table-thead-bg: rgba(29,92,255,.25);
-        --table-thead-color: #e8f0ff;
-        --table-row-bg: #0a1628;
-        --table-row-even: #0d1f3c;
-        --table-row-hover: rgba(29,92,255,.15);
-        --table-border: rgba(100,150,255,.15);
-        --table-text: #e8f0ff;
-
-        --create-box-bg: #071428;
-        --create-box-border: rgba(100,150,255,.25);
-        --create-input-border: rgba(100,150,255,.25);
-        --create-input-bg: rgba(255,255,255,.04);
-        --create-input-text: #e8f0ff;
-        --create-btn-bg: var(--blue-500);
-        --create-cancel-bg: #374151;
-
-        --toggle-btn-bg: var(--blue-400);
-        --toggle-btn-hover: var(--cyan-400);
-    }
-}
-
-/* ================= DARK MODE — CLASS ================= */
-.dark-mode {
-    --bg-body: #080f1e;
-    --bg-card: #0d1f3c;
-    --body-color: #e8f0ff;
-
-    --section-bg: #0d1f3c;
-    --section-shadow: 0 15px 35px rgba(0,0,0,.4);
-    --section-heading: #5ee7ff;
-
-    --sidebar-bg: #0d1f3c;
-    --sidebar-shadow: 0 15px 35px rgba(0,0,0,.4);
-    --sidebar-btn-bg: rgba(29,92,255,.12);
-    --sidebar-btn-color: #8aa3d6;
-    --sidebar-btn-hover-bg: var(--blue-500);
+    --sidebar-bg:           #0d1f3c;
+    --sidebar-shadow:       0 15px 35px rgba(0,0,0,.4);
+    --sidebar-btn-bg:       rgba(29,92,255,.12);
+    --sidebar-btn-color:    #8aa3d6;
+    --sidebar-btn-hover-bg: #1d5cff;
     --sidebar-btn-hover-color: #ffffff;
-    --sidebar-excel-bg: #16a34a;
-    --sidebar-excel-color: #ffffff;
+    --sidebar-excel-bg:     #16a34a;
+    --sidebar-excel-color:  #ffffff;
     --sidebar-excel-hover-bg: #15803d;
 
-    --login-box-bg: #0d1f3c;
-    --login-box-shadow: 0 20px 40px rgba(0,0,0,.4);
-    --login-box-heading: #5ee7ff;
-    --login-input-border: rgba(100,150,255,.3);
-    --login-btn-bg: var(--blue-500);
-    --login-btn-hover: #1d5cff;
+    --login-box-bg:         #0d1f3c;
+    --login-box-shadow:     0 20px 40px rgba(0,0,0,.4);
+    --login-box-heading:    #5ee7ff;
+    --login-input-border:   rgba(100,150,255,.3);
+    --login-btn-bg:         #1d5cff;
+    --login-btn-hover:      #1a4fd6;
 
-    --delete-btn-bg: #dc2626;
-    --delete-btn-hover: #b91c1c;
+    --delete-btn-bg:        #dc2626;
+    --delete-btn-hover:     #b91c1c;
 
-    --table-thead-bg: rgba(29,92,255,.25);
-    --table-thead-color: #e8f0ff;
-    --table-row-bg: #0a1628;
-    --table-row-even: #0d1f3c;
-    --table-row-hover: rgba(29,92,255,.15);
-    --table-border: rgba(100,150,255,.15);
-    --table-text: #e8f0ff;
+    --table-thead-bg:       rgba(29,92,255,.25);
+    --table-thead-color:    #e8f0ff;
+    --table-row-bg:         #0a1628;
+    --table-row-even:       #0d1f3c;
+    --table-row-hover:      rgba(29,92,255,.15);
+    --table-border:         rgba(100,150,255,.15);
+    --table-text:           #e8f0ff;
 
-    --create-box-bg: #071428;
-    --create-box-border: rgba(100,150,255,.25);
-    --create-input-border: rgba(100,150,255,.25);
-    --create-input-bg: rgba(255,255,255,.04);
-    --create-input-text: #e8f0ff;
-    --create-btn-bg: var(--blue-500);
-    --create-cancel-bg: #374151;
+    --create-box-bg:        #071428;
+    --create-box-border:    rgba(100,150,255,.25);
+    --create-input-border:  rgba(100,150,255,.25);
+    --create-input-bg:      rgba(255,255,255,.04);
+    --create-input-text:    #e8f0ff;
+    --create-btn-bg:        #1d5cff;
+    --create-cancel-bg:     #374151;
 
-    --toggle-btn-bg: var(--blue-400);
-    --toggle-btn-hover: var(--cyan-400);
+    --toggle-btn-bg:        #4d82ff;
+    --toggle-btn-hover:     #00d4ff;
+
+    --popup-success:        #4CAF50;
+    --popup-error:          #f44336;
 }
 
-/* ================= DARK MODE TOGGLE ================= */
-.dark-mode-toggle {
-    background: transparent;
-    border: 2px solid rgba(255,255,255,.5);
-    color: #fff;
-    border-radius: 50px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-size: 16px;
-    font-family: math;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.dark-mode-toggle:hover {
-    background: rgba(255,255,255,.15);
-    border-color: #fff;
-    box-shadow: 0 0 10px rgba(255,255,255,.3);
-    transform: translateY(-2px);
+/* ── LIGHT MODE TOKENS ───────────────────────────────────── */
+body.light {
+    --navy-950: #f0f4ff;
+    --navy-900: #e4ecff;
+    --blue-500: #1d5cff;
+    --blue-400: #2d6aff;
+    --blue-300: #1a4fd6;
+    --cyan-400: #0099cc;
+    --cyan-300: #007aaa;
+
+    --white-90: rgba(0,0,0,.88);
+    --white-08: rgba(0,0,0,.06);
+    --white-04: rgba(0,0,0,.03);
+    --text-primary:   #0d1b3e;
+    --text-secondary: #2d4a8a;
+    --text-muted:     #7a96cc;
+    --border-subtle:  rgba(29,92,255,.18);
+    --border-strong:  rgba(29,92,255,.38);
+
+    /* Admin-specific — light */
+    --bg-body:              #f4f6fb;
+    --body-color:           #1f2937;
+
+    --section-bg:           #ffffff;
+    --section-shadow:       0 15px 35px rgba(0,0,0,.08);
+    --section-heading:      #1e3a8a;
+
+    --sidebar-bg:           #ffffff;
+    --sidebar-shadow:       0 15px 35px rgba(0,0,0,.08);
+    --sidebar-btn-bg:       #eff6ff;
+    --sidebar-btn-color:    #1e3a8a;
+    --sidebar-btn-hover-bg: #2563eb;
+    --sidebar-btn-hover-color: #ffffff;
+    --sidebar-excel-bg:     #22c55e;
+    --sidebar-excel-color:  #ffffff;
+    --sidebar-excel-hover-bg: #16a34a;
+
+    --login-box-bg:         #ffffff;
+    --login-box-shadow:     0 20px 40px rgba(0,0,0,.12);
+    --login-box-heading:    #1e3a8a;
+    --login-input-border:   #c7d2fe;
+    --login-btn-bg:         #2563eb;
+    --login-btn-hover:      #1e40af;
+
+    --delete-btn-bg:        #ef4444;
+    --delete-btn-hover:     #dc2626;
+
+    --table-thead-bg:       #1e3a8a;
+    --table-thead-color:    #ffffff;
+    --table-row-bg:         #ffffff;
+    --table-row-even:       #f8fafc;
+    --table-row-hover:      #e0e7ff;
+    --table-border:         #e5e7eb;
+    --table-text:           #1f2937;
+
+    --create-box-bg:        #f8fafc;
+    --create-box-border:    #c7d2fe;
+    --create-input-border:  #c7d2fe;
+    --create-input-bg:      #ffffff;
+    --create-input-text:    #1f2937;
+    --create-btn-bg:        #2563eb;
+    --create-cancel-bg:     #6b7280;
+
+    --toggle-btn-bg:        #449cef;
+    --toggle-btn-hover:     #002e39;
+
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(29,92,255,.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0,153,204,.04) 0%, transparent 50%);
+    background-size: 100% 100%, 100% 100%;
 }
 
-/* ================= BASE ================= */
+body.light .header { background: rgba(240,244,255,.88); }
+
+body.light .logo {
+    background: linear-gradient(135deg, #1a4fd6 0%, #007aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── RESET & BASE ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
 body {
+    font-family: 'DM Sans', sans-serif;
     background: var(--bg-body);
     color: var(--body-color);
     min-height: 100vh;
-    transition: background-color 0.4s ease, color 0.4s ease;
+    transition: background-color .4s ease, color .4s ease;
 }
 
-/* ================= HEADER ================= */
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy-900); }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--blue-500), var(--cyan-400));
+    border-radius: 99px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
 .header {
     position: sticky;
     top: 0;
@@ -248,17 +208,14 @@ body {
     box-shadow: 0 1px 0 var(--white-04), 0 4px 30px rgba(0,0,20,.5);
 }
 
-/* Ambient glow bar */
 .header::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
     background: linear-gradient(90deg,
-        transparent 0%,
-        var(--blue-500) 30%,
-        var(--cyan-400) 60%,
-        transparent 100%);
+        transparent 0%, var(--blue-500) 30%,
+        var(--cyan-400) 60%, transparent 100%);
     opacity: .9;
 }
 
@@ -268,7 +225,7 @@ body {
     font-size: 30px;
     font-weight: 800;
     letter-spacing: -0.3px;
-    background: linear-gradient(135deg, var(--white) 100%);
+    background: linear-gradient(135deg, var(--blue-300) 0%, var(--cyan-300) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -283,7 +240,7 @@ body {
     gap: 6px;
 }
 
-.nav button,
+.nav a,
 .login-link,
 .register-link {
     display: inline-flex;
@@ -305,8 +262,7 @@ body {
     white-space: nowrap;
 }
 
-/* Shimmer sweep */
-.nav button::after,
+.nav a::after,
 .login-link::after,
 .register-link::after {
     content: '';
@@ -316,13 +272,12 @@ body {
     transform: translateX(-100%);
     transition: transform .55s ease;
 }
-.nav button:hover::after,
-.login-link:hover::after,
-.register-link:hover::after {
-    transform: translateX(100%);
-}
 
-.nav button:hover,
+.nav a:hover::after,
+.login-link:hover::after,
+.register-link:hover::after { transform: translateX(100%); }
+
+.nav a:hover,
 .login-link:hover,
 .register-link:hover {
     background: linear-gradient(135deg, var(--blue-500), var(--cyan-400));
@@ -332,89 +287,117 @@ body {
     box-shadow: 0 8px 24px rgba(29,92,255,.45);
 }
 
-.nav button:active,
+.nav a:active,
 .login-link:active,
-.register-link:active {
-    transform: translateY(0) scale(.97);
-}
+.register-link:active { transform: translateY(0) scale(.97); }
 
-/* ── MENU BTN ─ */
-.menu-btn {
-    font-size: 20px;
+/* ── THEME TOGGLE BUTTON ─────────────────────────────────── */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-subtle);
+    background: var(--white-08);
     cursor: pointer;
-    color: var(--text-secondary);
-    transition: var(--transition);
-    background: none;
-    border: none;
-    padding: 4px;
-    border-radius: var(--radius-sm);
-}
-.menu-btn:hover {
-    color: var(--cyan-400);
-    transform: scale(1.12);
+    font-size: 19px;
+    transition: border-color .3s ease, box-shadow .3s ease;
+    flex-shrink: 0;
+    position: relative;
+    overflow: visible;
 }
 
-/* ================= POPUP ================= */
+.theme-toggle-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan-400);
+    opacity: 0;
+    transform: scale(.7);
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+}
+
+.theme-toggle-btn:hover::before { opacity: .55; transform: scale(1); }
+
+.theme-toggle-btn:hover {
+    border-color: var(--cyan-400);
+    box-shadow: 0 0 14px rgba(0,212,255,.35), 0 4px 16px rgba(29,92,255,.25);
+}
+
+.theme-toggle-btn:active { transform: scale(.9); }
+
+#themeIcon { display: block; line-height: 1; }
+
+/* ============================================================
+   POPUP
+   ============================================================ */
 .popup-container {
     position: fixed;
     top: 100px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: 9999;
 }
 
 .popup-message {
     background-color: var(--popup-success);
     color: white;
-    padding: 15px 20px;
+    padding: 14px 22px;
     margin-bottom: 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     box-shadow: 0 4px 16px rgba(0,0,0,.25);
     opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    font-family: math;
+    transform: translateY(-16px);
+    transition: opacity .4s ease, transform .4s ease;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
 }
 
-.popup-message.show {
-    opacity: 1;
-    transform: translateY(0);
-}
+.popup-message.show { opacity: 1; transform: translateY(0); }
+.popup-message.error { background-color: var(--popup-error); }
 
-.popup-message.error {
-    background-color: var(--popup-error);
-}
-
-/* ================= LOGIN BOX ================= */
+/* ============================================================
+   LOGIN BOX
+   ============================================================ */
 .login-box {
     max-width: 380px;
-    margin: 30px auto;
+    margin: 40px auto;
     background: var(--login-box-bg);
-    padding: 35px;
-    border-radius: 14px;
+    padding: 36px;
+    border-radius: var(--radius-lg);
     box-shadow: var(--login-box-shadow);
     text-align: center;
-    animation: fadeUp 0.6s ease;
-    transition: background 0.4s ease, box-shadow 0.4s ease;
+    animation: fadeUp .6s ease;
+    transition: background .4s ease, box-shadow .4s ease;
 }
 
 .login-box h2 {
-    margin-bottom: 25px;
+    margin-bottom: 24px;
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
     color: var(--login-box-heading);
-    transition: color 0.4s ease;
+    transition: color .4s ease;
 }
 
 .login-box input {
     width: 100%;
     padding: 12px 14px;
     margin-bottom: 18px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--login-input-border);
     background: var(--create-input-bg);
     color: var(--create-input-text);
     outline: none;
     font-size: 14px;
-    transition: border 0.3s ease, background 0.4s ease, color 0.4s ease;
+    font-family: 'DM Sans', sans-serif;
+    transition: border .3s ease, background .4s ease, color .4s ease;
 }
 
 .login-box input:focus {
@@ -426,13 +409,14 @@ body {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: var(--login-btn-bg);
     color: #fff;
     font-size: 15px;
     font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+    transition: background .3s ease, transform .2s ease;
 }
 
 .login-box button:hover {
@@ -440,40 +424,46 @@ body {
     transform: translateY(-2px);
 }
 
-/* ================= DASHBOARD LAYOUT ================= */
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
 .dashboard {
     display: flex;
-    padding: 100px 40px;
+    padding: 40px;
     gap: 25px;
+    align-items: flex-start;
 }
 
-.hidden {
-    display: none;
-}
+.hidden { display: none !important; }
 
-/* ================= SIDEBAR NAV ================= */
+/* ── SIDEBAR ─ */
 .nav-dashboard {
-    width: 230px;
+    width: 220px;
+    flex-shrink: 0;
     background: var(--sidebar-bg);
-    border-radius: 14px;
-    margin-top: -110px;
-    padding: 25px;
+    border-radius: var(--radius-lg);
+    padding: 22px;
     box-shadow: var(--sidebar-shadow);
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    transition: background 0.4s ease, box-shadow 0.4s ease;
+    gap: 12px;
+    transition: background .4s ease, box-shadow .4s ease;
+    position: sticky;
+    top: 110px;
 }
 
 .nav-dashboard button {
     padding: 12px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     border: none;
     background: var(--sidebar-btn-bg);
     color: var(--sidebar-btn-color);
+    font-family: 'DM Sans', sans-serif;
     font-weight: 600;
+    font-size: 14px;
     cursor: pointer;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    transition: background .3s ease, color .3s ease, transform .2s ease;
+    text-align: left;
 }
 
 .nav-dashboard button:hover {
@@ -489,88 +479,108 @@ body {
 
 .nav-dashboard .excel:hover {
     background: var(--sidebar-excel-hover-bg);
+    transform: translateX(4px);
 }
 
-/* ================= MAIN SECTION ================= */
+/* ── MAIN SECTION ─ */
 .section {
     flex: 1;
     background: var(--section-bg);
-    padding: 25px;
-    margin-top: -110px;
-    border-radius: 14px;
+    padding: 28px;
+    border-radius: var(--radius-lg);
     box-shadow: var(--section-shadow);
-    animation: fadeUp 0.5s ease;
-    transition: background 0.4s ease, box-shadow 0.4s ease;
+    animation: fadeUp .5s ease;
+    transition: background .4s ease, box-shadow .4s ease;
+    overflow-x: auto;
 }
 
 .section h3 {
     margin-bottom: 20px;
+    font-family: 'Sora', sans-serif;
     font-size: 20px;
+    font-weight: 700;
     color: var(--section-heading);
-    transition: color 0.4s ease;
+    transition: color .4s ease;
 }
 
-/* ================= DELETE / ACTION BUTTONS ================= */
-.section button {
-    padding: 8px 14px;
-    border-radius: 8px;
+/* ── DELETE / ACTION BUTTONS ─ */
+.section > button:not(#toggleCreateEvent) {
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
     border: none;
     background: var(--delete-btn-bg);
     color: #fff;
+    font-family: 'DM Sans', sans-serif;
     font-weight: 600;
+    font-size: 13px;
     cursor: pointer;
-    margin-bottom: 15px;
-    transition: background 0.3s ease, transform 0.2s ease;
+    margin-bottom: 16px;
+    transition: background .3s ease, transform .2s ease;
 }
 
-.section button:hover {
+.section > button:not(#toggleCreateEvent):hover {
     background: var(--delete-btn-hover);
     transform: translateY(-2px);
 }
 
-/* ================= TABLE ================= */
+/* ── TOGGLE CREATE EVENT BUTTON ─ */
+#toggleCreateEvent {
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--toggle-btn-bg);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: background .3s ease, transform .2s ease;
+}
+
+#toggleCreateEvent:hover {
+    background: var(--toggle-btn-hover);
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    transition: color 0.4s ease;
 }
 
-thead {
+thead, tr:first-child {
     background: var(--table-thead-bg);
     color: var(--table-thead-color);
-    transition: background 0.4s ease, color 0.4s ease;
+    transition: background .4s ease, color .4s ease;
 }
 
 th, td {
-    padding: 14px 12px;
+    padding: 13px 12px;
     text-align: left;
-    font-size: 14px;
+    font-size: 13.5px;
     color: var(--table-text);
     border-bottom: 1px solid var(--table-border);
-    transition: color 0.4s ease, border-color 0.4s ease;
+    transition: color .4s ease, border-color .4s ease;
+    white-space: nowrap;
 }
 
 th {
+    font-family: 'Sora', sans-serif;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    font-size: 13px;
+    letter-spacing: .3px;
     color: var(--table-thead-color);
 }
 
-tbody tr {
-    background: var(--table-row-bg);
-    transition: background 0.3s ease;
-}
-
-tbody tr:nth-child(even) {
-    background: var(--table-row-even);
-}
-
-tbody tr:hover {
-    background: var(--table-row-hover);
-}
+tbody tr { background: var(--table-row-bg); transition: background .3s ease; }
+tbody tr:nth-child(even) { background: var(--table-row-even); }
+tbody tr:hover { background: var(--table-row-hover); }
 
 input[type="checkbox"] {
     width: 16px;
@@ -579,126 +589,87 @@ input[type="checkbox"] {
     accent-color: var(--cyan-400);
 }
 
-/* ================= TOGGLE CREATE EVENT BUTTON ================= */
-#toggleCreateEvent {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: none;
-    background: var(--toggle-btn-bg);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 15px;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-#toggleCreateEvent:hover {
-    background: var(--toggle-btn-hover);
-    transform: translateY(-2px);
-}
-
-/* ================= CREATE EVENT BOX ================= */
+/* ============================================================
+   CREATE EVENT BOX
+   ============================================================ */
 .create-event-box {
     background: var(--create-box-bg);
     border: 1px solid var(--create-box-border);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     padding: 20px;
     margin-bottom: 20px;
-    animation: fadeUp 0.4s ease;
-    transition: background 0.4s ease, border-color 0.4s ease;
+    animation: fadeUp .4s ease;
+    transition: background .4s ease, border-color .4s ease;
 }
 
 .create-event-box input,
 .create-event-box textarea {
     width: 100%;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--create-input-border);
     background: var(--create-input-bg);
     color: var(--create-input-text);
     margin-bottom: 12px;
     font-size: 14px;
-    transition: border 0.3s ease, background 0.4s ease, color 0.4s ease;
+    font-family: 'DM Sans', sans-serif;
+    transition: border .3s ease, background .4s ease, color .4s ease;
+    outline: none;
 }
 
 .create-event-box input:focus,
 .create-event-box textarea:focus {
-    outline: none;
     border-color: var(--cyan-400);
     box-shadow: 0 0 0 3px rgba(0,212,255,.15);
 }
 
 .create-event-box input::placeholder,
-.create-event-box textarea::placeholder {
-    color: var(--text-muted);
-}
+.create-event-box textarea::placeholder { color: var(--text-muted); }
 
-.create-event-box textarea {
-    resize: none;
-    height: 90px;
-}
+.create-event-box textarea { resize: none; height: 90px; }
 
-.event-actions {
-    display: flex;
-    gap: 12px;
-}
+.event-actions { display: flex; gap: 12px; }
 
 .event-actions button {
     flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: var(--radius-sm);
     background: var(--create-btn-bg);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity .3s ease, transform .2s ease;
     margin-bottom: 0;
 }
 
-.event-actions .cancel {
-    background: var(--create-cancel-bg);
-}
+.event-actions button:hover { opacity: .9; transform: translateY(-2px); }
+.event-actions .cancel { background: var(--create-cancel-bg); }
 
-.event-actions button:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-}
-
-/* ================= ANIMATIONS ================= */
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ================= RESPONSIVE ================= */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 768px) {
-    .dashboard {
-        flex-direction: column;
-        padding: 16px;
-    }
+    .header { padding: 0 20px; height: 70px; }
+    .logo { font-size: 18px; }
+    .nav { gap: 4px; }
+    .nav a, .login-link, .register-link { padding: 8px 10px; font-size: 12px; }
 
-    .nav-dashboard {
-        width: 100%;
-        margin-top: 0;
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .nav-dashboard button {
-        flex: 1;
-        min-width: 120px;
-    }
-
-    .section {
-        margin-top: 0;
-    }
+    .dashboard { flex-direction: column; padding: 16px; }
+    .nav-dashboard { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; }
+    .nav-dashboard button { flex: 1; min-width: 120px; }
 }
 
 @media (max-width: 480px) {
-    .header {
-        flex-direction: column;
-        gap: 10px;
-        padding: 16px 20px;
-        height: auto;
-    }
+    .header { flex-direction: column; gap: 10px; padding: 14px 20px; height: auto; }
 }

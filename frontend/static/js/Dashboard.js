@@ -32,29 +32,42 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ================== EVENT DELETE PERMISSION ==================
-const allowDelete = await canDeleteEvent();
-
-async function canDeleteEvent() {
-  const user = auth.currentUser;
-  if (!user) return false;
-
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
-  if (!snap.exists()) return false;
-
-  const data = snap.data();
-  const isTeacher = data.role === "teacher";
-  const isCommitteeStudent =
-    data.role === "student" &&
-    data.committee &&
-    data.committee.trim() !== "";
-
-  return isTeacher || isCommitteeStudent;
-}
-
 // ================== CLOUDINARY CONFIG ==================
 const DEFAULT_AVATAR = "https://res.cloudinary.com/dvyk0lfsb/image/upload/v1/default-avatar.png";
+
+// ================== DARK / LIGHT MODE TOGGLE ==================
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme) {
+  const icon = document.getElementById("themeIcon");
+  if (theme === "light") {
+    document.body.classList.add("light");
+    if (icon) icon.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    if (icon) icon.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.contains("light");
+  const next    = isLight ? "dark" : "light";
+
+  // Spin animation on icon
+  const btn = document.getElementById("themeToggle");
+  btn?.classList.add("theme-icon-swap");
+  setTimeout(() => btn?.classList.remove("theme-icon-swap"), 400);
+
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme immediately (before paint) to avoid flash
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
+});
 
 // ================== SIDEBAR ==================
 let sidebarOpen = false;
@@ -62,8 +75,8 @@ function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   const content = document.getElementById("content");
   sidebarOpen = !sidebarOpen;
-  sidebar.classList.toggle("open", sidebarOpen);
-  content.classList.toggle("shift", sidebarOpen);
+  sidebar?.classList.toggle("open", sidebarOpen);
+  content?.classList.toggle("shift", sidebarOpen);
 }
 
 // ================== POPUP ==================
@@ -82,9 +95,9 @@ function showPopup(message, type = "success") {
 // ================== SECTION SWITCH ==================
 function showSection(section) {
   document.querySelectorAll(".view").forEach(v => v.style.display = "none");
-  if (section === "alumni")   document.getElementById("searchView").style.display  = "block";
-  if (section === "events")   document.getElementById("eventsView").style.display  = "block";
-  if (section === "message")  document.getElementById("messagesView").style.display = "block";
+  if (section === "alumni")  document.getElementById("searchView").style.display = "block";
+  if (section === "events")  document.getElementById("eventsView").style.display = "block";
+  if (section === "message") document.getElementById("messagesView")?.style && (document.getElementById("messagesView").style.display = "block");
 }
 window.showSection = showSection;
 showSection("alumni");
@@ -114,20 +127,20 @@ function showSkeletons(count = 6) {
   }
 }
 
-// ================== CACHE KEYS ==================
-const SESSION_KEY = "cachedAlumniUsers";
+// ================== SESSION CACHE ==================
 let cachedUsers = null;
+const SESSION_KEY = "cachedAlumniUsers";
 
 // ================== LOAD USERS ==================
 async function loadUsers() {
-  // 1. In-memory cache
+  // 1. In-memory cache (fastest — same session, same tab)
   if (cachedUsers) {
     allUsers = cachedUsers;
     renderUsers(cachedUsers);
     return;
   }
 
-  // 2. sessionStorage cache
+  // 2. sessionStorage cache (survives section switches)
   const stored = sessionStorage.getItem(SESSION_KEY);
   if (stored) {
     try {
@@ -138,7 +151,7 @@ async function loadUsers() {
     } catch (_) {}
   }
 
-  // 3. Fetch from Firestore
+  // 3. Fresh Firestore fetch
   showSkeletons(6);
 
   try {
@@ -149,60 +162,54 @@ async function loadUsers() {
 
     const snapshot = await getDocs(q);
     cachedUsers = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
-
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(cachedUsers));
+
     allUsers = cachedUsers;
     renderUsers(allUsers);
 
   } catch (error) {
     console.error(error);
-    alumniGrid.innerHTML = "<p>Error loading users</p>";
+    alumniGrid.innerHTML = "<p>Error loading users. Please refresh.</p>";
   }
 }
 
-// ================== ROLE-BASED CHAT NAV ==================
-/**
- * Injects the correct chat link into #chatNavLink based on the
- * logged-in user's role from Firestore.
- *
- *  student  → "🎓 Chat with Alumni"
- *  alumni   → "🗨️ Chat with Alumni & Students"
- *  teacher  → "🗨️ Alumni Chat"  (default / existing behaviour)
- */
-function renderChatNavLink(role) {
-  const chatNavLink = document.getElementById("chatNavLink");
-  if (!chatNavLink) return;
+// ================== INJECT ROLE-BASED CHAT LINK ==================
+function injectChatLink(role) {
+  const slot = document.getElementById("chatNavLink");
+  if (!slot) return;
 
-  const chatUrl = "/alumnichat"; // adjust if your Flask route differs
-
-  let label = "🗨️ Alumni Chat"; // default (teacher)
+  let label = "";
+  let href  = "/alumnichat"; // adjust to your actual route
 
   if (role === "student") {
     label = "🎓 Chat with Alumni";
   } else if (role === "alumni") {
-    label = "🗨️ Chat with Alumni & Students";
+    label = "🗨️ Chat with Students";
+  } else if (role === "teacher") {
+    label = "🗨️ Alumni Chat";
+  } else {
+    // Unknown role — show nothing
+    slot.innerHTML = "";
+    return;
   }
 
-  // Build an <a> that matches the existing .register-link style
-  chatNavLink.innerHTML = `
-    <a href="${chatUrl}" class="register-link">${label}</a>
-  `;
+  slot.innerHTML = `<a href="${href}" class="chat-link">${label}</a>`;
 }
 
-// ================== AUTH + LOAD IN PARALLEL ==================
+// ================== AUTH + PARALLEL LOAD ==================
 onAuthStateChanged(auth, async user => {
   if (!user) {
     window.location.href = "/login";
     return;
   }
 
-  // Start user list immediately — don't block on profile check
+  // Start loading user list immediately — don't wait for profile check
   loadUsers();
 
-  // Profile check + chat nav run in parallel
+  // Profile check & chat link injection run in parallel
   try {
     const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
+    const snap    = await getDoc(userRef);
 
     if (!snap.exists()) {
       showPopup("Please complete your profile", "error");
@@ -211,14 +218,15 @@ onAuthStateChanged(auth, async user => {
 
     const data = snap.data();
 
-    // ── Inject role-based chat nav link ──────────────────────
-    renderChatNavLink(data.role);
-    // ─────────────────────────────────────────────────────────
+    // ── INJECT ROLE-BASED CHAT LINK ──────────────────────
+    injectChatLink(data.role);
+    // ────────────────────────────────────────────────────
 
     // Profile completeness check
     let incomplete = !data.fullName || !data.phone || !data.role;
     if (data.role === "student") incomplete = incomplete || !data.stuYear;
     if (data.role === "alumni")  incomplete = incomplete || !data.aluPass;
+
     if (incomplete) showPopup("Edit your profile first!", "error");
 
   } catch (err) {
@@ -232,7 +240,7 @@ function renderUsers(users) {
   alumniGrid.innerHTML = "";
 
   if (!users.length) {
-    alumniGrid.innerHTML = "<p>No users found</p>";
+    alumniGrid.innerHTML = "<p>No users found.</p>";
     return;
   }
 
@@ -250,22 +258,22 @@ function renderUsers(users) {
     const details =
       user.role === "alumni"
         ? `
-          <p><b>Department:</b> ${user.dept || "N/A"}</p>
-          <p><b>Passout:</b> ${user.aluPass || "N/A"}</p>
-          <p><b>Company:</b> ${user.company || "N/A"}</p>
-          <p><b>Job:</b> ${user.job || "N/A"}</p>
-          <p><b>City:</b> ${user.city || "N/A"}</p>
+          <p><b>Department:</b> ${user.dept        || "N/A"}</p>
+          <p><b>Passout:</b>    ${user.aluPass     || "N/A"}</p>
+          <p><b>Company:</b>    ${user.company     || "N/A"}</p>
+          <p><b>Job:</b>        ${user.job         || "N/A"}</p>
+          <p><b>City:</b>       ${user.city        || "N/A"}</p>
         `
         : user.role === "teacher"
         ? `
-          <p><b>Department:</b> ${user.dept || "N/A"}</p>
-          <p><b>Designation:</b> ${user.designation || "N/A"}</p>
-          <p><b>Email:</b> ${user.email || "N/A"}</p>
+          <p><b>Department:</b>   ${user.dept        || "N/A"}</p>
+          <p><b>Designation:</b>  ${user.designation || "N/A"}</p>
+          <p><b>Email:</b>        ${user.email       || "N/A"}</p>
         `
         : `
-          <p><b>Department:</b> ${user.dept || "N/A"}</p>
-          <p><b>Admission Year:</b> ${user.stuYear || "N/A"}</p>
-          <p><b>Committee:</b> ${user.committee || "N/A"}</p>
+          <p><b>Department:</b>      ${user.dept      || "N/A"}</p>
+          <p><b>Admission Year:</b>  ${user.stuYear   || "N/A"}</p>
+          <p><b>Committee:</b>       ${user.committee || "N/A"}</p>
         `;
 
     const profilePhoto = user.profilePic || DEFAULT_AVATAR;
@@ -300,8 +308,8 @@ function renderUsers(users) {
 }
 
 // ================== SEARCH FILTER ==================
-searchInput.addEventListener("input", () => {
-  const value = searchInput.value.toLowerCase();
+searchInput?.addEventListener("input", () => {
+  const value    = searchInput.value.toLowerCase();
   const filtered = allUsers.filter(user =>
     Object.values(user).some(v => String(v).toLowerCase().includes(value))
   );
@@ -310,28 +318,41 @@ searchInput.addEventListener("input", () => {
 
 // ================== DOM EVENTS ==================
 document.addEventListener("DOMContentLoaded", () => {
+  // Theme toggle
+  document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
+
+  // Sidebar
   const menuBtn = document.getElementById("menuBtn");
   if (menuBtn) menuBtn.addEventListener("click", toggleSidebar);
 
+  // Create event box
   const toggleBtn  = document.getElementById("toggleCreateEvent");
   const box        = document.getElementById("createEventBox");
   const cancelBtn  = document.getElementById("cancelEventBtn");
 
   if (toggleBtn && box) {
     toggleBtn.addEventListener("click", () => box.classList.toggle("hidden"));
-    cancelBtn.addEventListener("click", () => box.classList.add("hidden"));
+    cancelBtn?.addEventListener("click", () => box.classList.add("hidden"));
+  }
+
+  // Delete modal cancel
+  const cancelDeleteBtn  = document.getElementById("cancelDeleteBtn");
+  const deleteModal      = document.getElementById("deleteModal");
+  if (cancelDeleteBtn && deleteModal) {
+    cancelDeleteBtn.addEventListener("click", () => deleteModal.classList.add("hidden"));
   }
 });
 
-// ================== EVENTS LISTENER ==================
-const eventsRef  = collection(db, "events");
+// ================== EVENTS (real-time) ==================
+const eventsRef = collection(db, "events");
 const eventsList = document.getElementById("eventsList");
 
-onSnapshot(eventsRef, async snapshot => {
+onSnapshot(eventsRef, snapshot => {
+  if (!eventsList) return;
   eventsList.innerHTML = "";
 
   if (snapshot.empty) {
-    eventsList.innerHTML = "<p>No events available</p>";
+    eventsList.innerHTML = "<p>No events available.</p>";
     return;
   }
 
@@ -339,19 +360,22 @@ onSnapshot(eventsRef, async snapshot => {
     const event = eventDoc.data();
 
     const div = document.createElement("div");
-    div.className = "event-item";
+    div.className = "event-item fade-in";
 
     div.innerHTML = `
       <strong>${event.name}</strong>
       <p>📅 Date: ${event.date}</p>
-      ${event.description ? `<p class="event-desc">📝 Description: ${event.description}</p>` : ""}
+      ${event.description ? `<p class="event-desc">📝 ${event.description}</p>` : ""}
     `;
 
     eventsList.appendChild(div);
+
+    // Trigger fade-in
+    requestAnimationFrame(() => div.classList.add("visible"));
   });
 });
 
-// ================== SEND MESSAGE ROLE CHECK ==================
+// ================== SEND MESSAGE (teacher only) ==================
 async function handleSendMessage() {
   const user = auth.currentUser;
 

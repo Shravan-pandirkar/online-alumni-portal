@@ -1,8 +1,40 @@
 // ============================================================
-//  SGDTP ALUMNI PORTAL — chat.js
-//  Firebase Realtime Chat — Optimized Contact Loading
+//  SGDTP ALUMNI PORTAL — chat_feature.js
+//  Theme toggle uses same localStorage key as all other pages
 // ============================================================
 
+// ── THEME TOGGLE ──────────────────────────────────────────
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme) {
+  const icon = document.getElementById("themeIcon");
+  if (theme === "light") {
+    document.body.classList.add("light");
+    if (icon) icon.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    if (icon) icon.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains("light") ? "dark" : "light";
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme immediately (module scripts are deferred — DOM exists)
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
+});
+
+// ── END THEME TOGGLE ──────────────────────────────────────
+
+// ============================================================
+//  FIREBASE IMPORTS
+// ============================================================
 import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
@@ -52,7 +84,7 @@ const EMOJIS = [
 const BAD_WORDS = [
   "motherfucker","motherfuckers","mf",
   "fuck","fucking","fucker","fucked","fucks",
-  "shit","shitty","bullshit",
+  "shit","shitty","bullshit","Sexy","sexy","SEXY","bhenchod",
   "bastard","bastards",
   "bitch","bitches",
   "asshole","assholes","ass",
@@ -64,7 +96,12 @@ const BAD_WORDS = [
   "whore","slut",
   "piss","pissed",
   "damn","bloody hell",
-  "madarchod","bhosdike","chutiya","chutiye",
+  "madarchod","bhosdike","chutiya","chutiye","benchode","lund","gandu","gand","loda","lodu","randi","rande","bhonsdi","bhonsde","bhosdi","bhosde","bhosdike","bhosdike","bhosdike","bhosdike","bhosdike","bhosdike","bhosdike","bhosdike","bhosdike","bhosdike",
+  "chutiya","chutiye","chutiyapa","chutiyepan","chutiyagiri","chutiyagiri","chutiyagiri","chutiyagiri","chutiyagiri","chutiyagiri","chutiyagiri","chutiyagiri",
+  "benchode","benchod","bhenchod","bhenchoda","bhenchode","bhenchodaa","bhenchodey","bhenchodna","bhenchodne","bhenchodni","bhenchodnhi",
+  "lund","loda","lodu","lodu","lodu","lodu","lodu","lodu","lodu",
+  "gandu","gand","gandu","gand","gandu","gand","gandu","gand","gandu",
+  "randi","rande","rand","randi","rande","rand","randi","rande",
   "bhosdi","gaand","lavda","lund","randi","lavday","lavdya",
   "saala","saali","sexy","sex","xxx",
   "harami","kamina","kamine",
@@ -267,18 +304,11 @@ function cacheClear() {
 }
 
 // ============================================================
-//  LOAD CONTACTS — OPTIMIZED 5-LAYER STRATEGY
-//
-//  Layer 1 — Paint from sessionStorage INSTANTLY (0 ms)
-//  Layer 2 — Firestore users onSnapshot (real-time)
-//  Layer 3 — Render users immediately WITHOUT waiting for meta
-//  Layer 4 — Fetch ALL chat meta in ONE parallel burst
-//  Layer 5 — Patch each row's preview/badge IN-DOM (no flicker)
+//  LOAD CONTACTS
 // ============================================================
 function loadContacts() {
   if (!contactsList) return;
 
-  // ONE delegated listener — never stacks on re-render
   if (!contactsList._delegated) {
     contactsList._delegated = true;
     contactsList.addEventListener("click", e => {
@@ -289,7 +319,6 @@ function loadContacts() {
     });
   }
 
-  // ── LAYER 1: Instant paint from cache ──
   const cachedUsers = cacheGet(CACHE_KEY_USERS);
   const cachedMeta  = cacheGet(CACHE_KEY_META);
   if (cachedUsers?.length > 0) {
@@ -307,15 +336,12 @@ function loadContacts() {
     myRole === "alumni"  ? ["alumni","Alumni","student","Student"] :
                            ["alumni","Alumni"];
 
-  // ── LAYER 2: Live Firestore snapshot ──
   unsubContacts = onSnapshot(
     query(collection(db, "users"), where("role", "in", rolesToLoad)),
     async (snapshot) => {
-
       let users = [];
       snapshot.forEach(s => { if (s.id !== currentUser.uid) users.push({ id: s.id, ...s.data() }); });
 
-      // Fallback: load all users if query returned nothing
       if (users.length === 0) {
         try {
           const allSnap = await getDocs(collection(db, "users"));
@@ -331,16 +357,12 @@ function loadContacts() {
         return;
       }
 
-      // ── LAYER 3: Paint users immediately with whatever meta we already have ──
       const knownMeta = cacheGet(CACHE_KEY_META) || {};
       allContacts = mergeUsersWithMeta(users, knownMeta);
       cacheSet(CACHE_KEY_USERS, users);
       renderContacts(filterContacts(allContacts));
 
-      // ── LAYER 4: Fire ALL meta reads in one parallel burst ──
       fetchAllChatMeta(users).then(chatMetaMap => {
-
-        // Serialize timestamps for storage
         const serializableMeta = {};
         Object.entries(chatMetaMap).forEach(([k, v]) => {
           serializableMeta[k] = {
@@ -351,7 +373,6 @@ function loadContacts() {
         });
         cacheSet(CACHE_KEY_META, serializableMeta);
 
-        // Merge fresh meta
         allContacts = users.map(u => {
           const chatId = getChatId(currentUser.uid, u.id);
           const meta   = chatMetaMap[chatId];
@@ -364,8 +385,6 @@ function loadContacts() {
           };
         });
         allContacts.sort((a, b) => (b.lastTimestamp || 0) - (a.lastTimestamp || 0));
-
-        // ── LAYER 5: Surgical patch — update only preview/time/badge ──
         patchOrRerenderContacts();
       });
     },
@@ -379,52 +398,35 @@ function loadContacts() {
   );
 }
 
-// ── Surgical patch: only update changed rows, full re-render only if order changed ──
 function patchOrRerenderContacts() {
   const filtered    = filterContacts(allContacts);
   const existingIds = [...contactsList.querySelectorAll(".contact-item[data-id]")].map(e => e.dataset.id);
   const newIds      = filtered.map(u => u.id);
   const orderChanged = existingIds.length !== newIds.length || existingIds.some((id, i) => id !== newIds[i]);
 
-  if (orderChanged) {
-    // Order changed — full re-render (still uses fragment, fast)
-    renderContacts(filtered);
-    return;
-  }
+  if (orderChanged) { renderContacts(filtered); return; }
 
-  // Same order → patch each row in-place (zero flicker, zero layout thrash)
   filtered.forEach(user => {
     const item = contactsList.querySelector(`.contact-item[data-id="${user.id}"]`);
     if (!item) return;
-
-    // Update last message preview (last .contact-preview in the card)
-    const previews = item.querySelectorAll(".contact-preview");
     const lastPreview = previews[previews.length - 1];
     if (lastPreview) lastPreview.textContent = user.lastMessage || "Say hello 👋";
-
-    // Update timestamp
     const timeEl = item.querySelector(".contact-time");
     if (timeEl) timeEl.textContent = user.lastTime || "";
-
-    // Update unread badge
     const oldBadge = item.querySelector(".unread-badge");
     if (user.unread > 0) {
-      if (oldBadge) {
-        oldBadge.textContent = user.unread;
-      } else {
+      if (oldBadge) { oldBadge.textContent = user.unread; }
+      else {
         const meta  = item.querySelector(".contact-meta");
         const badge = document.createElement("span");
         badge.className   = "unread-badge";
         badge.textContent = user.unread;
         meta?.appendChild(badge);
       }
-    } else {
-      oldBadge?.remove();
-    }
+    } else { oldBadge?.remove(); }
   });
 }
 
-// ── Filter contacts by search + active filter tab ──
 function filterContacts(list) {
   const q = (searchInput?.value || "").toLowerCase().trim();
   let out = list.filter(u =>
@@ -443,11 +445,8 @@ function filterContacts(list) {
   return out;
 }
 
-function renderContactsWithFilter() {
-  renderContacts(filterContacts(allContacts));
-}
+function renderContactsWithFilter() { renderContacts(filterContacts(allContacts)); }
 
-// ── Merge users array with a meta map, sort by recency ──
 function mergeUsersWithMeta(users, metaMap) {
   return users.map(u => {
     const chatId = getChatId(currentUser.uid, u.id);
@@ -463,7 +462,6 @@ function mergeUsersWithMeta(users, metaMap) {
   }).sort((a, b) => (b.lastTimestamp || 0) - (a.lastTimestamp || 0));
 }
 
-// ── Parallel burst — all chat meta at once ──
 async function fetchAllChatMeta(users) {
   const metaMap = {};
   await Promise.allSettled(users.map(async u => {
@@ -477,7 +475,7 @@ async function fetchAllChatMeta(users) {
 }
 
 // ============================================================
-//  RENDER CONTACTS  (uses DocumentFragment — one DOM write)
+//  RENDER CONTACTS
 // ============================================================
 function renderContacts(list) {
   if (!contactsList) return;
@@ -529,7 +527,6 @@ function renderContacts(list) {
         <div class="contact-preview" style="color:var(--text-muted);font-size:11px;margin-bottom:2px;">
           ${escapeHTML(subtitle)}
         </div>
-        <div class="contact-preview">${escapeHTML(user.lastMessage || "Say hello 👋")}</div>
       </div>
       <div class="contact-meta">
         <span class="contact-time">${user.lastTime || ""}</span>
@@ -539,11 +536,10 @@ function renderContacts(list) {
     frag.appendChild(item);
   });
 
-  contactsList.innerHTML = "";      // clear once
-  contactsList.appendChild(frag);   // one DOM write for whole list
+  contactsList.innerHTML = "";
+  contactsList.appendChild(frag);
 }
 
-// ── Skeleton (only shown on true first load when cache is empty) ──
 function showContactsSkeleton() {
   const frag = document.createDocumentFragment();
   for (let i = 0; i < 6; i++) {
@@ -699,7 +695,7 @@ function listenToMessages(chatId) {
         renderedMsgIds.add(docSnap.id);
       });
 
-      messagesArea.appendChild(frag);  // single DOM write
+      messagesArea.appendChild(frag);
       scrollToBottom();
       return;
     }
@@ -823,8 +819,8 @@ function openCtxMenu(row, msgId, data, triggerEl) {
   const vpW = window.innerWidth, vpH = window.innerHeight;
 
   let left = isSent ? rect.left - menuW - 8 : rect.right + 8;
-  if (isSent  && left < 8)              left = rect.right + 8;
-  if (!isSent && left + menuW > vpW - 8) left = rect.left - menuW - 8;
+  if (isSent  && left < 8)               left = rect.right + 8;
+  if (!isSent && left + menuW > vpW - 8)  left = rect.left - menuW - 8;
 
   let top = rect.top + window.scrollY;
   if (top + menuH > vpH + window.scrollY - 8) top = vpH + window.scrollY - menuH - 8;
@@ -840,7 +836,7 @@ function closeCtxMenu() {
 }
 
 // ============================================================
-//  BUILD MESSAGE ROW  (returns element, caller appends)
+//  BUILD MESSAGE ROW
 // ============================================================
 function buildMessageRow(msgId, data, animate) {
   const isSent   = data.senderId === currentUser.uid;
@@ -901,7 +897,6 @@ function buildMessageRow(msgId, data, animate) {
   return row;
 }
 
-// Alias kept for compatibility
 function renderMessage(msgId, data, animate) { messagesArea.appendChild(buildMessageRow(msgId, data, animate)); }
 
 function toggleMessageSelection(row, msgId, senderId) {
@@ -1245,7 +1240,6 @@ function setupEventListeners() {
 
   messageInput?.addEventListener("input", ()=>{
     if (activeChatId) { setTypingStatus(true); clearTimeout(typingTimer); typingTimer=setTimeout(()=>setTypingStatus(false),2000); }
-
     const val=messageInput.value.toLowerCase();
     const hasBadWord=BAD_WORDS.some(w=>val.includes(w));
     let warn=document.getElementById("inputWarnLabel");

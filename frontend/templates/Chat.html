@@ -3,52 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <title>✉️ Send Message</title>
-   <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
+  <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/Chat.css" />
 </head>
 <body>
-<header class="header">
-        <div class="logo">SGDTP Alumni Portal</div>
-        <nav class="nav">
-          <a href="{{ url_for('admin') }}" class="login-link">Admin Login</a>
 
-        </nav>
-    </header>
+  <header class="header">
+    <div class="logo">SGDTP Alumni Portal</div>
+    <nav class="nav">
+      <a href="{{ url_for('admin') }}" class="login-link">🛡️ Admin Login</a>
+      <!-- Dark / Light mode toggle — same as all other pages -->
+      <button id="themeToggle" class="theme-toggle-btn" title="Toggle light/dark mode">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </nav>
+  </header>
 
+  <div class="app">
 
-<div class="app">
-<!-- Popup -->
-<div id="popupContainer" class="popup-container"></div>
+    <!-- Popup -->
+    <div id="popupContainer" class="popup-container"></div>
 
-  <h1>Send Message</h1>
+    <h1>Send Message</h1>
 
-  <!-- SEARCH + SELECT ALL -->
-  <div class="top-bar">
-    <input type="text" id="searchAlumni" placeholder="Search alumni by name...">
+    <!-- SEARCH + SELECT ALL -->
+    <div class="top-bar">
+      <input type="text" id="searchAlumni" placeholder="Search alumni by name...">
+      <label class="select-all">
+        <input type="checkbox" id="selectAll">
+        Select All
+      </label>
+    </div>
 
-    <label class="select-all">
-      <input type="checkbox" id="selectAll">
-      Select All
-    </label>
+    <div id="loader" class="loader hidden"></div>
+    <div id="alumniGrid"></div>
+
+    <!-- ALUMNI LIST -->
+    <div class="alumni-list" id="alumniList">
+      <!-- Alumni cards loaded from Firestore -->
+    </div>
+
+    <!-- MESSAGE BAR -->
+    <div class="message-bar">
+      <textarea id="messageText" placeholder="Type your message..."></textarea>
+      <button class="btn" id="sendBtn">Send</button>
+    </div>
+
   </div>
-  <div id="loader" class="loader hidden"></div>
-<div id="alumniGrid"></div>
-  <!-- ALUMNI LIST -->
-  <div class="alumni-list" id="alumniList">
- 
-    <!-- Alumni cards loaded from Firestore -->
-  </div>
 
-  <!-- MESSAGE BAR -->
-  <div class="message-bar">
-    <textarea id="messageText" placeholder="Type your message..."></textarea>
-    <button class="btn" id="sendBtn">Send</button>
-  </div>
-
-</div>
-
-
-<!-- Firebase -->
-<script type="module" src="/static/js/Chat.js"></script>
+  <script type="module" src="/static/js/Chat.js"></script>
 </body>
 </html>

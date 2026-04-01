@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/static/images/alumni_web_icon.webp">
     <title>SGDTP Alumni Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/FrontPage.css">
 </head>
 <body>
@@ -12,9 +15,14 @@
     <header class="header">
         <div class="logo">SGDTP Alumni Portal</div>
         <nav class="nav">
-            <a href="{{ url_for('showevent') }}"  target="_blank" class="login-link" >See Events</a>
-           <a href="{{ url_for('login') }}"  target="_blank" class="login-link" >Login</a>
-           <a href="{{ url_for('register') }}"  target="_blank" class="register-link" >Register</a>
+            <a href="{{ url_for('showevent') }}" target="_blank" class="login-link">🎉 See Events</a>
+            <a href="{{ url_for('login') }}" target="_blank" class="login-link">🔑 Login</a>
+            <a href="{{ url_for('register') }}" target="_blank" class="register-link">✨ Register</a>
+            <!-- Dark / Light mode toggle — same as Dashboard -->
+            <button id="themeToggle" class="theme-toggle-btn" title="Toggle light/dark mode">
+                <span id="themeIcon">☀️</span>
+                <span class="burst-ring"></span>
+            </button>
         </nav>
     </header>
 
@@ -22,16 +30,16 @@
         <div class="content-left">
             <h1 class="welcome-heading">Welcome SGDTP Alumni Portal</h1>
             <p class="description">
-                your gateway to reconnect with your SGDTP, network with fellow alumni, 
-                and stay updated with campus news and events
+                Your gateway to reconnect with SGDTP, network with fellow alumni,
+                and stay updated with campus news and events.
             </p>
-         <a href="{{ url_for('about') }}" class="about-button">About us</a>
+            <a href="{{ url_for('about') }}" class="about-button">About Us</a>
         </div>
         <div class="content-right">
-    <div class="illustration-placeholder">
-        <img src="/static/images/alumni_Front_page.jpg" alt="Illustration of graduates celebrating" class="alumni-img"> 
-    </div>
-</div>
+            <div class="illustration-placeholder">
+                <img src="/static/images/alumni_Front_page.jpg" alt="Illustration of graduates celebrating" class="alumni-img">
+            </div>
+        </div>
     </main>
 
     <script src="/static/js/FrontPage.js"></script>
