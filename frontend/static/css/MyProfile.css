@@ -1,4 +1,645 @@
 /* ============================================================
+   SGDTP ALUMNI PORTAL — PROFILE CSS
+   Aesthetic: Deep Navy + Electric Blue — "Blueprint Glass"
+   Matches Dashboard.css design system exactly
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root {
+  --navy-950: #020818;
+  --navy-900: #040f2a;
+  --navy-800: #071840;
+  --navy-700: #0a2158;
+  --navy-600: #0d2b70;
+  --blue-500: #1d5cff;
+  --blue-400: #4d82ff;
+  --blue-300: #7aa3ff;
+  --cyan-400: #00d4ff;
+  --cyan-300: #5ee7ff;
+  --white:    #ffffff;
+  --white-90: rgba(255,255,255,.90);
+  --white-60: rgba(255,255,255,.60);
+  --white-20: rgba(255,255,255,.20);
+  --white-08: rgba(255,255,255,.08);
+  --white-04: rgba(255,255,255,.04);
+  --text-primary:   #e8f0ff;
+  --text-secondary: #8aa3d6;
+  --text-muted:     #4a6091;
+  --border-subtle:  rgba(100,150,255,.18);
+  --border-strong:  rgba(100,150,255,.40);
+  --glass-bg:       rgba(7,24,64,.55);
+  --glass-blur:     blur(22px);
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --shadow-glow: 0 0 40px rgba(29,92,255,.25);
+  --shadow-card: 0 8px 40px rgba(0,0,30,.5);
+  --transition: .28s cubic-bezier(.4,0,.2,1);
+  --transition-bounce: .4s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ── RESET & BASE ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy-950);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(29,92,255,.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0,212,255,.08) 0%, transparent 50%),
+    radial-gradient(rgba(100,150,255,.04) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px;
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy-900); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--blue-500), var(--cyan-400));
+  border-radius: 99px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 48px;
+  height: 68px;
+  background: rgba(4,15,42,.80);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 0 var(--white-04), 0 4px 30px rgba(0,0,20,.5);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--blue-500) 30%,
+    var(--cyan-400) 60%,
+    transparent 100%);
+  opacity: .9;
+}
+
+.logo {
+    font-family: 'Sora', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, var(--white) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    cursor: default;
+    user-select: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav a,
+.login-link,
+.register-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--white-08);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 9px 18px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.nav a::after,
+.login-link::after,
+.register-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.15) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform .55s ease;
+}
+
+.nav a:hover::after,
+.login-link:hover::after,
+.register-link:hover::after { transform: translateX(100%); }
+
+.nav a:hover,
+.login-link:hover,
+.register-link:hover {
+  background: linear-gradient(135deg, var(--blue-500), var(--cyan-400));
+  border-color: transparent;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(29,92,255,.45);
+}
+
+.nav a:active,
+.login-link:active,
+.register-link:active { transform: translateY(0) scale(.97); }
+
+/* ============================================================
+   PROFILE WRAPPER & SECTIONS
+   ============================================================ */
+.profile-wrapper {
+  width: 100vw;
+  min-height: calc(100vh - 68px);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.section {
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  transition: left .5s cubic-bezier(.4,0,.2,1);
+}
+
+.section.active { left: 0; }
+
+/* ============================================================
+   VIEW PROFILE CARD
+   ============================================================ */
+.profile-view-card {
+  width: 880px;
+  margin: 52px auto;
+  display: flex;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
+
+  opacity: 0;
+  filter: blur(10px);
+  animation: blurReveal .9s ease forwards;
+  transition: var(--transition);
+  position: relative;
+}
+
+/* Top shimmer line */
+.profile-view-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue-400), var(--cyan-400), transparent);
+  opacity: .8;
+  pointer-events: none;
+}
+
+.profile-view-card:hover {
+  transform: translateY(-5px) scale(1.005);
+  border-color: var(--border-strong);
+  box-shadow: 0 20px 60px rgba(29,92,255,.25), var(--shadow-card);
+}
+
+@keyframes blurReveal {
+  to { opacity: 1; filter: blur(0); }
+}
+
+/* ── LEFT PANEL ─ */
+.left-view {
+  width: 38%;
+  background: linear-gradient(160deg, rgba(13,43,112,.8), rgba(7,24,64,.9));
+  color: var(--text-primary);
+  text-align: center;
+  padding: 48px 36px;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Animated shimmer sweep on left panel */
+.left-view::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 80%;
+  height: 220%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.06),
+    transparent
+  );
+  transform: rotate(25deg);
+  animation: panelShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Neon border glow */
+.left-view::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-right: 1px solid rgba(0,212,255,.3);
+  pointer-events: none;
+}
+
+@keyframes panelShimmer {
+  0%   { transform: rotate(25deg) translateX(-100%); }
+  60%  { transform: rotate(25deg) translateX(200%); }
+  100% { transform: rotate(25deg) translateX(200%); }
+}
+
+.left-view img {
+  width: 175px;
+  height: 175px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-strong);
+  box-shadow: 0 0 0 6px rgba(0,212,255,.12), 0 0 30px rgba(0,212,255,.2);
+  transition: var(--transition-bounce);
+  cursor: pointer;
+}
+
+.left-view img:hover {
+  border-color: var(--cyan-400);
+  box-shadow: 0 0 0 6px rgba(0,212,255,.2), 0 0 40px rgba(0,212,255,.4);
+  transform: scale(1.04);
+}
+
+/* ── RIGHT PANEL ─ */
+.right-view {
+  width: 62%;
+  padding: 40px 44px;
+  background: rgba(4,15,42,.4);
+}
+
+.right-view h2,
+.right-view h3 {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--white-90);
+  letter-spacing: -.3px;
+  margin-bottom: 10px;
+}
+
+.right-view p,
+.right-view span {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+.right-view strong,
+.right-view b {
+  color: var(--blue-300);
+  font-weight: 600;
+}
+
+/* ============================================================
+   EDIT PROFILE CARD
+   ============================================================ */
+.profile-card {
+  width: 880px;
+  margin: 40px auto;
+  display: flex;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: var(--transition);
+  position: relative;
+
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+
+  opacity: 0;
+  filter: blur(10px);
+  animation: blurReveal .8s ease forwards;
+}
+
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue-400), var(--cyan-400), transparent);
+  opacity: .8;
+  pointer-events: none;
+}
+
+.profile-card:hover {
+  transform: translateY(-4px) scale(1.003);
+  border-color: var(--border-strong);
+  box-shadow: 0 18px 55px rgba(29,92,255,.22), var(--shadow-card);
+}
+
+/* ── LEFT (edit) ─ */
+.profile-left {
+  width: 38%;
+  background: linear-gradient(160deg, rgba(13,43,112,.8), rgba(7,24,64,.9));
+  color: var(--text-primary);
+  text-align: center;
+  padding: 80px 48px;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.profile-left::before {
+  content: '';
+  position: absolute;
+  top: -60%; left: -60%;
+  width: 80%; height: 220%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.06), transparent);
+  transform: rotate(25deg);
+  animation: panelShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.profile-left::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-right: 1px solid rgba(0,212,255,.3);
+  pointer-events: none;
+}
+
+.profile-left img {
+  width: 165px;
+  height: 165px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-strong);
+  box-shadow: 0 0 0 6px rgba(0,212,255,.12), 0 0 25px rgba(0,212,255,.18);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+}
+
+.profile-left img:hover {
+  opacity: .9;
+  border-color: var(--cyan-400);
+  box-shadow: 0 0 0 6px rgba(0,212,255,.2), 0 0 36px rgba(0,212,255,.4);
+  transform: scale(1.04);
+}
+
+.pic-text {
+  font-size: 12px;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── RIGHT (edit) ─ */
+.profile-right {
+  width: 62%;
+  padding: 40px 44px;
+  background: rgba(4,15,42,.4);
+}
+
+/* ============================================================
+   FORM INPUTS & SELECTS
+   ============================================================ */
+input,
+select {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-top: 10px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-subtle);
+  background: rgba(255,255,255,.05);
+  outline: none;
+  transition: var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input::placeholder { color: var(--text-muted); }
+
+input:focus,
+select:focus {
+  border-color: var(--blue-400);
+  background: rgba(255,255,255,.08);
+  box-shadow: 0 0 0 4px rgba(29,92,255,.18), 0 0 20px rgba(29,92,255,.08);
+  color: var(--white-90);
+}
+
+select option {
+  background: var(--navy-800);
+  color: var(--text-primary);
+}
+
+label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 16px;
+  letter-spacing: .3px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 20px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, var(--blue-500), var(--cyan-400));
+  background-size: 200% 200%;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  box-shadow: 0 4px 20px rgba(29,92,255,.35);
+  animation: gradientShift 3s ease infinite;
+}
+
+/* Shimmer sweep */
+button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%;
+  width: 50%; height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,.0) 0%,
+    rgba(255,255,255,.25) 50%,
+    rgba(255,255,255,.0) 100%
+  );
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+
+button:hover::before { left: 150%; }
+
+button:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 32px rgba(29,92,255,.55), 0 0 20px rgba(0,212,255,.2);
+}
+
+button:active {
+  transform: translateY(0) scale(.97);
+  box-shadow: 0 4px 14px rgba(29,92,255,.3);
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 0%; }
+  50%  { background-position: 100% 0%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* Back button variant */
+.back-btn {
+  background: rgba(255,255,255,.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  box-shadow: none;
+  animation: none;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,.14);
+  color: var(--white-90);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+/* right-view button scoped (same as global button but no forced width) */
+.right-view button {
+  width: auto;
+  padding: 10px 28px;
+  margin-top: 20px;
+}
+
+/* ============================================================
+   ROLE SECTION
+   ============================================================ */
+.role-section { display: none; }
+
+/* ============================================================
+   POPUP TOAST
+   ============================================================ */
+.popup {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9999;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.12);
+  opacity: 0;
+  animation: popupIn .4s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+
+.popup.success {
+  background: linear-gradient(135deg, rgba(0,180,255,.85), rgba(29,92,255,.85));
+  color: #fff;
+}
+.popup.error {
+  background: linear-gradient(135deg, rgba(220,53,69,.85), rgba(180,20,40,.85));
+  color: #fff;
+}
+.popup.fill {
+  background: linear-gradient(135deg, rgba(203,186,0,.85), rgba(160,140,0,.85));
+  color: #fff;
+}
+
+.hidden { display: none !important; }
+
+@keyframes popupIn {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(.92); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes popupOut {
+  0%   { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.95); }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 960px) {
+  .profile-view-card,
+  .profile-card {
+    width: 95vw;
+    flex-direction: column;
+    margin: 30px auto;
+  }
+  .left-view,
+  .profile-left { width: 100%; padding: 48px; border-right: none; border-bottom: 1px solid var(--border-subtle); }
+  .right-view,
+  .profile-right { width: 100%; padding: 44px; }
+}
+
+@media (max-width: 480px) {
+  .header { padding: 0 20px; }
+  .logo { font-size: 17px; }
+  .nav a { padding: 8px 12px; font-size: 12px; }
+  .left-view img,
+  .profile-left img { width: 180px; height: 180px; }
+}
+
+h3 {
+    display: block;
+    font-size: 1.17em;
+    margin-top: 15px;
+    font-weight: bold;
+    unicode-bidi: isolate;
+}
+/* ============================================================
    THEME TOGGLE + LIGHT MODE — appended to MyProfile.css
    ============================================================ */
 
