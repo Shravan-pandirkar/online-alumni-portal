@@ -1,7 +1,5 @@
 // ============================================================
-//  SGDTP ALUMNI PORTAL — EVENTS PAGE JS
-//  Theme toggle: same localStorage key + same animation as
-//  Dashboard.js & FrontPage.js — theme persists across pages
+//  SGDTP ALUMNI PORTAL — EVENTS PAGE JS (FIXED VERSION)
 // ============================================================
 
 // ================== FIREBASE IMPORTS ==================
@@ -31,9 +29,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ============================================================
-//  THEME TOGGLE — identical to Dashboard.js & FrontPage.js
-// ============================================================
+// ================== THEME TOGGLE ==================
 const THEME_KEY = "sgdtp_theme";
 
 function applyTheme(theme) {
@@ -53,15 +49,14 @@ function toggleTheme() {
   localStorage.setItem(THEME_KEY, next);
 }
 
-// Apply saved theme immediately — no flash on load
 applyTheme(localStorage.getItem(THEME_KEY) || "dark");
 
 // ================== DOM ELEMENTS ==================
 const eventsList = document.getElementById("eventsList");
-const loader     = document.getElementById("loader");
+const loader = document.getElementById("loader");
 
 // ================== FIRESTORE LISTENER ==================
-const eventsRef   = collection(db, "events");
+const eventsRef = collection(db, "events");
 const eventsQuery = query(eventsRef, orderBy("date", "asc"));
 
 loader.classList.remove("hidden");
@@ -75,7 +70,7 @@ onSnapshot(
 
     if (snapshot.empty) {
       eventsList.innerHTML = `
-        <div class="event-item" style="text-align:center; padding: 40px;">
+        <div class="event-item visible" style="text-align:center; padding: 40px;">
           <p style="font-size:16px; color: var(--text-muted);">No upcoming events at the moment 📭</p>
         </div>
       `;
@@ -98,6 +93,9 @@ onSnapshot(
       `;
 
       eventsList.appendChild(eventCard);
+
+      // 🔥 FIX: EVENT VISIBLE (your CSS needs this)
+      requestAnimationFrame(() => eventCard.classList.add("visible"));
     });
   },
   error => {
@@ -116,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("themeToggle")
     ?.addEventListener("click", toggleTheme);
 
-  // Trigger fade-in on events header
+  // Fade-in animation for header
   const eventsHeader = document.querySelector(".events-header");
   if (eventsHeader) {
     requestAnimationFrame(() => {

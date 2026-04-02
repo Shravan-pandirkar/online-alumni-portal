@@ -1,3 +1,30 @@
+// ============================================================
+//  THEME TOGGLE — same localStorage key as all other pages
+// ============================================================
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme) {
+  const icon = document.getElementById("themeIcon");
+  if (theme === "light") {
+    document.body.classList.add("light");
+    if (icon) icon.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    if (icon) icon.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains("light") ? "dark" : "light";
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme immediately — module scripts are deferred so DOM exists
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+// ── END THEME TOGGLE ──────────────────────────────────────
+
 // ===============================
 // Firebase Imports
 // ===============================
@@ -29,15 +56,15 @@ const firebaseConfig = {
 // ===============================
 // Initialize Firebase
 // ===============================
-const app = initializeApp(firebaseConfig);
+const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
 // ===============================
 // Popup Helper
 // ===============================
 function showPopup(message, type = "success", delay = 1000) {
-  const popup = document.getElementById("popup");
+  const popup        = document.getElementById("popup");
   const popupMessage = document.getElementById("popupMessage");
 
   if (!popup || !popupMessage) return;
@@ -46,9 +73,7 @@ function showPopup(message, type = "success", delay = 1000) {
   popup.className = `popup ${type}`;
   popup.classList.remove("hidden");
 
-  setTimeout(() => {
-    popup.classList.add("hidden");
-  }, delay);
+  setTimeout(() => popup.classList.add("hidden"), delay);
 }
 
 // ================================
@@ -56,19 +81,24 @@ function showPopup(message, type = "success", delay = 1000) {
 // ================================
 window.togglePassword = function (inputId) {
   const input = document.getElementById(inputId);
-  input.type = input.type === "password" ? "text" : "password";
+  input.type  = input.type === "password" ? "text" : "password";
 };
 
 // ================================
 // Registration Form Submit
 // ================================
 document.addEventListener("DOMContentLoaded", () => {
+
+  // Wire up theme toggle button
+  document.getElementById("themeToggle")
+    ?.addEventListener("click", toggleTheme);
+
   const form = document.getElementById("registerForm");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = form.username.value.trim();
+    const email    = form.username.value.trim();
     const password = form.password.value.trim();
 
     if (!email || !password) {
@@ -77,24 +107,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // Create Auth user
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // Fire Firestore write in background — no await
       setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        provider: "password",
+        email:     user.email,
+        provider:  "password",
         createdAt: serverTimestamp()
       });
 
       showPopup("Registration successful!", "success", 1000);
-      window.location.href = "/dashboard"; // redirect immediately
+      window.location.href = "/dashboard";
 
     } catch (error) {
       console.error(error);

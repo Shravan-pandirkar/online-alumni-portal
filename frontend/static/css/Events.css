@@ -124,3 +124,16 @@ body{font-family:'DM Sans',sans-serif;background-color:var(--navy-950);color:var
 /* RESPONSIVE */
 @media(max-width:768px){.header{padding:0 20px;height:70px}.logo{font-size:18px}.nav{gap:4px}.nav button,.login-link,.register-link{padding:8px 12px;font-size:12px}.events-main{padding:32px 16px 60px}.eventstext{font-size:28px}.event-item{padding:20px}.event-item h3{font-size:1.05rem}}
 @media(max-width:480px){.header{flex-direction:column;gap:10px;padding:16px 20px;height:auto}}
+
+.event-item {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.event-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .5s ease, transform .5s ease;
+  margin-left:-320px;
+  width: 180%;
+}
