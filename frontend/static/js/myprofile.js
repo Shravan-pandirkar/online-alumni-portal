@@ -1,3 +1,30 @@
+// ============================================================
+//  THEME TOGGLE — same localStorage key as all other pages
+// ============================================================
+const THEME_KEY = "sgdtp_theme";
+
+function applyTheme(theme) {
+  const icon = document.getElementById("themeIcon");
+  if (theme === "light") {
+    document.body.classList.add("light");
+    if (icon) icon.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    if (icon) icon.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains("light") ? "dark" : "light";
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+// Apply saved theme immediately — module scripts deferred so DOM exists
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+// ── END THEME TOGGLE ──────────────────────────────────────
+
 // ================== FIREBASE CONFIG ==================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -12,15 +39,19 @@ const firebaseConfig = {
   appId: "1:947099064778:web:7eb45b444d5cc6cd651733"
 };
 
-const app = initializeApp(firebaseConfig);
+const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
 // ===== CLOUDINARY CONFIG =====
-const CLOUD_NAME = "dvyk0lfsb";
+const CLOUD_NAME    = "dvyk0lfsb";
 const UPLOAD_PRESET = "profile_upload";
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+  // Wire up theme toggle button
+  document.getElementById("themeToggle")
+    ?.addEventListener("click", toggleTheme);
 
   // ===== SECTIONS =====
   const viewSection = document.getElementById("viewProfile");
@@ -31,49 +62,47 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ===== FORM FIELDS =====
   const fullName = document.getElementById("fullName");
-  const phone = document.getElementById("phone");
-  const role = document.getElementById("role");
+  const phone    = document.getElementById("phone");
+  const role     = document.getElementById("role");
 
-  const stuDept = document.getElementById("stuDept");
-  const stuYear = document.getElementById("stuYear");
+  const stuDept   = document.getElementById("stuDept");
+  const stuYear   = document.getElementById("stuYear");
   const committee = document.getElementById("committee");
 
   const aluDept = document.getElementById("aluDept");
   const aluPass = document.getElementById("aluPass");
   const company = document.getElementById("company");
-  const job = document.getElementById("job");
-  const exp = document.getElementById("exp");
-  const city = document.getElementById("city");
-
+  const job     = document.getElementById("job");
+  const exp     = document.getElementById("exp");
+  const city    = document.getElementById("city");
 
   const studentFields = document.getElementById("studentFields");
-  const alumniFields = document.getElementById("alumniFields");
+  const alumniFields  = document.getElementById("alumniFields");
 
   // ===== PROFILE PIC =====
   const profilePic = document.getElementById("profilePic");
   const previewImg = document.getElementById("previewImg");
 
   // ===== VIEW ELEMENTS =====
-  const viewImg = document.getElementById("viewImg");
-  const viewName = document.getElementById("viewName");
+  const viewImg   = document.getElementById("viewImg");
+  const viewName  = document.getElementById("viewName");
   const viewPhone = document.getElementById("viewPhone");
-  const viewRole = document.getElementById("viewRole");
+  const viewRole  = document.getElementById("viewRole");
   const viewEmail = document.getElementById("viewEmail");
 
   const viewStudent = document.getElementById("viewStudent");
-  const viewAlumni = document.getElementById("viewAlumni");
+  const viewAlumni  = document.getElementById("viewAlumni");
 
-  const viewStuDept = document.getElementById("viewStuDept");
-  const viewYear = document.getElementById("viewYear");
+  const viewStuDept   = document.getElementById("viewStuDept");
+  const viewYear      = document.getElementById("viewYear");
   const viewCommittee = document.getElementById("viewCommittee");
 
-  const viewAluDept = document.getElementById("viewAluDept");
-  const viewPass = document.getElementById("viewPass");
-  const viewCompany = document.getElementById("viewCompany");
-  const viewJob = document.getElementById("viewJob");
-  const viewExp = document.getElementById("viewExp");
-  const viewCity = document.getElementById("viewCity");
-
+  const viewAluDept  = document.getElementById("viewAluDept");
+  const viewPass     = document.getElementById("viewPass");
+  const viewCompany  = document.getElementById("viewCompany");
+  const viewJob      = document.getElementById("viewJob");
+  const viewExp      = document.getElementById("viewExp");
+  const viewCity     = document.getElementById("viewCity");
 
   // ===== UI FUNCTIONS =====
   function openEdit() {
@@ -87,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function showPopup(message, type = "success", delay = 1500) {
-    const popup = document.getElementById("popup");
+    const popup    = document.getElementById("popup");
     const popupMsg = document.getElementById("popupMsg");
     if (!popup || !popupMsg) return;
 
@@ -99,12 +128,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function toggleRole() {
-  studentFields.style.display = "none";
-  alumniFields.style.display = "none";
+    studentFields.style.display = "none";
+    alumniFields.style.display  = "none";
 
-  if (role.value === "student") studentFields.style.display = "block";
-  if (role.value === "alumni") alumniFields.style.display = "block";
-}
+    if (role.value === "student") studentFields.style.display = "block";
+    if (role.value === "alumni")  alumniFields.style.display  = "block";
+  }
 
   // ===== PHONE VALIDATION =====
   function validatePhoneNumber(value) {
@@ -117,28 +146,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ===== CLOUDINARY UPLOAD =====
   async function uploadToCloudinary(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "profile_upload");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
 
-  const response = await fetch(
-    "https://api.cloudinary.com/v1_1/dvyk0lfsb/image/upload",
-    {
-      method: "POST",
-      body: formData
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formData }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Cloudinary error:", data);
+      throw new Error(data.error?.message || "Image upload failed");
     }
-  );
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    console.error("Cloudinary error:", data);
-    throw new Error(data.error?.message || "Image upload failed");
+    return data.secure_url;
   }
-
-  return data.secure_url;
-}
-
 
   // ===== SAVE PROFILE =====
   async function saveProfile(e) {
@@ -160,42 +185,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const profileData = {
-  fullName: fullName.value || "",
-  phone: phone.value || "",
-  role: role.value,
+        fullName: fullName.value || "",
+        phone:    phone.value    || "",
+        role:     role.value,
 
-  dept:
-    role.value === "student"
-      ? stuDept?.value || ""
-      : aluDept?.value || "",
+        dept: role.value === "student"
+          ? stuDept?.value  || ""
+          : aluDept?.value  || "",
 
-  // STUDENT
-  stuYear: role.value === "student"
-    ? Number(stuYear?.value || 0)
-    : null,
-  // ALUMNI
-  aluPass: role.value === "alumni"
-    ? Number(aluPass?.value || 0)
-    : null,
+        stuYear: role.value === "student"
+          ? Number(stuYear?.value || 0)
+          : null,
 
-  company: role.value === "alumni"
-    ? company?.value || ""
-    : "",
+        aluPass: role.value === "alumni"
+          ? Number(aluPass?.value || 0)
+          : null,
 
-  job: role.value === "alumni"
-    ? job?.value || ""
-    : "",
+        company:    role.value === "alumni" ? company?.value    || "" : "",
+        job:        role.value === "alumni" ? job?.value        || "" : "",
+        experience: role.value === "alumni" ? exp?.value        || "" : "",
+        city:       role.value === "alumni" ? city?.value       || "" : "",
 
-  experience: role.value === "alumni"
-    ? exp?.value || ""
-    : "",
-
-  city: role.value === "alumni"
-    ? city?.value || ""
-    : "",
-
-  profilePic: photoURL
-};
+        profilePic: photoURL
+      };
 
       await setDoc(doc(db, "users", user.uid), profileData);
 
@@ -210,31 +222,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function loadView(data) {
-  viewName.innerText = data.fullName || "";
-  viewPhone.innerText = data.phone || "";
-  viewRole.innerText = data.role || "";
-  viewImg.src = data.profilePic || "https://via.placeholder.com/160";
+    viewName.innerText  = data.fullName || "";
+    viewPhone.innerText = data.phone    || "";
+    viewRole.innerText  = data.role     || "";
+    viewImg.src         = data.profilePic || "https://via.placeholder.com/160";
 
-  viewStudent.style.display = "none";
-  viewAlumni.style.display = "none";
+    viewStudent.style.display = "none";
+    viewAlumni.style.display  = "none";
 
-  if (data.role === "student") {
-    viewStudent.style.display = "block";
-    viewStuDept.innerText = data.dept || "-";
-    viewYear.innerText = data.stuYear || "-";
+    if (data.role === "student") {
+      viewStudent.style.display = "block";
+      viewStuDept.innerText     = data.dept    || "-";
+      viewYear.innerText        = data.stuYear || "-";
+    }
+
+    if (data.role === "alumni") {
+      viewAlumni.style.display = "block";
+      viewAluDept.innerText    = data.dept       || "-";
+      viewPass.innerText       = data.aluPass    || "-";
+      viewCompany.innerText    = data.company    || "-";
+      viewJob.innerText        = data.job        || "-";
+      viewExp.innerText        = data.experience || "-";
+      viewCity.innerText       = data.city       || "-";
+    }
   }
-
-  if (data.role === "alumni") {
-    viewAlumni.style.display = "block";
-    viewAluDept.innerText = data.dept || "-";
-    viewPass.innerText = data.aluPass || "-";
-    viewCompany.innerText = data.company || "-";
-    viewJob.innerText = data.job || "-";
-    viewExp.innerText = data.experience || "-";
-    viewCity.innerText = data.city || "-";
-  }
-}
-
 
   // ===== EVENTS =====
   editBtn.addEventListener("click", openEdit);
@@ -250,108 +261,93 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   editSection.querySelector("button").addEventListener("click", saveProfile);
 
-  
-
-// ===== AUTH STATE =====
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "/login";
-    return;
-  }
-
-  viewEmail.innerText = user.email || "";
-
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
-
-  // ===== FIRST TIME USER =====
-  if (!snap.exists()) {
-    const newUserData = {
-      fullName: user.displayName || "",
-      phone: "",
-      role: "student",
-      dept: "",
-      profilePic: user.photoURL || "https://via.placeholder.com/160",
-      createdAt: new Date()
-    };
-
-    await setDoc(userRef, newUserData);
-    loadView(newUserData);
-    return;
-  }
-
-  // ===== EXISTING USER =====
-  let data = snap.data();
-  const currentYear = new Date().getFullYear();
-  let roleUpdated = false;
-
-  // 🔥 AUTO STUDENT → ALUMNI
-  if (data.role === "student" && data.stuYear) {
-    if (currentYear - data.stuYear >= 3) {
-      data.role = "alumni";
-      data.stuYear = null;
-      data.committee = "";
-      data.aluPass = currentYear;
-      data.company = data.company || "";
-      data.job = data.job || "";
-      data.experience = data.experience || "";
-      data.city = data.city || "";
-      roleUpdated = true;
+  // ===== AUTH STATE =====
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "/login";
+      return;
     }
-  }
 
-  // 🔥 SAVE ROLE CHANGE
-  if (roleUpdated) {
-    await setDoc(userRef, data, { merge: true });
-  }
+    viewEmail.innerText = user.email || "";
 
-  // ===== LOAD VIEW =====
-  loadView(data);
+    const userRef = doc(db, "users", user.uid);
+    const snap    = await getDoc(userRef);
 
-  // ===== FILL EDIT FORM =====
-  fullName.value = data.fullName || "";
-  phone.value = data.phone || "+91";
-  previewImg.src = data.profilePic || "https://via.placeholder.com/160";
+    // ===== FIRST TIME USER =====
+    if (!snap.exists()) {
+      const newUserData = {
+        fullName:   user.displayName || "",
+        phone:      "",
+        role:       "student",
+        dept:       "",
+        profilePic: user.photoURL || "https://via.placeholder.com/160",
+        createdAt:  new Date()
+      };
 
-  role.value = data.role;
-  toggleRole();
-  lockRoleIfTeacher();
+      await setDoc(userRef, newUserData);
+      loadView(newUserData);
+      return;
+    }
 
-  // Clear fields
-  stuDept.value = "";
-  stuYear.value = "";
-  committee.value = "";
+    // ===== EXISTING USER =====
+    let data = snap.data();
+    const currentYear = new Date().getFullYear();
+    let roleUpdated   = false;
 
-  aluDept.value = "";
-  aluPass.value = "";
-  company.value = "";
-  job.value = "";
-  exp.value = "";
-  city.value = "";
+    // AUTO STUDENT → ALUMNI
+    if (data.role === "student" && data.stuYear) {
+      if (currentYear - data.stuYear >= 3) {
+        data.role       = "alumni";
+        data.stuYear    = null;
+        data.committee  = "";
+        data.aluPass    = currentYear;
+        data.company    = data.company    || "";
+        data.job        = data.job        || "";
+        data.experience = data.experience || "";
+        data.city       = data.city       || "";
+        roleUpdated = true;
+      }
+    }
 
+    if (roleUpdated) {
+      await setDoc(userRef, data, { merge: true });
+    }
 
-  // Fill role-based
-  if (data.role === "student") {
-    stuDept.value = data.dept || "";
-    stuYear.value = data.stuYear || "";
-    committee.value = data.committee || "";
-  }
+    loadView(data);
 
-  if (data.role === "alumni") {
-    aluDept.value = data.dept || "";
-    aluPass.value = data.aluPass || "";
-    company.value = data.company || "";
-    job.value = data.job || "";
-    exp.value = data.experience || "";
-    city.value = data.city || "";
-  }
+    // FILL EDIT FORM
+    fullName.value  = data.fullName || "";
+    phone.value     = data.phone    || "+91";
+    previewImg.src  = data.profilePic || "https://via.placeholder.com/160";
 
+    role.value = data.role;
+    toggleRole();
+
+    // Clear fields first
+    stuDept.value = "";
+    stuYear.value = "";
+    if (committee) committee.value = "";
+    aluDept.value = "";
+    aluPass.value = "";
+    company.value = "";
+    job.value     = "";
+    exp.value     = "";
+    city.value    = "";
+
+    // Fill role-based
+    if (data.role === "student") {
+      stuDept.value = data.dept    || "";
+      stuYear.value = data.stuYear || "";
+      if (committee) committee.value = data.committee || "";
+    }
+
+    if (data.role === "alumni") {
+      aluDept.value = data.dept       || "";
+      aluPass.value = data.aluPass    || "";
+      company.value = data.company    || "";
+      job.value     = data.job        || "";
+      exp.value     = data.experience || "";
+      city.value    = data.city       || "";
+    }
+  });
 });
-});
-
-
-
-  
-
-
-
