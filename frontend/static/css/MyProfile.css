@@ -498,23 +498,7 @@ button {
   animation: gradientShift 3s ease infinite;
 }
 
-/* Shimmer sweep */
-button::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -60%;
-  width: 50%; height: 100%;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,.0) 0%,
-    rgba(255,255,255,.25) 50%,
-    rgba(255,255,255,.0) 100%
-  );
-  transform: skewX(-20deg);
-  transition: left .6s ease;
-}
 
-button:hover::before { left: 150%; }
 
 button:hover {
   transform: translateY(-3px) scale(1.03);
@@ -760,6 +744,7 @@ body.light .back-btn:hover {
   justify-content: center;
   width: 42px;
   height: 42px;
+  margin-top: 2px;
   padding: 0;
   border-radius: 50%;
   border: 1.5px solid var(--border-subtle);
@@ -772,26 +757,6 @@ body.light .back-btn:hover {
   overflow: visible;
 }
 
-.theme-toggle-btn::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid var(--cyan-400);
-  opacity: 0;
-  transform: scale(.7);
-  transition: opacity .3s ease, transform .3s ease;
-  pointer-events: none;
-}
-
-.theme-toggle-btn:hover::before { opacity: .55; transform: scale(1); }
-
-.theme-toggle-btn:hover {
-  border-color: var(--cyan-400);
-  box-shadow: 0 0 14px rgba(0,212,255,.35), 0 4px 16px rgba(29,92,255,.25);
-}
-
-.theme-toggle-btn:active { transform: scale(.9); }
 
 #themeIcon {
   display: block;
