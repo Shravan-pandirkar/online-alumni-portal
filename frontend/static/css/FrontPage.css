@@ -265,37 +265,49 @@ body.light .logo {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     padding: 0;
     border-radius: 50%;
-    border: 1px solid var(--border-subtle);
+    border: 1.5px solid var(--border-subtle);
     background: var(--white-08);
     cursor: pointer;
-    font-size: 18px;
-    transition: var(--transition-bounce);
+    font-size: 19px;
+    transition: border-color .3s ease, box-shadow .3s ease;
     flex-shrink: 0;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+}
+
+/* Pulse ring on hover */
+.theme-toggle-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan-400);
+    opacity: 0;
+    transform: scale(.7);
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+}
+
+.theme-toggle-btn:hover::before {
+    opacity: .55;
+    transform: scale(1);
 }
 
 .theme-toggle-btn:hover {
-    transform: rotate(20deg) scale(1.12);
-    border-color: var(--border-strong);
-    box-shadow: 0 4px 16px rgba(29,92,255,.35);
+    border-color: var(--cyan-400);
+    box-shadow: 0 0 14px rgba(0,212,255,.35), 0 4px 16px rgba(29,92,255,.25);
 }
 
-.theme-toggle-btn:active {
-    transform: rotate(20deg) scale(.95);
-}
+.theme-toggle-btn:active { transform: scale(.9); }
 
 #themeIcon {
     display: block;
-    transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .2s ease;
-}
-
-.theme-icon-swap #themeIcon {
-    transform: rotate(360deg) scale(1.3);
+    line-height: 1;
+    transition: transform .3s ease;
 }
 
 /* ============================================================

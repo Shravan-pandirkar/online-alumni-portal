@@ -136,4 +136,5 @@ body{font-family:'DM Sans',sans-serif;background-color:var(--navy-950);color:var
   transition: opacity .5s ease, transform .5s ease;
   margin-left:-320px;
   width: 180%;
+  margin-bottom: 25px;
 }
