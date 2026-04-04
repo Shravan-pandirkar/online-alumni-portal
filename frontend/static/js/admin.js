@@ -328,8 +328,15 @@ document.getElementById("createEventBtn").addEventListener("click", async () => 
     return;
   }
 
+  // Optimistic UI — clear & hide the form immediately
+  document.getElementById("eventName").value        = "";
+  document.getElementById("eventDate").value        = "";
+  document.getElementById("eventDescription").value = "";
+  createEventBox.classList.add("hidden");
+  showPopup("Creating event...", "success", 1000);
+
   try {
-    await addDoc(eventsRef, {
+    const docRef = await addDoc(eventsRef, {
       name,
       date,
       description,
@@ -338,13 +345,20 @@ document.getElementById("createEventBtn").addEventListener("click", async () => 
       createdAt: serverTimestamp()
     });
 
-    document.getElementById("eventName").value        = "";
-    document.getElementById("eventDate").value        = "";
-    document.getElementById("eventDescription").value = "";
+    // ✅ Append row directly — no full reload needed
+    const table = document.getElementById("eventsTable");
+    const now   = new Date().toLocaleString();
+    const newRow = table.insertRow(); // inserts at end
+    newRow.innerHTML = `
+      <td>${name}</td>
+      <td>${date}</td>
+      <td>${description}</td>
+      <td>Admin</td>
+      <td>${now}</td>
+      <td><button onclick="deleteEvent('${docRef.id}')">🗑️ Delete</button></td>
+    `;
 
-    createEventBox.classList.add("hidden");
     showPopup("Event created successfully 🎉", "success");
-    await loadEvents();
 
   } catch (err) {
     console.error(err);
